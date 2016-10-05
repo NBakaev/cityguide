@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "nbakaev.ru.cityguide"
+        applicationId "ru.nbakaev.cityguide"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
