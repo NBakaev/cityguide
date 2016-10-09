@@ -1,3 +1,5 @@
 # HSE project CityGuide
 
- - [all files](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
+ - Android 4.4+
+ - [Google Drive - all files and APKs](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
+ - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
