@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:card_view="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginLeft="5dp"
+	android:layout_marginRight="5dp"
+	android:layout_marginTop="5dp"
+	card_view:cardCornerRadius="5dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@android:color/white"
+		android:orientation="horizontal">
+
+		<ImageView
+			android:id="@+id/img_row"
+			android:layout_width="60dp"
+			android:layout_height="60dp"
+			android:layout_margin="7dp"
+			android:contentDescription="@string/thumbnail"
+			android:src="@drawable/thumb_1_0"/>
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:orientation="vertical">
+			<TextView
+				android:id="@+id/tvTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_margin="7dp"
+				android:text="@string/title"
+				android:textColor="#616161"
+				android:textSize="18sp"
+				android:textStyle="bold"/>
+
+			<TextView
+				android:id="@+id/tvDescription"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="10dp"
+				android:text="@string/description"
+				android:textSize="15sp"
+				android:textStyle="italic"/>
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<ImageView
+				android:id="@+id/img_row_delete"
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:layout_margin="7dp"
+				android:contentDescription="@string/delete_image"
+				android:src="@drawable/ic_delete"
+				android:tint="@color/grey_500"/>
+
+			<ImageView
+				android:id="@+id/img_row_add"
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:layout_margin="7dp"
+				android:contentDescription="@string/add_image"
+				android:src="@drawable/ic_make_copy"
+				android:tint="@color/grey_500"/>
+		</LinearLayout>
+
+	</LinearLayout>
+
+</android.support.v7.widget.CardView>
+

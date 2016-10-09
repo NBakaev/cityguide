@@ -1,4 +1,22 @@
 <resources>
     <string name="app_name">CityGuide</string>
     <string name="title_activity_maps">Map</string>
+
+<string name="hello_world">Hello world!</string>
+<string name="action_settings">Settings</string>
+<string name="title">Title</string>
+<string name="description">Description</string>
+<string name="add_image">addImage</string>
+<string name="delete_image">deleteImage</string>
+<string name="thumbnail">thumbnail</string>
+
+<string name="drawer_open">Open</string>
+<string name="drawer_close">Close</string>
+
+<string name="delete">Delete</string>
+<string name="search">Search</string>
+<string name="settings">Settings</string>
+<string name="edit">Edit</string>
+<string name="exit">Exit</string>
+
 </resources>

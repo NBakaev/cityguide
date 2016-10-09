@@ -14,7 +14,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/MaterialTheme">
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -29,7 +29,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="ru.nbakaev.cityguide.MapsActivity"
+            android:name="ru.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +37,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="ru.nbakaev.cityguide.MapsActivity"
+            android:label="@string/title_activity_maps">
+        </activity>
+
     </application>
 
 </manifest>
