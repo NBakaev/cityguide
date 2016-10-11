@@ -4,8 +4,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import ru.nbakaev.cityguide.provider.PoiProvider;
-
 /**
  * Created by Nikita on 10/9/2016.
  */
@@ -13,7 +11,6 @@ import ru.nbakaev.cityguide.provider.PoiProvider;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    protected PoiProvider poiProvider = new PoiProvider();
 
     protected void setUpToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
