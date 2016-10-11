@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +17,9 @@ import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.model.NavigationDrawerItem;
 
-
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
 
-	private List<NavigationDrawerItem> mDataList = Collections.emptyList();
+    private List<NavigationDrawerItem> mDataList = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
 
@@ -42,18 +40,17 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         NavigationDrawerItem current = mDataList.get(position);
 
-
-	    holder.imgIcon.setImageResource(current.getImageId());
-        holder.title.setText(current.getTitle());
+        holder.imgIcon.setImageResource(current.getImageId());
+        holder.title.setText(current.getName());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
-	        @Override
-	        public void onClick(View v) {
-                if (holder.title.getText().toString().equals("Map")){
+            @Override
+            public void onClick(View v) {
+                if (holder.title.getText().toString().equals("Map")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MapsActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
 
-                if (holder.title.getText().toString().equals("Poi")){
+                if (holder.title.getText().toString().equals("Poi")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
@@ -68,12 +65,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         TextView title;
-	    ImageView imgIcon;
+        ImageView imgIcon;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
-	        imgIcon = (ImageView) itemView.findViewById(R.id.imgIcon);
+            title = (TextView) itemView.findViewById(R.id.name);
+            imgIcon = (ImageView) itemView.findViewById(R.id.imgIcon);
         }
     }
 }

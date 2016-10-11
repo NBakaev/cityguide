@@ -1,33 +1,51 @@
 package ru.nbakaev.cityguide;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.multidex.MultiDex;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 
 import ru.nbakaev.cityguide.adapter.RecyclerAdapter;
-import ru.nbakaev.cityguide.model.Landscape;
 
-
-/**
- Full Height Navigation Drawer Demo
- */
 public class MainActivity extends BaseActivity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		MultiDex.install(this);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MultiDex.install(this);
 
-		setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-		setUpToolbar();
-		setUpDrawer();
-		setUpRecyclerView();
-	}
+        setUpToolbar();
+        setUpDrawer();
+        setUpRecyclerView();
+    }
+
+    private void setUpRecyclerView() {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        Location prevLocation = MapsActivity.prevLocation;
+
+        double x;
+        double y;
+
+        if (prevLocation == null) {
+            x = 0;
+            y = 0;
+        } else {
+            x = prevLocation.getLatitude();
+            y = prevLocation.getLongitude();
+        }
+
+        RecyclerAdapter adapter = new RecyclerAdapter(this, poiProvider.getData(x, y));
+        recyclerView.setAdapter(adapter);
+
+        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(this);
+        mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
+
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
 
 }

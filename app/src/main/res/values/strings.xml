@@ -4,7 +4,7 @@
 
 <string name="hello_world">Hello world!</string>
 <string name="action_settings">Settings</string>
-<string name="title">Title</string>
+<string name="name">Title</string>
 <string name="description">Description</string>
 <string name="add_image">addImage</string>
 <string name="delete_image">deleteImage</string>
