@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">CityGuide</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">CityGuide</string>
 
 <string name="hello_world">Hello world!</string>
 <string name="action_settings">Settings</string>

@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.provider.locaton;
+package ru.nbakaev.cityguide.locaton;
 
 import android.location.Location;
 

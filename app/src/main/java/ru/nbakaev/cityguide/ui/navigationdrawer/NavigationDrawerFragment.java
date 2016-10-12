@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.ui.navigationdrawer;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,8 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import ru.nbakaev.cityguide.adapter.NavigationDrawerAdapter;
-import ru.nbakaev.cityguide.model.NavigationDrawerItem;
+import ru.nbakaev.cityguide.R;
 
 
 public class NavigationDrawerFragment extends Fragment {

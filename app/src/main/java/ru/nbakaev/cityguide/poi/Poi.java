@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.model;
+package ru.nbakaev.cityguide.poi;
 
 public class Poi {
 

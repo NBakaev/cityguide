@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.model;
+package ru.nbakaev.cityguide.ui.navigationdrawer;
 
 import java.util.ArrayList;
 import java.util.List;

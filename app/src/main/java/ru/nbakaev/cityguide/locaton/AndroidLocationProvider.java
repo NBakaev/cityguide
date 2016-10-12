@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.provider.locaton;
+package ru.nbakaev.cityguide.locaton;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -63,7 +63,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             @Override
             public void subscribe(ObservableEmitter<Location> e) throws Exception {
                 observableEmitter.add(e);
-                if (prevLocation != null){
+                if (prevLocation != null) {
                     e.onNext(prevLocation);
                 }
             }
@@ -96,7 +96,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             return;
         }
 
-        if (location == null){
+        if (location == null) {
             return;
         }
 
@@ -105,7 +105,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         for (ObservableEmitter<Location> emitter : observableEmitter) {
             try {
                 emitter.onNext(location);
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
         }

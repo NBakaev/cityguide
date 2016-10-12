@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.adapter;
+package ru.nbakaev.cityguide.ui;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.model.Poi;
+import ru.nbakaev.cityguide.poi.Poi;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
     private List<Poi> mData;

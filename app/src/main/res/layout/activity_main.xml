@@ -26,7 +26,7 @@
 
 	<fragment
 		android:id="@+id/nav_drwr_fragment"
-		android:name="ru.nbakaev.cityguide.NavigationDrawerFragment"
+		android:name="ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment"
 		android:layout_width="@dimen/nav_drawer_width"
 		android:layout_height="match_parent"
 		android:layout_gravity="start"

@@ -3,8 +3,8 @@ package ru.nbakaev.cityguide;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import ru.nbakaev.cityguide.provider.PoiProviderConfiguration;
-import ru.nbakaev.cityguide.provider.locaton.LocationProviderConfiguration;
+import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
+import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -15,6 +15,7 @@ import ru.nbakaev.cityguide.provider.locaton.LocationProviderConfiguration;
 public interface AppComponent {
 
     void inject(MainActivity mainActivity);
+
     void inject(MapsActivity mapsActivity);
 
 }

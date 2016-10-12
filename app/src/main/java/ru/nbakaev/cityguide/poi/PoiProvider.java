@@ -1,8 +1,6 @@
-package ru.nbakaev.cityguide.provider;
+package ru.nbakaev.cityguide.poi;
 
 import java.util.List;
-
-import ru.nbakaev.cityguide.model.Poi;
 
 /**
  * Created by Nikita on 10/11/2016.

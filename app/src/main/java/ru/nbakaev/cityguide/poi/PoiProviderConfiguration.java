@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.provider;
+package ru.nbakaev.cityguide.poi;
 
 import javax.inject.Singleton;
 
@@ -14,7 +14,7 @@ public class PoiProviderConfiguration {
 
     @Singleton
     @Provides
-    public PoiProvider poiProvider(){
+    public PoiProvider poiProvider() {
         return new MockedPoiProvider();
     }
 

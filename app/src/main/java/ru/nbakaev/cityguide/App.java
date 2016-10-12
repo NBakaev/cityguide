@@ -1,10 +1,9 @@
 package ru.nbakaev.cityguide;
 
-import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
-import ru.nbakaev.cityguide.provider.PoiProviderConfiguration;
-import ru.nbakaev.cityguide.provider.locaton.LocationProviderConfiguration;
+import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
+import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -18,13 +17,9 @@ public class App extends MultiDexApplication {
         return appComponent;
     }
 
-    public App() {
-        MultiDex.install(this);
-    }
+    protected AppComponent buildComponent() {
 
-    protected AppComponent buildComponent(){
-
-        return  DaggerAppComponent.builder()
+        return DaggerAppComponent.builder()
                 .poiProviderConfiguration(new PoiProviderConfiguration())
                 .appModule(new AppModule(this))
                 .locationProviderConfiguration(new LocationProviderConfiguration())
@@ -34,7 +29,6 @@ public class App extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        MultiDex.install(this);
         appComponent = buildComponent();
     }
 }

@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.provider.locaton;
+package ru.nbakaev.cityguide.locaton;
 
 import android.content.Context;
 
@@ -16,7 +16,7 @@ public class LocationProviderConfiguration {
 
     @Singleton
     @Provides
-    public LocationProvider locationProvider(Context context){
+    public LocationProvider locationProvider(Context context) {
         return new AndroidLocationProvider(context);
     }
 

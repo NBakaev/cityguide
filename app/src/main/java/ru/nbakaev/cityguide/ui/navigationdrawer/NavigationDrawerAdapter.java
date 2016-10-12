@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.adapter;
+package ru.nbakaev.cityguide.ui.navigationdrawer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,6 @@ import java.util.List;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.model.NavigationDrawerItem;
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
 

@@ -4,6 +4,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
+
 /**
  * Created by Nikita on 10/9/2016.
  */

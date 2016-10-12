@@ -11,13 +11,14 @@ import javax.inject.Inject;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import ru.nbakaev.cityguide.adapter.RecyclerAdapter;
-import ru.nbakaev.cityguide.provider.PoiProvider;
-import ru.nbakaev.cityguide.provider.locaton.LocationProvider;
+import ru.nbakaev.cityguide.ui.RecyclerAdapter;
+import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.locaton.LocationProvider;
 
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
     @Inject
     PoiProvider poiProvider;
 
