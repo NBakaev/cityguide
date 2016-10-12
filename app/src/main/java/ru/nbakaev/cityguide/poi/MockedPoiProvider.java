@@ -12,7 +12,6 @@ import ru.nbakaev.cityguide.R;
 
 public class MockedPoiProvider implements PoiProvider {
 
-    public static final int RADIUS = 700;
     private ArrayList<Poi> dataList = new ArrayList<>();
     private Poi.PoiLocation dataForLocation;
 
@@ -44,7 +43,7 @@ public class MockedPoiProvider implements PoiProvider {
     }
 
     @Override
-    public List<Poi> getData(double x0, double y0) {
+    public List<Poi> getData(double x0, double y0, int radius) {
         Poi.PoiLocation poiLocation = new Poi.PoiLocation(x0, y0);
         if (dataForLocation != null && !dataList.isEmpty() & dataForLocation.equals(poiLocation)) {
             return dataList;
@@ -63,7 +62,7 @@ public class MockedPoiProvider implements PoiProvider {
             Poi poi = new Poi();
             poi.setImageID(images[i]);
             poi.setName("Poi " + i);
-            poi.setLocation(getRandomLocation(x0, y0, RADIUS));
+            poi.setLocation(getRandomLocation(x0, y0, DISTANCE_POI_DOWNLOAD * 4));
 
             dataList.add(poi);
         }

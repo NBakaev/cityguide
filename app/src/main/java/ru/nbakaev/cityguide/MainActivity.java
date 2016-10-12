@@ -15,6 +15,8 @@ import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 
+import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
+
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -82,7 +84,7 @@ public class MainActivity extends BaseActivity {
             y = prevLocation.getLongitude();
         }
 
-        RecyclerAdapter adapter = new RecyclerAdapter(this, poiProvider.getData(x, y));
+        RecyclerAdapter adapter = new RecyclerAdapter(this, poiProvider.getData(x, y, DISTANCE_POI_DOWNLOAD));
         recyclerView.setAdapter(adapter);
 
         LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(this);
