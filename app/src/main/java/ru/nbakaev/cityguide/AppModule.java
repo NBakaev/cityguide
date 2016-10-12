@@ -4,10 +4,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import ru.nbakaev.cityguide.di.ApplicationScope;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -24,7 +24,7 @@ public class AppModule {
     }
 
     @Provides
-    @Singleton
+    @ApplicationScope
     public Context getContext() {
         return context;
     }

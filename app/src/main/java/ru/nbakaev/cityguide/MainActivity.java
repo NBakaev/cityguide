@@ -31,13 +31,14 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((App) getApplication()).buildComponent().inject(this);
+//        ((App) getApplication()).buildComponent().inject(this);
+        App.getAppComponent().inject(this);
+
 
         setContentView(R.layout.activity_main);
 
         setUpToolbar();
         setUpDrawer();
-        App.getAppComponent().inject(this);
         setUpRecyclerView();
     }
 

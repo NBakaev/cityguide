@@ -35,12 +35,11 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     public static final String TAG = AndroidLocationProvider.class.getSimpleName();
 
-
-    public Location prevLocation;
+    private volatile Location prevLocation;
 
     private final Context context;
-    Observable<Location> locationObservable;
-    List<ObservableEmitter<Location>> observableEmitter = new ArrayList<>();
+    private Observable<Location> locationObservable;
+    private List<ObservableEmitter<Location>> observableEmitter = new ArrayList<>();
 
     public AndroidLocationProvider(Context context) {
         this.context = context;
@@ -100,6 +99,23 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             return;
         }
 
+        synchronized (this) {
+
+            if (prevLocation != null) {
+                if (prevLocation.getTime() > location.getTime()){
+                    return;
+                }
+
+                if (location.getLatitude() == prevLocation.getLatitude() && location.getLongitude() == prevLocation.getLongitude()) {
+                    return;
+                } else {
+                    prevLocation = location;
+                }
+            } else {
+                prevLocation = location;
+            }
+        }
+
         Log.d(TAG, location.toString());
 
         for (ObservableEmitter<Location> emitter : observableEmitter) {
@@ -109,7 +125,6 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 Log.e(TAG, e.toString());
             }
         }
-        prevLocation = location;
     }
 
 //    @Override
@@ -129,12 +144,12 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
 
     @Override
-    public Observable<Location> getCurrentUserLocation() {
+    public Observable<Location> getCurrentUserLocation () {
         return locationObservable;
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
+    public void onConnected (Bundle bundle){
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions

@@ -2,6 +2,8 @@ package ru.nbakaev.cityguide;
 
 import android.support.multidex.MultiDexApplication;
 
+import ru.nbakaev.cityguide.di.AppComponent;
+import ru.nbakaev.cityguide.di.DaggerAppComponent;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
 import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
 

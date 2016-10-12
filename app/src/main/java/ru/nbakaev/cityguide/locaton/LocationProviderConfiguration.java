@@ -2,10 +2,9 @@ package ru.nbakaev.cityguide.locaton;
 
 import android.content.Context;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
+import ru.nbakaev.cityguide.di.ApplicationScope;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -14,7 +13,7 @@ import dagger.Provides;
 @Module
 public class LocationProviderConfiguration {
 
-    @Singleton
+    @ApplicationScope
     @Provides
     public LocationProvider locationProvider(Context context) {
         return new AndroidLocationProvider(context);
