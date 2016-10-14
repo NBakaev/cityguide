@@ -7,3 +7,4 @@
  
 ## Technical
  - https://s2.nbakaev.ru/#/main_page
+ - server https://github.com/NBakaev/cityguide-server
