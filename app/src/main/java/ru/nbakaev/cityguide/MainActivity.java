@@ -7,10 +7,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
@@ -33,10 +38,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        ((App) getApplication()).buildComponent().inject(this);
         App.getAppComponent().inject(this);
-
-
         setContentView(R.layout.activity_main);
 
         setUpToolbar();
@@ -73,8 +75,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void handleNewLocation(Location prevLocation) {
-        double x;
-        double y;
+        final double x;
+        final double y;
 
         if (prevLocation == null) {
             x = 0;
@@ -84,14 +86,37 @@ public class MainActivity extends BaseActivity {
             y = prevLocation.getLongitude();
         }
 
-        RecyclerAdapter adapter = new RecyclerAdapter(this, poiProvider.getData(x, y, DISTANCE_POI_DOWNLOAD));
-        recyclerView.setAdapter(adapter);
+        poiProvider.getData(x, y, DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Poi>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(this);
-        mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
+                    }
 
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    @Override
+                    public void onNext(List<Poi> value) {
+                        RecyclerAdapter adapter = new RecyclerAdapter(getApplicationContext(), value, locationProvider);
+                        recyclerView.setAdapter(adapter);
+
+                        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(MainActivity.this);
+                        mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
+                        recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
+
+                        recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+
     }
 
 }

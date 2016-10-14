@@ -1,6 +1,7 @@
 package ru.nbakaev.cityguide;
 
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -22,21 +24,21 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-
     public static final String TAG = MapsActivity.class.getSimpleName();
 
-//    private ExecutorService locationProcessor = Executors.newFixedThreadPool(1);
-
+    private GoogleMap mMap;
     private Location prevLocation;
     private Location locationForPoi;
 
@@ -45,6 +47,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     @Inject
     LocationProvider locationProvider;
+
+    private final BitmapFactory.Options options = new BitmapFactory.Options();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +63,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
 
         App.getAppComponent().inject(this);
+        options.inSampleSize = 8;
     }
 
     /**
      * Manipulates the mMap once available.
      * This callback is triggered when the mMap is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -90,6 +93,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+//                TODO: Show Modal window
+//                https://trello.com/c/dXW6mhQc/4-show-modal-window-for-markers-on-click
+                Toast.makeText(getApplicationContext(), "TODO: Show Modal window", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -109,24 +115,55 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         });
     }
 
-    private void drawMarkers(Location cameraCenter) {
+    private void drawMarkers(final Location cameraCenter) {
         if (cameraCenter == null) {
             return;
         }
 
-
         // if distance between downloaded POI and current location > 20 metres - download new POIs
-        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD){
+        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD) {
             mMap.clear();
             locationForPoi = cameraCenter;
-        }else{
+        } else {
             return;
         }
-        List<Poi> data = poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD);
+        poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Poi>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
+                    }
+
+                    @Override
+                    public void onNext(List<Poi> value) {
+                        processDrawMarkers(value);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void processDrawMarkers(List<Poi> data) {
         for (Poi poi : data) {
             LatLng loca = new LatLng(poi.getLocation().getLatitude(), poi.getLocation().getLongitude());
-            this.mMap.addMarker(new MarkerOptions().position(loca).title("Marker in " + poi.getName()));
+            MarkerOptions marker = new MarkerOptions().position(loca).title(poi.getName());
+            if (poi.getImage() != null) {
+                marker.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(poi.getImage(), 0, poi.getImage().length, options)));
+            }
+
+            if (!StringUtils.isEmpty(poi.getDescription())) {
+                marker.snippet(poi.getDescription());
+            }
+
+            this.mMap.addMarker(marker);
         }
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
     }
@@ -154,39 +191,54 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             }
         };
 
-        locationProvider.getCurrentUserLocation().subscribe(locationObserver);
+        locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).subscribe(locationObserver);
     }
 
     private void handleNewLocation(Location location) {
 
         if (prevLocation == null) {
             // first run app or disconnect - move to current user location
-            moveAndZoomCameraToLocation(location);
+            moveAndZoomCameraToLocationWithoutAnimation(location);
         }
 
         prevLocation = location;
         drawMarkers(prevLocation);
 
-        double currentLatitude = location.getLatitude();
-        double currentLongitude = location.getLongitude();
-        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        moveAndZoomCameraToLocation(location, false);
     }
 
-    private void moveAndZoomCameraToLocation(final Location location) {
+    private void moveAndZoomCameraToLocation(final Location location, final boolean drawMarkers) {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the mMap to location user
-                        .zoom(17)                   // Sets the zoom
+                        .zoom(16)                   // Sets the zoom
 //                        .bearing(90)                // Sets the orientation of the camera to east
                         .tilt(0)                   // Sets the tilt of the camera to 30 degrees
                         .build();                   // Creates a CameraPosition from the builder
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+                if (drawMarkers) {
+                    drawMarkers(location);
+                }
+            }
+        }, 1000);
+    }
+
+    private void moveAndZoomCameraToLocationWithoutAnimation(final Location location) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the mMap to location user
+                        .zoom(16)                   // Sets the zoom
+//                        .bearing(90)                // Sets the orientation of the camera to east
+                        .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                        .build();                   // Creates a CameraPosition from the builder
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 drawMarkers(location);
             }
         }, 1000);

@@ -17,7 +17,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void setUpToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("City Guide");
-        toolbar.inflateMenu(R.menu.menu_main);
+//        toolbar.inflateMenu(R.menu.menu_main);
     }
 
     protected void setUpDrawer() {

@@ -15,8 +15,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -39,7 +39,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     private final Context context;
     private Observable<Location> locationObservable;
-    private List<ObservableEmitter<Location>> observableEmitter = new ArrayList<>();
+    private List<ObservableEmitter<Location>> observableEmitter = new CopyOnWriteArrayList<>();
 
     public AndroidLocationProvider(Context context) {
         this.context = context;
@@ -151,7 +151,6 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
     @Override
     public void onConnected (Bundle bundle){
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             Toast.makeText(context, "Need permission", Toast.LENGTH_LONG).show();
             return;

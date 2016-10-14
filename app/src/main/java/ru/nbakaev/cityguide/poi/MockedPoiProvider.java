@@ -1,19 +1,45 @@
 package ru.nbakaev.cityguide.poi;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import io.reactivex.Observable;
 import ru.nbakaev.cityguide.R;
 
 /**
+ * For test and development only.
+ * Generate random POI on map
+ *
  * Created by Nikita on 10/11/2016.
  */
 
 public class MockedPoiProvider implements PoiProvider {
 
-    private ArrayList<Poi> dataList = new ArrayList<>();
     private Poi.PoiLocation dataForLocation;
+
+    private final Context context;
+
+    private int mockedItems = 30;
+
+    private byte[] mockedPoiImage;
+    private final Random random = new Random();
+
+    public MockedPoiProvider(Context context) {
+        this.context = context;
+        mockedPoiImage = convertContent();
+
+        for (int i=0; i < mockedItems; i++){
+            mockedPoiObjectPool.add(new Poi());
+        }
+    }
+
+    private List<Poi> mockedPoiObjectPool = new ArrayList<>(mockedItems);
 
     /**
      * @param x0
@@ -22,7 +48,6 @@ public class MockedPoiProvider implements PoiProvider {
      * @return
      */
     private Poi.PoiLocation getRandomLocation(double x0, double y0, int radius) {
-        Random random = new Random();
 
         // Convert radius from meters to degrees
         double radiusInDegrees = radius / 111000f;
@@ -43,60 +68,33 @@ public class MockedPoiProvider implements PoiProvider {
     }
 
     @Override
-    public List<Poi> getData(double x0, double y0, int radius) {
+    public Observable<List<Poi>> getData(double x0, double y0, int radius) {
         Poi.PoiLocation poiLocation = new Poi.PoiLocation(x0, y0);
-        if (dataForLocation != null && !dataList.isEmpty() & dataForLocation.equals(poiLocation)) {
-            return dataList;
+        if (mockedPoiObjectPool != null && !mockedPoiObjectPool.isEmpty() & dataForLocation!=null && dataForLocation.equals(poiLocation)) {
+            return Observable.fromArray(mockedPoiObjectPool);
         } else {
             setup(x0, y0);
             dataForLocation = poiLocation;
-            return dataList;
+            return Observable.fromArray(mockedPoiObjectPool);
         }
     }
 
     private void setup(double x0, double y0) {
-        int[] images = getImages();
-        dataList.clear();
-        for (int i = 0; i < images.length; i++) {
-
-            Poi poi = new Poi();
-            poi.setImageID(images[i]);
+        for (int i = 0; i < mockedPoiObjectPool.size(); i++) {
+            Poi poi = mockedPoiObjectPool.get(i);
+            poi.setImage(mockedPoiImage);
             poi.setName("Poi " + i);
+            poi.setDescription("Description for poi " + i);
             poi.setLocation(getRandomLocation(x0, y0, DISTANCE_POI_DOWNLOAD * 4));
-
-            dataList.add(poi);
         }
     }
 
-    private static int[] getImages() {
-        return new int[]{
-                R.drawable.thumb_1_0, R.drawable.thumb_1_1, R.drawable.thumb_1_2, R.drawable.thumb_1_3,
-                R.drawable.thumb_1_4, R.drawable.thumb_1_5, R.drawable.thumb_1_6, R.drawable.thumb_1_7,
-                R.drawable.thumb_1_8, R.drawable.thumb_1_9,
-
-                R.drawable.thumb_2_0, R.drawable.thumb_2_1, R.drawable.thumb_2_2, R.drawable.thumb_2_3,
-                R.drawable.thumb_2_4, R.drawable.thumb_2_5, R.drawable.thumb_2_6, R.drawable.thumb_2_7,
-                R.drawable.thumb_2_8, R.drawable.thumb_2_9,
-
-                R.drawable.thumb_3_0, R.drawable.thumb_3_1, R.drawable.thumb_3_2, R.drawable.thumb_3_3,
-                R.drawable.thumb_3_4, R.drawable.thumb_3_5, R.drawable.thumb_3_6, R.drawable.thumb_3_7,
-                R.drawable.thumb_3_8, R.drawable.thumb_3_9,
-
-                R.drawable.thumb_4_0, R.drawable.thumb_4_1, R.drawable.thumb_4_2, R.drawable.thumb_4_3,
-                R.drawable.thumb_4_4, R.drawable.thumb_4_5, R.drawable.thumb_4_6, R.drawable.thumb_4_7,
-                R.drawable.thumb_4_8, R.drawable.thumb_4_9,
-
-                R.drawable.thumb_5_0, R.drawable.thumb_5_1, R.drawable.thumb_5_2, R.drawable.thumb_5_3,
-                R.drawable.thumb_5_4, R.drawable.thumb_5_5, R.drawable.thumb_5_6, R.drawable.thumb_5_7,
-                R.drawable.thumb_5_8, R.drawable.thumb_5_9,
-
-                R.drawable.thumb_6_0, R.drawable.thumb_6_1, R.drawable.thumb_6_2, R.drawable.thumb_6_3,
-                R.drawable.thumb_6_4, R.drawable.thumb_6_5, R.drawable.thumb_6_6, R.drawable.thumb_6_7,
-                R.drawable.thumb_6_8, R.drawable.thumb_6_9,
-
-                R.drawable.thumb_7_0, R.drawable.thumb_7_1, R.drawable.thumb_7_2, R.drawable.thumb_7_3,
-                R.drawable.thumb_7_4
-        };
+    private byte[] convertContent(){
+        Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.drawable.thumb_1_0);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        return byteArray;
     }
 
 }

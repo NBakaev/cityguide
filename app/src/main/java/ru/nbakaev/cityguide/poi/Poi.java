@@ -1,12 +1,23 @@
 package ru.nbakaev.cityguide.poi;
 
+import android.location.Location;
+
 public class Poi {
 
-    private int imageID;
+    private byte[] image;
     private String name;
     private String description;
     private PoiLocation location;
+    private String id;
 
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public PoiLocation getLocation() {
         return location;
@@ -16,12 +27,12 @@ public class Poi {
         this.location = location;
     }
 
-    public int getImageID() {
-        return imageID;
+    public byte[] getImage() {
+        return image;
     }
 
-    public void setImageID(int imageID) {
-        this.imageID = imageID;
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 
     public String getName() {
@@ -53,6 +64,13 @@ public class Poi {
 
         private double latitude = 0.0;
         private double longitude = 0.0;
+
+        public Location toLocation(){
+            Location location = new Location("Server");
+            location.setLatitude(this.latitude);
+            location.setLongitude(this.longitude);
+            return location;
+        }
 
         public double getLatitude() {
             return latitude;
