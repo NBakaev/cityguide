@@ -7,6 +7,8 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import java.util.List;
 
 import io.reactivex.Observable;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -41,5 +43,10 @@ public class ServerPoiProvider implements PoiProvider {
         searchRequest.setLongitude(y0);
         searchRequest.setRadius(radius);
        return poiProvider.getPoiInRadius(searchRequest);
+    }
+
+    @Override
+    public Call<ResponseBody> getIcon(String fullUrl) {
+        return poiProvider.getIcon(fullUrl);
     }
 }

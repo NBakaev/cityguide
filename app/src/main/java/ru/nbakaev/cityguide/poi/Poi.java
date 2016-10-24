@@ -9,7 +9,16 @@ public class Poi {
     private String description;
     private PoiLocation location;
     private String id;
+    private String imageUrl;
 
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getId() {
         return id;

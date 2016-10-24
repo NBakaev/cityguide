@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,16 +28,21 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
+import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
-    public static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String TAG = MapsActivity.class.getSimpleName();
 
     private GoogleMap mMap;
     private Location prevLocation;
@@ -61,9 +67,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         setUpToolbar();
         setUpDrawer();
 
+        prevLocation = null;
 
         App.getAppComponent().inject(this);
-        options.inSampleSize = 8;
+        options.inSampleSize = 7;
     }
 
     /**
@@ -76,6 +83,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
+        subscribeToMapsChange();
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //    Consider calling
@@ -87,20 +95,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             mMap.getUiSettings().setZoomControlsEnabled(true);
             mMap.getUiSettings().setCompassEnabled(true);
             mMap.getUiSettings().setTiltGesturesEnabled(false);
-//            mMap.setBuildingsEnabled(false);
         }
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-//                TODO: Show Modal window
-//                https://trello.com/c/dXW6mhQc/4-show-modal-window-for-markers-on-click
-                Toast.makeText(getApplicationContext(), "TODO: Show Modal window", Toast.LENGTH_SHORT).show();
+
+                new MaterialDialog.Builder(MapsActivity.this)
+                        .title(marker.getTitle())
+                        .content(marker.getSnippet())
+                        .show();
                 return false;
             }
         });
-
-        subscribeToMapsChange();
 
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
@@ -121,7 +128,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
 
         // if distance between downloaded POI and current location > 20 metres - download new POIs
-        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD) {
+        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
+            // TODO: https://trello.com/c/qRalfVOY/10-android-do-not-remove-all-markers-on-update-from-server-check-if-marker-is-already-drawn-and-server-return-this-marker-by-id-in-
             mMap.clear();
             locationForPoi = cameraCenter;
         } else {
@@ -152,19 +160,37 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void processDrawMarkers(List<Poi> data) {
-        for (Poi poi : data) {
+        for (final Poi poi : data) {
+
             LatLng loca = new LatLng(poi.getLocation().getLatitude(), poi.getLocation().getLongitude());
-            MarkerOptions marker = new MarkerOptions().position(loca).title(poi.getName());
+            final MarkerOptions markerOptions = new MarkerOptions().position(loca).title(poi.getName());
+            final Marker marker = mMap.addMarker(markerOptions);
+            marker.showInfoWindow();
+
             if (poi.getImage() != null) {
-                marker.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(poi.getImage(), 0, poi.getImage().length, options)));
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(poi.getImage(), 0, poi.getImage().length, options)));
+            } else if (!StringUtils.isEmpty(poi.getImageUrl())) {
+                Call<ResponseBody> icon = poiProvider.getIcon(poi.getImageUrl());
+                icon.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        marker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeStream(response.body().byteStream(), null, options)));
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.w(TAG, call.toString());
+                    }
+                });
+
             }
 
             if (!StringUtils.isEmpty(poi.getDescription())) {
-                marker.snippet(poi.getDescription());
+                marker.setSnippet(poi.getDescription());
             }
 
-            this.mMap.addMarker(marker);
         }
+
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
     }
 
@@ -191,7 +217,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             }
         };
 
-        locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).subscribe(locationObserver);
+        locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(locationObserver);
     }
 
     private void handleNewLocation(Location location) {
@@ -241,7 +267,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 drawMarkers(location);
             }
-        }, 1000);
+        }, 0);
     }
 
 }

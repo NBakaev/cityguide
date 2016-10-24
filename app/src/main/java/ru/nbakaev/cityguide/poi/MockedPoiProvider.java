@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Random;
 
 import io.reactivex.Observable;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 import ru.nbakaev.cityguide.R;
 
 /**
@@ -77,6 +79,11 @@ public class MockedPoiProvider implements PoiProvider {
             dataForLocation = poiLocation;
             return Observable.fromArray(mockedPoiObjectPool);
         }
+    }
+
+    @Override
+    public Call<ResponseBody> getIcon(String fullUrl) {
+        return null;
     }
 
     private void setup(double x0, double y0) {
