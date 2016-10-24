@@ -19,6 +19,8 @@ import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 
+import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
+
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
     private List<Poi> mData;
     private LayoutInflater inflater;
@@ -119,7 +121,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             if (lastLocation != null){
                 float distanceTo = lastLocation.distanceTo(current.getLocation().toLocation());
-                this.distance.setText(Float.toString(distanceTo) + " m");
+                this.distance.setText(printDistance(distanceTo) + " m");
             }else{
                 this.distance.setText("");
             }

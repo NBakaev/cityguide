@@ -20,7 +20,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="ru.nbakaev.cityguide.MainActivity"
+            android:name="ru.nbakaev.cityguide.MapsActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +30,7 @@
         </activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.MapsActivity"
+            android:name="ru.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_maps"></activity>
 
     </application>

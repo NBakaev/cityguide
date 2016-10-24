@@ -1,11 +1,17 @@
 package ru.nbakaev.cityguide;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,7 +26,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -33,12 +43,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.poi.LocationDiff;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
+import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
@@ -55,6 +67,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     LocationProvider locationProvider;
 
     private final BitmapFactory.Options options = new BitmapFactory.Options();
+
+    private List<Poi> prevLocationData = new ArrayList<>();
+
+    private Map<String, Marker> currentMarkers = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,8 +145,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         // if distance between downloaded POI and current location > 20 metres - download new POIs
         if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
-            // TODO: https://trello.com/c/qRalfVOY/10-android-do-not-remove-all-markers-on-update-from-server-check-if-marker-is-already-drawn-and-server-return-this-marker-by-id-in-
-            mMap.clear();
             locationForPoi = cameraCenter;
         } else {
             return;
@@ -159,12 +173,69 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 });
     }
 
+    private void processNewPois(List<Poi> newPoi){
+        Context ctx = getApplication();
+        NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        for (Poi poi : newPoi){
+            NotificationCompat.Builder b = new NotificationCompat.Builder(ctx);
+
+            b.setAutoCancel(true)
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
+                    .setTicker(poi.getName())
+                    .setContentTitle(poi.getName())
+                    .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
+//                    .setContentInfo("Info")
+ ;
+            Intent notificationIntent = new Intent(this, MapsActivity.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            b.setContentIntent(contentIntent);
+
+            Location location = new Location("M");
+            location.setLatitude(poi.getLocation().getLatitude());
+            location.setLongitude(poi.getLocation().getLongitude());
+
+            if (prevLocation != null){
+                float v = prevLocation.distanceTo(location);
+                b.setContentText(poi.getDescription() != null ? poi.getDescription() + "," + printDistance(v) : printDistance(v));
+            }
+
+            notificationManager.notify(poi.getId().hashCode(), b.build());
+        }
+
+    }
+
     private void processDrawMarkers(List<Poi> data) {
-        for (final Poi poi : data) {
+
+        if (data.isEmpty() && !currentMarkers.isEmpty()){
+            Set<Map.Entry<String, Marker>> entries = currentMarkers.entrySet();
+            for (Map.Entry<String, Marker> entry : entries){
+                entry.getValue().remove();
+            }
+        }
+
+        LocationDiff locationDiff = LocationDiff.of(prevLocationData, data);
+        processNewPois(locationDiff.getNewPoi());
+
+        for (Poi removePoi : locationDiff.getRemovePoi()){
+            Marker marker1 = currentMarkers.get(removePoi.getId());
+            marker1.remove();
+            currentMarkers.remove(removePoi.getId());
+        }
+
+        for (final Poi poi : locationDiff.getNewPoi()) {
 
             LatLng loca = new LatLng(poi.getLocation().getLatitude(), poi.getLocation().getLongitude());
             final MarkerOptions markerOptions = new MarkerOptions().position(loca).title(poi.getName());
             final Marker marker = mMap.addMarker(markerOptions);
+
+            if (locationDiff.getNewPoi().contains(poi)){
+                currentMarkers.put(poi.getId(), marker);
+            }
+
             marker.showInfoWindow();
 
             if (poi.getImage() != null) {
@@ -192,6 +263,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
 
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
+        prevLocationData = data;
     }
 
     private void subscribeToMapsChange() {

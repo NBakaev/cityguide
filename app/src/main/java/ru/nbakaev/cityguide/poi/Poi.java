@@ -2,6 +2,8 @@ package ru.nbakaev.cityguide.poi;
 
 import android.location.Location;
 
+import java.util.Arrays;
+
 public class Poi {
 
     private byte[] image;
@@ -121,4 +123,31 @@ public class Poi {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Poi poi = (Poi) o;
+
+        if (!Arrays.equals(image, poi.image)) return false;
+        if (name != null ? !name.equals(poi.name) : poi.name != null) return false;
+        if (description != null ? !description.equals(poi.description) : poi.description != null)
+            return false;
+        if (location != null ? !location.equals(poi.location) : poi.location != null) return false;
+        if (id != null ? !id.equals(poi.id) : poi.id != null) return false;
+        return imageUrl != null ? imageUrl.equals(poi.imageUrl) : poi.imageUrl == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(image);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
+        return result;
+    }
 }

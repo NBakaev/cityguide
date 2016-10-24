@@ -11,8 +11,8 @@ import retrofit2.Call;
  */
 public interface PoiProvider {
 
-    public static final int DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH = 2000; // download all data for 1km
-    public static final int DISTANCE_POI_DOWNLOAD = DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH * 2; // download all data for 1km
+    int DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH = 2000; // download all data for 1km
+    int DISTANCE_POI_DOWNLOAD = DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH * 2;
 
     Observable<List<Poi>> getData(double x0, double y0, int radius);
     Call<ResponseBody> getIcon(String fullUrl);
