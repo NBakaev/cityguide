@@ -2,6 +2,8 @@ package ru.nbakaev.cityguide;
 
 import android.support.multidex.MultiDexApplication;
 
+import com.orm.SugarContext;
+
 import ru.nbakaev.cityguide.di.AppComponent;
 import ru.nbakaev.cityguide.di.DaggerAppComponent;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
@@ -32,5 +34,6 @@ public class App extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         appComponent = buildComponent();
+        SugarContext.init(this);
     }
 }

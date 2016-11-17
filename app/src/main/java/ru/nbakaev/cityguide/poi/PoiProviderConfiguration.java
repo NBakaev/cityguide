@@ -3,9 +3,13 @@ package ru.nbakaev.cityguide.poi;
 import android.content.Context;
 import android.util.Log;
 
+import com.orm.SugarRecord;
+
 import dagger.Module;
 import dagger.Provides;
 import ru.nbakaev.cityguide.di.ApplicationScope;
+import ru.nbakaev.cityguide.settings.AppSettings;
+import ru.nbakaev.cityguide.settings.SettingsService;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -14,19 +18,19 @@ import ru.nbakaev.cityguide.di.ApplicationScope;
 @Module
 public class PoiProviderConfiguration {
 
-    // TODO: implement settings for offline mode
-    // https://trello.com/c/2yKRMygh/3-offline-mode
-    private boolean offlineMode = false;
-    private final static String TAG = "POI_PROVIDER_CONFIG";
+    private final static String TAG = PoiProviderConfiguration.class.getSimpleName();
 
     @ApplicationScope
     @Provides
     public PoiProvider poiProvider(Context context) {
-        Log.d(TAG,Boolean.toString(offlineMode));
+        AppSettings settings = SettingsService.getSettings();
+        boolean offlineMode = settings.isOffline();
 
-        if (offlineMode){
+        Log.d(TAG, Boolean.toString(offlineMode));
+
+        if (offlineMode) {
             return new OfflinePoiProvider(context);
-        }else{
+        } else {
             return new ServerPoiProvider(context);
 //            return new MockedPoiProvider(context);
         }

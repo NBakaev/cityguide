@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.LocationDiff;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.poi.db.PoiDb;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
@@ -173,22 +175,22 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 });
     }
 
-    private void processNewPois(List<Poi> newPoi){
+    private void processNewPois(List<Poi> newPoi) {
         Context ctx = getApplication();
         NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        for (Poi poi : newPoi){
+        for (Poi poi : newPoi) {
             NotificationCompat.Builder b = new NotificationCompat.Builder(ctx);
 
             b.setAutoCancel(true)
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
+                    .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
                     .setTicker(poi.getName())
                     .setContentTitle(poi.getName())
-                    .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
+                    .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
 //                    .setContentInfo("Info")
- ;
+            ;
             Intent notificationIntent = new Intent(this, MapsActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
@@ -198,7 +200,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             location.setLatitude(poi.getLocation().getLatitude());
             location.setLongitude(poi.getLocation().getLongitude());
 
-            if (prevLocation != null){
+            if (prevLocation != null) {
                 float v = prevLocation.distanceTo(location);
                 b.setContentText(poi.getDescription() != null ? poi.getDescription() + "," + printDistance(v) : printDistance(v));
             }
@@ -208,11 +210,16 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     }
 
-    private void processDrawMarkers(List<Poi> data) {
+    private void cachePoiToDB(List<Poi> data) {
+        SugarRecord.saveInTx(PoiDb.of(data));
+    }
 
-        if (data.isEmpty() && !currentMarkers.isEmpty()){
+    private void processDrawMarkers(List<Poi> data) {
+        cachePoiToDB(data);
+
+        if (data.isEmpty() && !currentMarkers.isEmpty()) {
             Set<Map.Entry<String, Marker>> entries = currentMarkers.entrySet();
-            for (Map.Entry<String, Marker> entry : entries){
+            for (Map.Entry<String, Marker> entry : entries) {
                 entry.getValue().remove();
             }
         }
@@ -220,7 +227,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         LocationDiff locationDiff = LocationDiff.of(prevLocationData, data);
         processNewPois(locationDiff.getNewPoi());
 
-        for (Poi removePoi : locationDiff.getRemovePoi()){
+        for (Poi removePoi : locationDiff.getRemovePoi()) {
             Marker marker1 = currentMarkers.get(removePoi.getId());
             marker1.remove();
             currentMarkers.remove(removePoi.getId());
@@ -232,15 +239,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             final MarkerOptions markerOptions = new MarkerOptions().position(loca).title(poi.getName());
             final Marker marker = mMap.addMarker(markerOptions);
 
-            if (locationDiff.getNewPoi().contains(poi)){
+            if (locationDiff.getNewPoi().contains(poi)) {
                 currentMarkers.put(poi.getId(), marker);
             }
 
             marker.showInfoWindow();
 
-            if (poi.getImage() != null) {
-                marker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeByteArray(poi.getImage(), 0, poi.getImage().length, options)));
-            } else if (!StringUtils.isEmpty(poi.getImageUrl())) {
+            if (!StringUtils.isEmpty(poi.getImageUrl())) {
                 Call<ResponseBody> icon = poiProvider.getIcon(poi.getImageUrl());
                 icon.enqueue(new Callback<ResponseBody>() {
                     @Override

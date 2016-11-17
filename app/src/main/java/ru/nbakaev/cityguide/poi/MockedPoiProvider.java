@@ -89,7 +89,7 @@ public class MockedPoiProvider implements PoiProvider {
     private void setup(double x0, double y0) {
         for (int i = 0; i < mockedPoiObjectPool.size(); i++) {
             Poi poi = mockedPoiObjectPool.get(i);
-            poi.setImage(mockedPoiImage);
+//            poi.setImage(mockedPoiImage);
             poi.setName("Poi " + i);
             poi.setDescription("Description for poi " + i);
             poi.setLocation(getRandomLocation(x0, y0, DISTANCE_POI_DOWNLOAD * 4));

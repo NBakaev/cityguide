@@ -111,10 +111,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         public void setData(Poi current, int position) {
             this.title.setText(current.getName());
 
-            if (current.getImage() != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(current.getImage(), 0, current.getImage().length);
-                this.imgThumb.setImageBitmap(bitmap);
-            }
+//            if (current.getImage() != null) {
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(current.getImage(), 0, current.getImage().length);
+//                this.imgThumb.setImageBitmap(bitmap);
+//            }
             this.position = position;
             this.current = current;
             this.description.setText(current.getDescription());

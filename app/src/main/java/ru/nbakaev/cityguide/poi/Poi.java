@@ -2,17 +2,29 @@ package ru.nbakaev.cityguide.poi;
 
 import android.location.Location;
 
+import com.orm.dsl.Table;
+import com.orm.dsl.Unique;
+
 import java.util.Arrays;
 
 public class Poi {
 
-    private byte[] image;
     private String name;
     private String description;
     private PoiLocation location;
     private String id;
     private String imageUrl;
 
+
+    private byte[] image;
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
 
     public String getImageUrl() {
         return imageUrl;
@@ -36,14 +48,6 @@ public class Poi {
 
     public void setLocation(PoiLocation location) {
         this.location = location;
-    }
-
-    public byte[] getImage() {
-        return image;
-    }
-
-    public void setImage(byte[] image) {
-        this.image = image;
     }
 
     public String getName() {
@@ -123,6 +127,7 @@ public class Poi {
         }
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -130,7 +135,6 @@ public class Poi {
 
         Poi poi = (Poi) o;
 
-        if (!Arrays.equals(image, poi.image)) return false;
         if (name != null ? !name.equals(poi.name) : poi.name != null) return false;
         if (description != null ? !description.equals(poi.description) : poi.description != null)
             return false;
@@ -142,8 +146,7 @@ public class Poi {
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(image);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
