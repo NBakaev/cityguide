@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -48,6 +49,7 @@ import ru.nbakaev.cityguide.poi.LocationDiff;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
+import ru.nbakaev.cityguide.utils.AppUtils;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
@@ -74,6 +76,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private Map<String, Marker> currentMarkers = new HashMap<>();
 
+    private final int PERMISSION_LOCATION_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +95,26 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         options.inSampleSize = 7;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_LOCATION_CODE) {
+
+            switch (grantResults[0]) {
+                case PackageManager.PERMISSION_DENIED:
+                    requestPermission();
+                    break;
+                case PackageManager.PERMISSION_GRANTED:
+                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
+                    break;
+            }
+        }
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+    }
+
     /**
      * Manipulates the mMap once available.
      * This callback is triggered when the mMap is ready to be used.
@@ -104,16 +128,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         subscribeToMapsChange();
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            //    Consider calling
-            //    ActivityCompat#requestPermissions
-            Toast.makeText(getApplicationContext(), "Need permission", Toast.LENGTH_LONG).show();
+            requestPermission();
+            Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
             return;
         } else {
             mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-            mMap.getUiSettings().setCompassEnabled(true);
-            mMap.getUiSettings().setTiltGesturesEnabled(false);
         }
+        locationGrantedPermission();
+    }
+
+    private void locationGrantedPermission() {
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setTiltGesturesEnabled(false);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
