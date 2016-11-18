@@ -1,5 +1,6 @@
 package ru.nbakaev.cityguide;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -60,6 +60,8 @@ import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
+import static ru.nbakaev.cityguide.utils.CacheUtils.getCacheImagePath;
+import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
 import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
@@ -83,6 +85,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private Map<String, Marker> currentMarkers = new HashMap<>();
 
     private final int PERMISSION_LOCATION_CODE = 1;
+    private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
+    private final int PERMISSION_ALL = 3;
 
     private Date lastDateUserMovingCamera = null;
 
@@ -108,6 +112,18 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length == 0) {
+            requestPermissionAll();
+            return;
+        }
+
+        if (requestCode == PERMISSION_ALL) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
+                return;
+            }
+        }
+
         if (requestCode == PERMISSION_LOCATION_CODE) {
 
             switch (grantResults[0]) {
@@ -118,11 +134,32 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                     AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
                     break;
             }
+            return;
+        }
+
+        if (requestCode == PERMISSION_READ_WRITE_EXTERNAL) {
+
+            switch (grantResults[0]) {
+                case PackageManager.PERMISSION_DENIED:
+                    requestPermissionStorage();
+                    break;
+                case PackageManager.PERMISSION_GRANTED:
+                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
+                    break;
+            }
         }
     }
 
+    private void requestPermissionAll() {
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALL);
+    }
+
     private void requestPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_LOCATION_CODE);
+    }
+
+    private void requestPermissionStorage() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_READ_WRITE_EXTERNAL);
     }
 
     /**
@@ -137,7 +174,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         this.mMap = googleMap;
         subscribeToMapsChange();
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionAll();
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermission();
             Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
             return;
@@ -302,8 +347,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                             Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
                             cachePoiImage(bitmap, poi);
                             marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                        } catch (IllegalArgumentException e) {
-                            Log.e(TAG, e.toString());
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
                         }
                     }
 
@@ -334,21 +379,20 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             return;
         }
 
-        File sdCardDirectory = Environment.getExternalStorageDirectory();
-        String cacheImagePath = sdCardDirectory + "/cityguide/";
-        File file = new File(cacheImagePath);
-        if (!file.exists()) {
-            if (file.mkdir()) {
-                Log.d(TAG, "Cache directory is created!");
-            } else {
-                Log.e(TAG, "Failed cache directory is create!");
-            }
-        }
-
-        String fileExtension = Files.getFileExtension(poi.getImageUrl());
-        File image = new File(cacheImagePath, poi.getId() + "." + fileExtension);
-        FileOutputStream outStream;
         try {
+            String cacheImagePath = getCacheImagePath();
+            File file = new File(cacheImagePath);
+            if (!file.exists()) {
+                if (file.mkdir()) {
+                    Log.d(TAG, "Cache directory is created!");
+                } else {
+                    Log.e(TAG, "Failed cache directory is create!");
+                }
+            }
+
+            String fileExtension = Files.getFileExtension(poi.getImageUrl());
+            File image = getImageCacheFile(poi);
+            FileOutputStream outStream;
             outStream = new FileOutputStream(image);
             if (fileExtension.equalsIgnoreCase("png")) {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);  /* 100 to keep full quality of the image */
