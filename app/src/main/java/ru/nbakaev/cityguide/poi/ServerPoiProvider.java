@@ -46,7 +46,7 @@ public class ServerPoiProvider implements PoiProvider {
     }
 
     @Override
-    public Call<ResponseBody> getIcon(String fullUrl) {
-        return poiProvider.getIcon(fullUrl);
+    public Observable<ResponseBody> getIcon(Poi poi) {
+        return poiProvider.getIcon(poi.getImageUrl());
     }
 }

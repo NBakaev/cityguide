@@ -56,6 +56,7 @@ public class PoiDb {
         poi.setName(poiDb.getName());
         poi.setDescription(poiDb.getDescription());
         poi.setLocation(new Poi.PoiLocation(poiDb.getLatitude(), poiDb.getLongitude()));
+        poi.setImageUrl(poiDb.getImageUrl());
 
         return poi;
     }

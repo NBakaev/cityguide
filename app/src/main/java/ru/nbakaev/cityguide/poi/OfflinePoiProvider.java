@@ -1,18 +1,21 @@
 package ru.nbakaev.cityguide.poi;
 
 import android.content.Context;
+import android.os.Environment;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.orm.SugarRecord;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.Observable;
+import okhttp3.MediaType;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
 
 /**
@@ -39,11 +42,24 @@ public class OfflinePoiProvider implements PoiProvider {
 
     /**
      * return icon for POI on map from url
-     * @param fullUrl
+     *
+     * @param poi
      * @return
      */
     @Override
-    public Call<ResponseBody> getIcon(String fullUrl) {
+    public Observable<ResponseBody> getIcon(Poi poi) {
+        File sdCardDirectory = Environment.getExternalStorageDirectory();
+        String cacheImagePath = sdCardDirectory + "/cityguide/";
+        File image = new File(cacheImagePath, poi.getId() + "." + Files.getFileExtension(poi.getImageUrl()));
+
+        try {
+            byte[] bytes = Files.toByteArray(image);
+            ResponseBody responseBody = ResponseBody.create(MediaType.parse("image/png"), bytes);
+            return Observable.just(responseBody);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 }

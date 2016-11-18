@@ -20,5 +20,5 @@ public interface ServerPOIsProvider {
     Observable<List<Poi>> getPoiInRadius(@Body SearchRequest searchRequest);
 
     @GET("{fullUrl}")
-    Call<ResponseBody> getIcon(@Path(value = "fullUrl", encoded = true) String fullUrl);
+    Observable<ResponseBody> getIcon(@Path(value = "fullUrl", encoded = true) String fullUrl);
 }
