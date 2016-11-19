@@ -7,14 +7,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,45 +21,35 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.common.io.Files;
+import com.google.maps.android.clustering.ClusterManager;
 import com.orm.SugarRecord;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
-import ru.nbakaev.cityguide.poi.LocationDiff;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.utils.AppUtils;
-import ru.nbakaev.cityguide.utils.StringUtils;
 
+import static ru.nbakaev.cityguide.poi.OfflinePoiProvider.OFFLINE_CHUNK_SIZE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
-import static ru.nbakaev.cityguide.utils.CacheUtils.getCacheImagePath;
-import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
 import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
@@ -78,17 +66,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Inject
     LocationProvider locationProvider;
 
-    private final BitmapFactory.Options options = new BitmapFactory.Options();
 
-    private List<Poi> prevLocationData = new ArrayList<>();
+    //    private Map<String, Marker> currentMarkers = new HashMap<>();
+    private Set<String> renderedPois = new HashSet<>();
 
-    private Map<String, Marker> currentMarkers = new HashMap<>();
+    private PoiClusterRenderer poiClusterRenderer;
 
     private final int PERMISSION_LOCATION_CODE = 1;
     private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
     private final int PERMISSION_ALL = 3;
 
     private Date lastDateUserMovingCamera = null;
+
+    private ClusterManager<Poi> clusterManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +94,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         prevLocation = null;
 
         App.getAppComponent().inject(this);
-        if (!SettingsService.getSettings().isOffline()) {
-            options.inSampleSize = 7;
-        }
     }
 
     @Override
@@ -172,6 +159,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
+        clusterManager = new ClusterManager<>(this, googleMap);
+        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider);
+        clusterManager.setRenderer(poiClusterRenderer);
+
         subscribeToMapsChange();
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
@@ -212,6 +203,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
+                clusterManager.onCameraChange(cameraPosition);
                 Log.d(TAG, cameraPosition.toString());
                 Location location = new Location("Camera");
                 location.setLatitude(cameraPosition.target.latitude);
@@ -224,6 +216,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         });
     }
 
+    @Override
+    protected void setUpToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+    }
+
     private void drawMarkers(final Location cameraCenter) {
         if (cameraCenter == null) {
             return;
@@ -232,6 +229,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         // if distance between downloaded POI and current location > 20 metres - download new POIs
         if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
             locationForPoi = cameraCenter;
+            toolbar.setTitle(setupNameHeader(locationForPoi.getLatitude(), locationForPoi.getLongitude()));
         } else {
             return;
         }
@@ -239,7 +237,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 .subscribe(new Observer<List<Poi>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
                     }
 
                     @Override
@@ -249,12 +246,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                     @Override
                     public void onError(Throwable e) {
-
                     }
 
                     @Override
                     public void onComplete() {
-
                     }
                 });
     }
@@ -262,6 +257,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private void sendNotificationToNewPois(List<Poi> newPoi) {
         if (!isUserMovingCamera()) {
             return;
+        }
+
+        if (newPoi.size() > OFFLINE_CHUNK_SIZE){
+            newPoi = newPoi.subList(0,4);
         }
 
         Context ctx = getApplication();
@@ -298,113 +297,45 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     }
 
-    private void cachePoiToDB(List<Poi> data) {
-        SugarRecord.saveInTx(PoiDb.of(data));
+    private void cachePoiToDB(final List<Poi> data) {
+        if (SettingsService.getSettings().isOffline()) {
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SugarRecord.saveInTx(PoiDb.of(data));
+            }
+        }).start();
     }
 
     private void processDrawMarkers(List<Poi> data) {
         cachePoiToDB(data);
+        final List<Poi> newPois = new ArrayList<>();
 
-        if (data.isEmpty() && !currentMarkers.isEmpty()) {
-            Set<Map.Entry<String, Marker>> entries = currentMarkers.entrySet();
-            for (Map.Entry<String, Marker> entry : entries) {
-                entry.getValue().remove();
+        for (final Poi poi : data) {
+            if (!renderedPois.contains(poi.getId())) {
+                renderedPois.add(poi.getId());
+                newPois.add(poi);
             }
         }
 
-        LocationDiff locationDiff = LocationDiff.of(prevLocationData, data);
-        sendNotificationToNewPois(locationDiff.getNewPoi());
-
-        for (Poi removePoi : locationDiff.getRemovePoi()) {
-            Marker marker1 = currentMarkers.get(removePoi.getId());
-            marker1.remove();
-            currentMarkers.remove(removePoi.getId());
+        if (newPois.size() > 0) {
+            clusterManager.addItems(newPois);
+            // force re-cluster after add
+            clusterManager.cluster();
         }
 
-        for (final Poi poi : locationDiff.getNewPoi()) {
-
-            LatLng loca = new LatLng(poi.getLocation().getLatitude(), poi.getLocation().getLongitude());
-            final MarkerOptions markerOptions = new MarkerOptions().position(loca).title(poi.getName());
-            final Marker marker = mMap.addMarker(markerOptions);
-
-            if (locationDiff.getNewPoi().contains(poi)) {
-                currentMarkers.put(poi.getId(), marker);
-            }
-
-            marker.showInfoWindow();
-
-            if (!StringUtils.isEmpty(poi.getImageUrl())) {
-                Observable<ResponseBody> icon = poiProvider.getIcon(poi);
-                Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, d.toString());
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody value) {
-                        try {
-                            Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
-                            cachePoiImage(bitmap, poi);
-                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, e.toString());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                };
-
-                icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
-            }
-
-            if (!StringUtils.isEmpty(poi.getDescription())) {
-                marker.setSnippet(poi.getDescription());
-            }
+        if (newPois.size() > 5) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    sendNotificationToNewPois(newPois);
+                }
+            }).start();
         }
 
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
-        prevLocationData = data;
-    }
-
-    private void cachePoiImage(Bitmap bitmap, Poi poi) {
-        if (SettingsService.getSettings().isOffline()) {
-            return;
-        }
-
-        try {
-            String cacheImagePath = getCacheImagePath();
-            File file = new File(cacheImagePath);
-            if (!file.exists()) {
-                if (file.mkdir()) {
-                    Log.d(TAG, "Cache directory is created!");
-                } else {
-                    Log.e(TAG, "Failed cache directory is create!");
-                }
-            }
-
-            String fileExtension = Files.getFileExtension(poi.getImageUrl());
-            File image = getImageCacheFile(poi);
-            FileOutputStream outStream;
-            outStream = new FileOutputStream(image);
-            if (fileExtension.equalsIgnoreCase("png")) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);  /* 100 to keep full quality of the image */
-            } else {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);  /* 100 to keep full quality of the image */
-            }
-
-            outStream.flush();
-            outStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void subscribeToMapsChange() {
@@ -434,7 +365,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void handleNewLocation(Location location) {
-
         if (prevLocation == null) {
             // first run app or disconnect - move to current user location
             moveAndZoomCameraToLocation(location, false);
@@ -450,27 +380,24 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void moveAndZoomCameraToLocation(final Location location, final boolean animateMove) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the mMap to location user
-                        .zoom(16)                   // Sets the zoom
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the mMap to location user
+                .zoom(16)                   // Sets the zoom
 //                        .bearing(90)                // Sets the orientation of the camera to east
-                        .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                        .build();                   // Creates a CameraPosition from the builder
+                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
 
-                if (animateMove) {
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                } else {
-                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
-
-            }
-        }, 0);
+        if (animateMove) {
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        } else {
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
+    /**
+     * @return true if user move cameraPosition, and that's why camera location change.
+     * false if cameraPosition changes because of location change
+     */
     private boolean isUserMovingCamera() {
         return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 > 5);
     }

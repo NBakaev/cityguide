@@ -2,12 +2,10 @@ package ru.nbakaev.cityguide.poi;
 
 import android.location.Location;
 
-import com.orm.dsl.Table;
-import com.orm.dsl.Unique;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
 
-import java.util.Arrays;
-
-public class Poi {
+public class Poi implements ClusterItem {
 
     private String name;
     private String description;
@@ -16,7 +14,7 @@ public class Poi {
     private String imageUrl;
 
 
-    private byte[] image;
+    private byte[] image = null;
 
     public byte[] getImage() {
         return image;
@@ -64,6 +62,11 @@ public class Poi {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
     }
 
 

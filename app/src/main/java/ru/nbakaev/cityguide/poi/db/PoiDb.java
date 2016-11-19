@@ -1,5 +1,6 @@
 package ru.nbakaev.cityguide.poi.db;
 
+import com.orm.dsl.Column;
 import com.orm.dsl.Table;
 
 import java.util.ArrayList;
@@ -8,22 +9,34 @@ import java.util.List;
 import ru.nbakaev.cityguide.poi.Poi;
 
 /**
+ * Annotate all fields with {@link Column} because if field has not this aanotation,
+ * it has a huge usage {@link com.orm.util.NamingHelper#toSQLNameDefault(String)}
  * Created by ya on 11/17/2016.
  */
 @Table
 public class PoiDb {
 
     // sugar orm require ID field to be long type
+    @Column(name = "_id")
     private Long id;
 
+    @Column(name="name")
     private String name;
+
+    @Column(name="description")
     private String description;
 
+    @Column(name="latitude")
     private double latitude = 0.0;
+
+    @Column(name="longitude")
     private double longitude = 0.0;
 
     // real id, from server
+    @Column(name="poiId")
     private String poiId;
+
+    @Column(name="imageUrl")
     private String imageUrl;
 
     public PoiDb() {

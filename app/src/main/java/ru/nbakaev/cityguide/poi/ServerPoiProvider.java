@@ -2,15 +2,18 @@ package ru.nbakaev.cityguide.poi;
 
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.util.List;
 
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import static ru.nbakaev.cityguide.settings.SettingsService.getServerUrl;
 
 /**
  * Created by Nikita on 10/14/2016.
@@ -24,12 +27,15 @@ public class ServerPoiProvider implements PoiProvider {
     public ServerPoiProvider(Context context) {
         this.context = context;
 
-        String baseUrl = "https://s2.nbakaev.ru/api/v1/";
+        String baseUrl = getServerUrl();
         RxJava2CallAdapterFactory rxAdapter = RxJava2CallAdapterFactory.create();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .addCallAdapterFactory(rxAdapter)
                 .build();
 

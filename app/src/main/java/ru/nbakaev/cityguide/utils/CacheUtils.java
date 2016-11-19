@@ -14,9 +14,14 @@ import ru.nbakaev.cityguide.poi.Poi;
 
 public class CacheUtils {
 
-    public static String getCacheImagePath() {
+    private static String cachePath;
+    static {
         File sdCardDirectory = Environment.getExternalStorageDirectory();
-        return sdCardDirectory + "/cityguide/";
+        cachePath = sdCardDirectory + "/cityguide/";;
+    }
+
+    public static String getCacheImagePath() {
+        return cachePath;
     }
 
     public static String getImageCachePathForPoi(Poi poi) {

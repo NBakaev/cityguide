@@ -3,8 +3,6 @@ package ru.nbakaev.cityguide.poi;
 import android.content.Context;
 import android.util.Log;
 
-import com.orm.SugarRecord;
-
 import dagger.Module;
 import dagger.Provides;
 import ru.nbakaev.cityguide.di.ApplicationScope;
@@ -31,8 +29,8 @@ public class PoiProviderConfiguration {
         if (offlineMode) {
             return new OfflinePoiProvider(context);
         } else {
-            return new ServerPoiProvider(context);
 //            return new MockedPoiProvider(context);
+            return new ServerPoiProvider(context);
         }
     }
 

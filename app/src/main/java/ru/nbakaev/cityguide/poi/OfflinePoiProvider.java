@@ -3,16 +3,20 @@ package ru.nbakaev.cityguide.poi;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.orm.SugarRecord;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
@@ -26,6 +30,7 @@ import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
 public class OfflinePoiProvider implements PoiProvider {
 
     private final Context context;
+    public final static int OFFLINE_CHUNK_SIZE = 3_000;
 
     public OfflinePoiProvider(Context context) {
         this.context = context;
@@ -33,16 +38,40 @@ public class OfflinePoiProvider implements PoiProvider {
     }
 
     @Override
-    public Observable<List<Poi>> getData(double x0, double y0, int radius) {
+    public Observable<List<Poi>> getData(final double x0, final double y0, int radius) {
+        // if we have large collection, it's better for performance to return some iterator, not read whole list from database
+        // so, we can chunk some objects to lists and return
+        return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<PoiDb>> e) throws Exception {
+                final Iterator<PoiDb> all = SugarRecord.findWithQueryAsIterator(PoiDb.class,
+//                        "SELECT _id, latitude, longitude FROM POI_DB ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT 65",
+                        "SELECT * FROM POI_DB ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT 5000",
+                        Double.toString(x0), Double.toString(y0));
 
-        Iterator<PoiDb> all = SugarRecord.findAll(PoiDb.class);
-        List<PoiDb> poiDbs = Lists.newArrayList(all);
-
-        return Observable.fromArray(PoiDb.toPoiList(poiDbs));
+                List<PoiDb> buffer = new ArrayList<>();
+                while (all.hasNext()) {
+                    PoiDb next = all.next();
+                    buffer.add(next);
+                    if (buffer.size() == OFFLINE_CHUNK_SIZE) {
+                        e.onNext(buffer);
+                        buffer = new ArrayList<>();
+                    }
+                }
+                if (buffer.size() > 0){
+                    e.onNext(buffer);
+                }
+            }
+        }).subscribeOn(Schedulers.computation()).map(new Function<List<PoiDb>, List<Poi>>() {
+            @Override
+            public List<Poi> apply(List<PoiDb> poiDbs) throws Exception {
+                return PoiDb.toPoiList(poiDbs);
+            }
+        });
     }
 
     /**
-     * return icon for POI on map from url
+     * return icon for POI on map from filesystem
      *
      * @param poi
      * @return
