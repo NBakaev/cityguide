@@ -13,7 +13,7 @@ public class Poi implements ClusterItem {
     private String id;
     private String imageUrl;
 
-
+    // TODO: remove field on server/client
     private byte[] image = null;
 
     public byte[] getImage() {

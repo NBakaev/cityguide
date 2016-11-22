@@ -34,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected String setupNameHeader(double latitude, double longitude){
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        String et_lugar = null;
+        String et_lugar;
 
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);

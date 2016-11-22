@@ -58,23 +58,17 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Inject
     LocationProvider locationProvider;
 
-
-    //    private Map<String, Marker> currentMarkers = new HashMap<>();
-    private Set<String> renderedPois = new HashSet<>();
-
-    private PoiClusterRenderer poiClusterRenderer;
-
     private final int PERMISSION_LOCATION_CODE = 1;
     private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
     private final int PERMISSION_ALL = 3;
 
     private Date lastDateUserMovingCamera = null;
+    private String moveToPoiId = null;
+    private Set<String> renderedPois = new HashSet<>();
 
     private ClusterManager<Poi> clusterManager;
-
     private NotificationService notificationService;
-
-    private String moveToPoiId = null;
+    private PoiClusterRenderer poiClusterRenderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +96,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
     }
 
+    // TODO: https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -203,7 +198,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void processMoveToIntentPoi(Poi poi) {
-        Location location = new Location("loca;");
+        Location location = new Location("loca");
         location.setLatitude(poi.getLocation().getLatitude());
         location.setLongitude(poi.getLocation().getLongitude());
         moveAndZoomCameraToLocation(location, false);
@@ -234,6 +229,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             }
         });
 
+        // TODO: deprecated API usage
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
