@@ -39,6 +39,7 @@ public class NotificationService {
         }
 
         for (Poi poi : newPoi) {
+            // TODO: 1)add image to notification. 2) Jump to POI on click
             NotificationCompat.Builder b = new NotificationCompat.Builder(context);
 
             b.setAutoCancel(true)

@@ -21,6 +21,7 @@ public class App extends MultiDexApplication {
         return appComponent;
     }
 
+    // create with dagger DI
     protected AppComponent buildComponent() {
 
         return DaggerAppComponent.builder()

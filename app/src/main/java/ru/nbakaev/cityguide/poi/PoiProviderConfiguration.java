@@ -26,6 +26,7 @@ public class PoiProviderConfiguration {
 
         Log.d(TAG, Boolean.toString(offlineMode));
 
+        // TODO: THIS IS NOT DI !!!. move to separate module ???
         if (offlineMode) {
             return new OfflinePoiProvider(context);
         } else {

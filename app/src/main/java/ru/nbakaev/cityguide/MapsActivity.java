@@ -63,6 +63,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     private final int PERMISSION_ALL = 3;
 
     private Date lastDateUserMovingCamera = null;
+
+    // if we start activity with new Intent().putExtra("MOVE_TO_POI_ID", poi.getId());
+    // this variable contains id of POI to which go
+
     private String moveToPoiId = null;
     private Set<String> renderedPois = new HashSet<>();
 
@@ -166,6 +170,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         subscribeToMapsChange();
 
+        // TODO: https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -188,8 +193,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
     }
 
-    // TODO: refactor
+    // TODO: refactor whole method. SQL in method ???!!!
     private void moveToIntentPOI() {
+        // we cache all POIs from server, so if we have POI id, DB should contain this value
         List<PoiDb> withQuery = SugarRecord.findWithQuery(PoiDb.class, "SELECT * FROM POI_DB where poiId=(?)", moveToPoiId);
         if (withQuery != null && withQuery.size() >0) {
             Poi poi =  PoiDb.toPoi(withQuery.get(0));
@@ -205,7 +211,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         lastDateUserMovingCamera = new Date();
 
-        // TODO: refactor
+        // TODO: refactor; extract to function that make modal for POI. this is also used in mMap#setOnMarkerClickListener
         new MaterialDialog.Builder(MapsActivity.this)
                 .title(poi.getName())
                 .content(poi.getDescription())
