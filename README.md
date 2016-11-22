@@ -22,3 +22,14 @@ Implementation injects with Dagger2 in sturtup (depend get property offline of A
 
  - results -> Observable (rxjava2)
  
+
+#### code snippets
+
+```java
+
+##### start map with some POI
+
+Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
+i.putExtra("MOVE_TO_POI_ID", poi.getId());
+context.startActivity(i);
+```

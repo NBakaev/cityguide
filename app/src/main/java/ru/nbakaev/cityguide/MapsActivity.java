@@ -1,17 +1,11 @@
 package ru.nbakaev.cityguide;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
@@ -47,10 +41,8 @@ import ru.nbakaev.cityguide.poi.db.PoiDb;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.utils.AppUtils;
 
-import static ru.nbakaev.cityguide.poi.OfflinePoiProvider.OFFLINE_CHUNK_SIZE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
-import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
@@ -80,6 +72,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private ClusterManager<Poi> clusterManager;
 
+    private NotificationService notificationService;
+
+    private String moveToPoiId = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +90,16 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         prevLocation = null;
 
         App.getAppComponent().inject(this);
+        notificationService = new NotificationService(getApplicationContext());
+
+        // if activity started with "go to poi"
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String value = extras.getString("MOVE_TO_POI_ID");
+            if (value != null) {
+                moveToPoiId = value;
+            }
+        }
     }
 
     @Override
@@ -181,6 +187,34 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             mMap.setMyLocationEnabled(true);
         }
         locationGrantedPermission();
+
+        if (moveToPoiId != null) {
+            moveToIntentPOI();
+        }
+    }
+
+    // TODO: refactor
+    private void moveToIntentPOI() {
+        List<PoiDb> withQuery = SugarRecord.findWithQuery(PoiDb.class, "SELECT * FROM POI_DB where poiId=(?)", moveToPoiId);
+        if (withQuery != null && withQuery.size() >0) {
+            Poi poi =  PoiDb.toPoi(withQuery.get(0));
+            processMoveToIntentPoi(poi);
+        }
+    }
+
+    private void processMoveToIntentPoi(Poi poi) {
+        Location location = new Location("loca;");
+        location.setLatitude(poi.getLocation().getLatitude());
+        location.setLongitude(poi.getLocation().getLongitude());
+        moveAndZoomCameraToLocation(location, false);
+
+        lastDateUserMovingCamera = new Date();
+
+        // TODO: refactor
+        new MaterialDialog.Builder(MapsActivity.this)
+                .title(poi.getName())
+                .content(poi.getDescription())
+                .show();
     }
 
     private void locationGrantedPermission() {
@@ -259,44 +293,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             return;
         }
 
-        if (newPoi.size() > OFFLINE_CHUNK_SIZE){
-            newPoi = newPoi.subList(0,4);
-        }
-
-        Context ctx = getApplication();
-        NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        for (Poi poi : newPoi) {
-            NotificationCompat.Builder b = new NotificationCompat.Builder(ctx);
-
-            b.setAutoCancel(true)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
-                    .setTicker(poi.getName())
-                    .setContentTitle(poi.getName())
-                    .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
-//                    .setContentInfo("Info")
-            ;
-            Intent notificationIntent = new Intent(this, MapsActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            b.setContentIntent(contentIntent);
-
-            Location location = new Location("M");
-            location.setLatitude(poi.getLocation().getLatitude());
-            location.setLongitude(poi.getLocation().getLongitude());
-
-            if (prevLocation != null) {
-                float v = prevLocation.distanceTo(location);
-                b.setContentText(poi.getDescription() != null ? poi.getDescription() + "," + printDistance(v) : printDistance(v));
-            }
-
-            notificationManager.notify(poi.getId().hashCode(), b.build());
-        }
-
+        notificationService.showNotification(newPoi, prevLocation);
     }
 
+    // add/update to DB every POI
     private void cachePoiToDB(final List<Poi> data) {
         if (SettingsService.getSettings().isOffline()) {
             return;
@@ -315,17 +315,22 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         for (final Poi poi : data) {
             if (!renderedPois.contains(poi.getId())) {
-                renderedPois.add(poi.getId());
                 newPois.add(poi);
             }
         }
 
+        // if we have new poi - add new map
         if (newPois.size() > 0) {
             clusterManager.addItems(newPois);
             // force re-cluster after add
             clusterManager.cluster();
         }
 
+        for (final Poi poi : newPois) {
+            renderedPois.add(poi.getId());
+        }
+
+        // optimization: if we have more than 5 new POIs -> start in new thread
         if (newPois.size() > 5) {
             new Thread(new Runnable() {
                 @Override
@@ -365,7 +370,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void handleNewLocation(Location location) {
-        if (prevLocation == null) {
+        if (prevLocation == null && moveToPoiId == null) {
             // first run app or disconnect - move to current user location
             moveAndZoomCameraToLocation(location, false);
         }
@@ -395,11 +400,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     /**
+     * TODO: is it work correctly ???
+     *
      * @return true if user move cameraPosition, and that's why camera location change.
      * false if cameraPosition changes because of location change
      */
     private boolean isUserMovingCamera() {
-        return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 > 5);
+        return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
 }

@@ -1,10 +1,12 @@
 package ru.nbakaev.cityguide.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +15,18 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
@@ -26,12 +35,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private LayoutInflater inflater;
     private final LocationProvider locationProvider;
     private Location lastLocation;
+    private Context context;
+    private PoiProvider poiProvider;
+    private final BitmapFactory.Options options = new BitmapFactory.Options();
 
+    private static final String TAG = RecyclerAdapter.class.getSimpleName();
 
-    public RecyclerAdapter(Context context, List<Poi> data, LocationProvider locationProvider) {
+    public RecyclerAdapter(Context context, List<Poi> data, LocationProvider locationProvider, PoiProvider poiProvider) {
         inflater = LayoutInflater.from(context);
         this.mData = data;
         this.locationProvider = locationProvider;
+        this.context = context;
+        this.poiProvider = poiProvider;
 
         Observer<Location> locationObserver = new Observer<Location>() {
             @Override
@@ -94,7 +109,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         TextView description;
         TextView distance;
         ImageView imgThumb;
-        //        imgDelete, imgAdd;
         int position;
         Poi current;
 
@@ -103,26 +117,53 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             title = (TextView) itemView.findViewById(R.id.tvTitle);
             description = (TextView) itemView.findViewById(R.id.tvDescription);
             distance = (TextView) itemView.findViewById(R.id.rvDistance);
+
+            // default image
             imgThumb = (ImageView) itemView.findViewById(R.id.img_row);
-//            imgDelete = (ImageView) itemView.findViewById(R.id.img_row_delete);
-//            imgAdd = (ImageView) itemView.findViewById(R.id.img_row_add);
+            itemView.setOnClickListener(this);
         }
 
         public void setData(Poi current, int position) {
             this.title.setText(current.getName());
-
-//            if (current.getImage() != null) {
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(current.getImage(), 0, current.getImage().length);
-//                this.imgThumb.setImageBitmap(bitmap);
-//            }
             this.position = position;
             this.current = current;
             this.description.setText(current.getDescription());
 
-            if (lastLocation != null){
+            if (!StringUtils.isEmpty(current.getImageUrl())) {
+                Observable<ResponseBody> icon = poiProvider.getIcon(current);
+                Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, d.toString());
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody value) {
+                        try {
+                            Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
+                            imgThumb.setImageBitmap(bitmap);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                };
+
+                icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
+            }
+
+            if (lastLocation != null) {
                 float distanceTo = lastLocation.distanceTo(current.getLocation().toLocation());
                 this.distance.setText(printDistance(distanceTo) + " m");
-            }else{
+            } else {
                 this.distance.setText("");
             }
 
@@ -135,15 +176,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         @Override
         public void onClick(View v) {
-//            switch (v.getId()) {
-//                case R.id.img_row_delete:
-//                    removeItem(position);
-//                    break;
-//
-//                case R.id.img_row_add:
-//                    addItem(position, current);
-//                    break;
-//            }
+            RecyclerView recyclerView = (RecyclerView) v.getParent();
+
+            int itemPosition = recyclerView.getChildLayoutPosition(v);
+            Poi poi = mData.get(itemPosition);
+            System.out.println(poi);
+
+            Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
+            i.putExtra("MOVE_TO_POI_ID", poi.getId());
+            RecyclerAdapter.this.context.startActivity(i);
         }
     }
 }
