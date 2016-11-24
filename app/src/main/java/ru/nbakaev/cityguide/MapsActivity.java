@@ -19,7 +19,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
-import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,8 +36,7 @@ import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.poi.db.PoiDb;
-import ru.nbakaev.cityguide.settings.SettingsService;
+import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.utils.AppUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
@@ -100,7 +98,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
     }
 
-    // TODO: https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
+    // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -120,7 +118,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
             switch (grantResults[0]) {
                 case PackageManager.PERMISSION_DENIED:
-                    requestPermission();
+                    requestPermissionLocation();
                     break;
                 case PackageManager.PERMISSION_GRANTED:
                     AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
@@ -146,7 +144,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALL);
     }
 
-    private void requestPermission() {
+    private void requestPermissionLocation() {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_LOCATION_CODE);
     }
 
@@ -170,7 +168,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         subscribeToMapsChange();
 
-        // TODO: https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
+        // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -180,7 +178,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermission();
+            requestPermissionLocation();
             Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
             return;
         } else {
@@ -193,12 +191,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
     }
 
-    // TODO: refactor whole method. SQL in method ???!!!
     private void moveToIntentPOI() {
         // we cache all POIs from server, so if we have POI id, DB should contain this value
-        List<PoiDb> withQuery = SugarRecord.findWithQuery(PoiDb.class, "SELECT * FROM POI_DB where poiId=(?)", moveToPoiId);
-        if (withQuery != null && withQuery.size() >0) {
-            Poi poi =  PoiDb.toPoi(withQuery.get(0));
+        Poi poi = DBService.getPoiById(moveToPoiId);
+        if (poi != null) {
             processMoveToIntentPoi(poi);
         }
     }
@@ -227,6 +223,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(Marker marker) {
 
+                // TODO: we show dialog depend on poi, but should get POI data, so we should "get" POI from marker
                 new MaterialDialog.Builder(MapsActivity.this)
                         .title(marker.getTitle())
                         .content(marker.getSnippet())
@@ -247,7 +244,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                 lastDateUserMovingCamera = new Date();
 
-                drawMarkers(location);
+                processNewLocation(location);
             }
         });
     }
@@ -257,7 +254,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
     }
 
-    private void drawMarkers(final Location cameraCenter) {
+    private void processNewLocation(final Location cameraCenter) {
         if (cameraCenter == null) {
             return;
         }
@@ -269,6 +266,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         } else {
             return;
         }
+        // get POIs from server/offline with some distance from current location
         poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<Poi>>() {
                     @Override
@@ -277,7 +275,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                     @Override
                     public void onNext(List<Poi> value) {
-                        processDrawMarkers(value);
+                        DBService.cachePoiToDB(value);
+                        drawMarkers(value);
                     }
 
                     @Override
@@ -290,7 +289,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 });
     }
 
-    private void sendNotificationToNewPois(List<Poi> newPoi) {
+    private void sendNotificationToNewPois(final List<Poi> newPoi) {
+        // do not send notification if user just move map
         if (!isUserMovingCamera()) {
             return;
         }
@@ -298,21 +298,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         notificationService.showNotification(newPoi, prevLocation);
     }
 
-    // add/update to DB every POI
-    private void cachePoiToDB(final List<Poi> data) {
-        if (SettingsService.getSettings().isOffline()) {
-            return;
-        }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SugarRecord.saveInTx(PoiDb.of(data));
-            }
-        }).start();
-    }
-
-    private void processDrawMarkers(List<Poi> data) {
-        cachePoiToDB(data);
+    /**
+     * Draw markers for current POIs. If markers is already drawn for some POI - skip POI
+     *
+     * @param data
+     */
+    private void drawMarkers(List<Poi> data) {
         final List<Poi> newPois = new ArrayList<>();
 
         for (final Poi poi : data) {
@@ -321,7 +312,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             }
         }
 
-        // if we have new poi - add new map
+        // if we have new poi - add new to map
         if (newPois.size() > 0) {
             clusterManager.addItems(newPois);
             // force re-cluster after add
@@ -332,16 +323,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             renderedPois.add(poi.getId());
         }
 
-        // optimization: if we have more than 5 new POIs -> start in new thread
-        if (newPois.size() > 5) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    sendNotificationToNewPois(newPois);
-                }
-            }).start();
-        }
-
+        sendNotificationToNewPois(newPois);
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
     }
 
@@ -378,7 +360,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
 
         prevLocation = location;
-        drawMarkers(prevLocation);
+        processNewLocation(prevLocation);
 
         // prevent camera go to current location if user just move map
         if (!isUserMovingCamera()) {
@@ -402,7 +384,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     /**
-     * TODO: is it work correctly ???
+     * TODO: is it work correctly ???. Maybe better to save last handled location and {@link prevLocation#distanceTo(cameraLocation)}
      *
      * @return true if user move cameraPosition, and that's why camera location change.
      * false if cameraPosition changes because of location change

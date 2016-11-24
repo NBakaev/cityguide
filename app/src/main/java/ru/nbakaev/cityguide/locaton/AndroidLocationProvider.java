@@ -24,6 +24,7 @@ import io.reactivex.ObservableOnSubscribe;
 
 
 /**
+ * TODO: optional; unsubscribe location get if no subscribers; what do when app in background? reduce time for onLocationChanged() ?
  * Created by Nikita on 10/11/2016.
  */
 
@@ -99,7 +100,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             return;
         }
 
-        // TODO: do we need synchronized. this code should be executed only in main thread
+        // TODO: optional; do we need synchronized?? this code should be executed only in main thread
         synchronized (this) {
 
             if (prevLocation != null) {

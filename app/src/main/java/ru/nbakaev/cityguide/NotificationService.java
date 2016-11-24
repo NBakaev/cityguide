@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.List;
@@ -24,14 +25,19 @@ public class NotificationService {
 
     private Context context;
     private NotificationManager notificationManager;
-    public final static int MAX_NOTIFICATION_IN_ONE_TIME = 6;
+    private final static int MAX_NOTIFICATION_IN_ONE_TIME = 6;
 
     public NotificationService(Context context) {
         this.context = context;
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    public void showNotification(List<Poi> newPoi, Location prevLocation) {
+    /**
+     * show notifications for POIs. If number of POIs > MAX_NOTIFICATION_IN_ONE_TIME - show only first
+     * @param newPoi POIs for which show notifications
+     * @param prevLocation current user location
+     */
+    public void showNotification(List<Poi> newPoi, @Nullable Location prevLocation) {
 
         // if we have more than OFFLINE_CHUNK_SIZE number of notification in one time, show only part of this
         if (newPoi.size() > MAX_NOTIFICATION_IN_ONE_TIME){

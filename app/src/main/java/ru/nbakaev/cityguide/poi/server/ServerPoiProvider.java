@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.poi;
+package ru.nbakaev.cityguide.poi.server;
 
 import android.content.Context;
 
@@ -12,6 +12,8 @@ import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.PoiProvider;
 
 import static ru.nbakaev.cityguide.settings.SettingsService.getServerUrl;
 
@@ -44,7 +46,7 @@ public class ServerPoiProvider implements PoiProvider {
 
     @Override
     public Observable<List<Poi>> getData(double x0, double y0, int radius) {
-        final SearchRequest searchRequest = new SearchRequest();
+        final SearchRequestDto searchRequest = new SearchRequestDto();
         searchRequest.setLatitude(x0);
         searchRequest.setLongitude(y0);
         searchRequest.setRadius(radius);

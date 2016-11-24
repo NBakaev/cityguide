@@ -18,6 +18,7 @@ import io.reactivex.schedulers.Schedulers;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
@@ -76,7 +77,6 @@ public class MainActivity extends BaseActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         locationProvider.getCurrentUserLocation().subscribe(locationObserver);
-//        handleNewLocation(null);
     }
 
     private void handleNewLocation(Location prevLocation) {
@@ -100,6 +100,7 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Poi> value) {
+                        DBService.cachePoiToDB(value);
                         RecyclerAdapter adapter = new RecyclerAdapter(MainActivity.this, value, locationProvider, poiProvider);
                         recyclerView.setAdapter(adapter);
                     }
@@ -114,8 +115,6 @@ public class MainActivity extends BaseActivity {
 
                     }
                 });
-
-
     }
 
 }
