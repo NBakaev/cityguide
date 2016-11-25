@@ -38,6 +38,7 @@ import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.utils.CacheUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
@@ -55,6 +56,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     @Inject
     LocationProvider locationProvider;
+
+    @Inject
+    DBService dbService;
+
+    @Inject
+    CacheUtils cacheUtils;
 
     private final int PERMISSION_LOCATION_CODE = 1;
     private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
@@ -163,7 +170,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
         clusterManager = new ClusterManager<>(this, googleMap);
-        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider);
+        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
         clusterManager.setRenderer(poiClusterRenderer);
 
         subscribeToMapsChange();
@@ -193,7 +200,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private void moveToIntentPOI() {
         // we cache all POIs from server, so if we have POI id, DB should contain this value
-        Poi poi = DBService.getPoiById(moveToPoiId);
+        Poi poi = dbService.getPoiById(moveToPoiId);
         if (poi != null) {
             processMoveToIntentPoi(poi);
         }
@@ -275,7 +282,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                     @Override
                     public void onNext(List<Poi> value) {
-                        DBService.cachePoiToDB(value);
+                        dbService.cachePoiToDB(value);
                         drawMarkers(value);
                     }
 

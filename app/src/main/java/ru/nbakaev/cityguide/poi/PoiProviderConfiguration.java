@@ -21,8 +21,8 @@ public class PoiProviderConfiguration {
 
     @ApplicationScope
     @Provides
-    public PoiProvider poiProvider(Context context) {
-        AppSettings settings = SettingsService.getSettings();
+    public PoiProvider poiProvider(Context context, SettingsService settingsService) {
+        AppSettings settings = settingsService.getSettings();
         boolean offlineMode = settings.isOffline();
 
         Log.d(TAG, Boolean.toString(offlineMode));

@@ -1,52 +1,56 @@
 package ru.nbakaev.cityguide.poi.db;
 
-import com.orm.dsl.Column;
-import com.orm.dsl.Table;
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.nbakaev.cityguide.poi.Poi;
 
-/**
- * Annotate all fields with {@link Column} because if field has not this aanotation,
- * it has a huge usage {@link com.orm.util.NamingHelper#toSQLNameDefault(String)}
- * Created by ya on 11/17/2016.
- */
-@Table
+@Entity
 public class PoiDb {
 
-    // sugar orm require ID field to be long type
-    @Column(name = "_id")
+    @Id(autoincrement = false)
     private Long id;
 
-    @Column(name="name")
     private String name;
 
-    @Column(name="description")
     private String description;
 
-    @Column(name="latitude")
     private double latitude = 0.0;
 
-    @Column(name="longitude")
     private double longitude = 0.0;
 
-    // real id, from server
-    @Column(name="poiId")
+    @Index(unique = true)
     private String poiId;
 
-    @Column(name="imageUrl")
     private String imageUrl;
 
     public PoiDb() {
     }
 
+
+    @Generated(hash = 581838203)
+    public PoiDb(Long id, String name, String description, double latitude, double longitude,
+            String poiId, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.poiId = poiId;
+        this.imageUrl = imageUrl;
+    }
+
+
     public static PoiDb of(Poi poi) {
         PoiDb poiDb = new PoiDb();
+        poiDb.setId((long) poi.getId().hashCode());
         poiDb.setDescription(poi.getDescription());
         poiDb.setName(poi.getName());
-        poiDb.setId((long) poi.getId().hashCode());
         poiDb.setImageUrl(poi.getImageUrl());
         poiDb.setLatitude(poi.getLocation().getLatitude());
         poiDb.setLongitude(poi.getLocation().getLongitude());

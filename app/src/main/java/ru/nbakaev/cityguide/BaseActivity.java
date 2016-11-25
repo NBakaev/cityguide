@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
@@ -26,10 +28,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected Toolbar toolbar;
     protected String DEFAULT_TITLE = "City Guide";
 
+    @Inject
+    SettingsService settingsService;
+
     protected void setUpToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("City Guide");
 //        toolbar.inflateMenu(R.menu.menu_main);
+    }
+
+    public BaseActivity() {
     }
 
     protected String setupNameHeader(double latitude, double longitude){
@@ -62,18 +70,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void setUpDrawer() {
+        if (settingsService == null){
+            App.getAppComponent().inject(this);
+        }
+
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.nav_drwr_fragment);
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerFragment.setUpDrawer(R.id.nav_drwr_fragment, drawerLayout, toolbar);
 
         SwitchCompat offlineModeSwitch = (SwitchCompat) findViewById(R.id.onlineSwitch);
-        offlineModeSwitch.setChecked(SettingsService.getSettings().isOffline());
+        offlineModeSwitch.setChecked(settingsService.getSettings().isOffline());
         offlineModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AppSettings settings = SettingsService.getSettings();
+                AppSettings settings = settingsService.getSettings();
                 settings.setOffline(isChecked);
-                SettingsService.saveSettings(settings);
+                settingsService.saveSettings(settings);
                 AppUtils.doRestart(getApplicationContext()); // restart app to reload dagger
             }
         });

@@ -33,6 +33,9 @@ public class MainActivity extends BaseActivity {
     @Inject
     LocationProvider locationProvider;
 
+    @Inject
+    DBService dbService;
+
     private RecyclerView recyclerView;
 
     @Override
@@ -100,7 +103,7 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Poi> value) {
-                        DBService.cachePoiToDB(value);
+                        dbService.cachePoiToDB(value);
                         RecyclerAdapter adapter = new RecyclerAdapter(MainActivity.this, value, locationProvider, poiProvider);
                         recyclerView.setAdapter(adapter);
                     }

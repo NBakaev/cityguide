@@ -1,6 +1,9 @@
 package ru.nbakaev.cityguide.settings;
 
-import com.orm.SugarRecord;
+import android.content.Context;
+
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.poi.db.DaoSession;
 
 /**
  * Created by ya on 11/17/2016.
@@ -8,30 +11,36 @@ import com.orm.SugarRecord;
 
 public class SettingsService {
 
-    private static AppSettings appSettings;
+    private Context context;
+    private DaoSession daoSession;
+    private AppSettings appSettings;
+
+    public SettingsService(Context context) {
+        this.context = context;
+        this.daoSession = ((App) context).getDaoSession();
+    }
 
     public static String getServerUrl(){
         return "https://s2.nbakaev.ru/api/v1/";
     }
 
-    public static AppSettings getSettings() {
+    public AppSettings getSettings() {
         if (appSettings != null){
             return appSettings;
         }
 
-        AppSettings first = SugarRecord.first(AppSettings.class);
+        AppSettings first = daoSession.getAppSettingsDao().queryBuilder().unique();
         if (first != null) {
-            SettingsService.appSettings = first;
+            appSettings = first;
             return first;
         }
         AppSettings appSettings = new AppSettings();
-        SugarRecord.save(appSettings);
-        SettingsService.appSettings = appSettings;
+        daoSession.getAppSettingsDao().save(appSettings);
         return appSettings;
     }
 
-    public static void saveSettings(AppSettings appSettings) {
-        SugarRecord.save(appSettings);
+    public void saveSettings(AppSettings appSettings) {
+        daoSession.getAppSettingsDao().save(appSettings);
     }
 
 }

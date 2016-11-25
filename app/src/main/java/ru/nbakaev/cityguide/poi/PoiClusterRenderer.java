@@ -33,13 +33,17 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
     private static final String TAG = MapsActivity.class.getSimpleName();
     private PoiProvider poiProvider;
     private final BitmapFactory.Options options = new BitmapFactory.Options();
+    private SettingsService settingsService;
+    private CacheUtils cacheUtils;
 
-    public PoiClusterRenderer(Context context, GoogleMap map, ClusterManager<Poi> clusterManager, PoiProvider poiProvider) {
+    public PoiClusterRenderer(Context context, GoogleMap map, ClusterManager<Poi> clusterManager, PoiProvider poiProvider, SettingsService settingsService, CacheUtils cacheUtils) {
         super(context, map, clusterManager);
         this.poiProvider = poiProvider;
+        this.settingsService = settingsService;
+        this.cacheUtils = cacheUtils;
 
         // in offline cache if already have image with inSampleSize = 7
-        if (!SettingsService.getSettings().isOffline()) {
+        if (!settingsService.getSettings().isOffline()) {
             options.inSampleSize = 7;
         }
     }
@@ -66,7 +70,7 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
                 public void onNext(ResponseBody value) {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
-                        CacheUtils.cachePoiImage(bitmap, poi);
+                        cacheUtils.cachePoiImage(bitmap, poi);
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());

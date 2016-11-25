@@ -21,6 +21,12 @@ public class CacheUtils {
 
     private static final String TAG = CacheUtils.class.getSimpleName();
 
+    private SettingsService settingsService;
+
+    public CacheUtils(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
+
     private static String cachePath;
     static {
         File sdCardDirectory = Environment.getExternalStorageDirectory();
@@ -39,8 +45,8 @@ public class CacheUtils {
         return new File(getCacheImagePath(), getImageCachePathForPoi(poi));
     }
 
-    public static void cachePoiImage(Bitmap bitmap, Poi poi) {
-        if (SettingsService.getSettings().isOffline()) {
+    public void cachePoiImage(Bitmap bitmap, Poi poi) {
+        if (settingsService.getSettings().isOffline()) {
             return;
         }
 
