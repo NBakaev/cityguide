@@ -25,12 +25,17 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="16dp"/>
 
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="0.2dp"
+		android:background="#EEEEEE"/>
+
 	<android.support.v7.widget.SwitchCompat
 		android:id="@+id/onlineSwitch"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="offline"
+		android:text="Downloaded only"
 		android:layout_marginLeft="16dp"
-		android:layout_marginTop="1dp"/>
+		android:layout_marginTop="5dp"/>
 
 </LinearLayout>

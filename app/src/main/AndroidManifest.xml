@@ -33,6 +33,10 @@
             android:name="ru.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_maps"></activity>
 
+        <activity
+            android:name="ru.nbakaev.cityguide.about.AboutActivity"
+            android:label="@string/title_activity_build"></activity>
+
         <meta-data android:name="DATABASE" android:value="city_guide.db" />
         <meta-data android:name="VERSION" android:value="4" />
         <meta-data android:name="QUERY_LOG" android:value="true" />

@@ -33,7 +33,17 @@ buildscript {
     }
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'hu.supercluster:paperwork-plugin:1.2.7'
     }
+}
+
+apply plugin: 'hu.supercluster.paperwork'
+
+paperwork {
+    set = [
+            buildTime: buildTime("yyyy-MM-dd HH:mm:ss"),
+            gitSha:     gitSha(),
+    ]
 }
 
 // Apply plugin
@@ -60,6 +70,7 @@ dependencies {
     compile 'com.google.guava:guava:20.0'
 
     compile 'org.greenrobot:greendao:3.2.0'
+    compile 'hu.supercluster:paperwork:1.2.7'
 
     compile 'com.google.dagger:dagger:2.7'
     apt 'com.google.dagger:dagger-compiler:2.7'

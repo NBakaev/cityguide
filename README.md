@@ -37,3 +37,4 @@ context.startActivity(i);
 Notes:
  - POIs in DB stored as ru.nbakaev.cityguide.poi.db.PoiDb but all methods get ru.nbakaev.cityguide.poi.Poi.
 You can transform between tho methods with static methods of PoiDb.class
+- Android icons from https://material.io/icons

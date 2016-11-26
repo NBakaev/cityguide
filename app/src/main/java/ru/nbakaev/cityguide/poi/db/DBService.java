@@ -28,15 +28,20 @@ public class DBService {
         this.settingsService = settingsService;
     }
 
+    public long getPoisInDB() {
+        return daoSession.getPoiDbDao().count();
+    }
+
     /**
      * add/update every POI to database
+     *
      * @param data POIs to save local
      * @return true when all saved
      */
     public Future<Boolean> cachePoiToDB(final List<Poi> data) {
         final List<PoiDb> of = PoiDb.of(data);
 
-        if (data == null || data.isEmpty()){
+        if (data == null || data.isEmpty()) {
             return null;
         }
 
@@ -44,7 +49,7 @@ public class DBService {
             return null;
         }
 
-         Callable<Boolean> callable = new Callable<Boolean>() {
+        Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {
@@ -57,16 +62,16 @@ public class DBService {
 //
                     for (PoiDb poiDb : of) {
                         long count = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.PoiId.eq(poiDb.getPoiId())).count();
-                        if (count > 0){
+                        if (count > 0) {
                             // update
                             daoSession.getPoiDbDao().save(poiDb);
-                        }else{
+                        } else {
                             // insert new record
                             daoSession.getPoiDbDao().insert(poiDb);
                         }
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return true;
@@ -78,12 +83,13 @@ public class DBService {
 
     /**
      * Get poi by id,
+     *
      * @param id id of poi
      * @return POI, or null if no poi with such id in db
      */
-    public Poi getPoiById(String id){
+    public Poi getPoiById(String id) {
         PoiDb poiDb = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.PoiId.eq(id)).unique();
-        if (poiDb == null){
+        if (poiDb == null) {
             return null;
         }
 

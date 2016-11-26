@@ -5,6 +5,7 @@ import ru.nbakaev.cityguide.AppModule;
 import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.about.AboutActivity;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
 import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
 
@@ -21,5 +22,7 @@ public interface AppComponent {
     void inject(MapsActivity mapsActivity);
 
     void inject(BaseActivity baseActivity);
+
+    void inject(AboutActivity aboutActivity);
 
 }
