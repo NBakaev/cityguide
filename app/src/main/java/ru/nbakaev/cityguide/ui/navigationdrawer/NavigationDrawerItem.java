@@ -49,7 +49,7 @@ public class NavigationDrawerItem {
     private static String[] getTitles() {
 
         return new String[]{
-                "Map", "Poi", "About"
+                "Map", "Near me", "About"
         };
     }
 }

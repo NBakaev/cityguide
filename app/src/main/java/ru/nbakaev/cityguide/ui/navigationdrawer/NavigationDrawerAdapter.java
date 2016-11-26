@@ -57,7 +57,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
 
-                if (holder.title.getText().toString().equals("Poi")) {
+                if (holder.title.getText().toString().equals("Near me")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }

@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity {
         setUpToolbar();
         setUpDrawer();
         setUpRecyclerView();
+        toolbar.setTitle(getString(R.string.title_activity_main));
     }
 
     private void setUpRecyclerView() {

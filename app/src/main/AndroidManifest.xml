@@ -31,16 +31,11 @@
 
         <activity
             android:name="ru.nbakaev.cityguide.MainActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_main"></activity>
 
         <activity
             android:name="ru.nbakaev.cityguide.about.AboutActivity"
             android:label="@string/title_activity_build"></activity>
-
-        <meta-data android:name="DATABASE" android:value="city_guide.db" />
-        <meta-data android:name="VERSION" android:value="4" />
-        <meta-data android:name="QUERY_LOG" android:value="true" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="ru.nbakaev.cityguide" />
 
     </application>
 
