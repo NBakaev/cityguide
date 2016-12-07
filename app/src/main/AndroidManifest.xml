@@ -32,6 +32,9 @@
         <activity
             android:name="ru.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_maps"></activity>
+        <activity
+            android:name="ru.nbakaev.cityguide.CitiesActivity"
+            android:label="@string/title_activity_maps"></activity>
 
         <meta-data android:name="DATABASE" android:value="city_guide.db" />
         <meta-data android:name="VERSION" android:value="4" />

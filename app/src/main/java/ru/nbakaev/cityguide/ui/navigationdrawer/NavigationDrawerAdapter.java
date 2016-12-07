@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
+import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
@@ -51,6 +52,10 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
                 if (holder.title.getText().toString().equals("Poi")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
+                    NavigationDrawerAdapter.this.context.startActivity(intent);
+                }
+                if (holder.title.getText().toString().equals("Cities")) {
+                    Intent intent = new Intent(NavigationDrawerAdapter.this.context, CitiesActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
             }

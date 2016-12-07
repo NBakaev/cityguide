@@ -2,6 +2,7 @@ package ru.nbakaev.cityguide.di;
 
 import dagger.Component;
 import ru.nbakaev.cityguide.AppModule;
+import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;

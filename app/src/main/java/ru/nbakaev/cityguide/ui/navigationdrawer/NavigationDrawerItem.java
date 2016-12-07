@@ -43,13 +43,13 @@ public class NavigationDrawerItem {
     }
 
     private static int[] getImages() {
-        return new int[]{R.drawable.ic_birds, R.drawable.ic_animal};
+        return new int[]{R.drawable.ic_birds, R.drawable.ic_animal, R.drawable.ic_city, R.drawable.ic_qr};
     }
 
     private static String[] getTitles() {
 
         return new String[]{
-                "Map", "Poi"
+                "Map", "Poi", "Cities", "QR Codes"
         };
     }
 }
