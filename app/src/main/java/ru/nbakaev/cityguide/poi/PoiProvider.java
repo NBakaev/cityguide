@@ -14,6 +14,7 @@ public interface PoiProvider {
     int DISTANCE_POI_DOWNLOAD = DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH * 2;
 
     Observable<List<Poi>> getData(double x0, double y0, int radius);
+    Observable<Poi> getById(String id);
     Observable<ResponseBody> getIcon(Poi poi);
 
 }

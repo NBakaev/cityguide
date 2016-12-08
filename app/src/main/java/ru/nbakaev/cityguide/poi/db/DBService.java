@@ -82,7 +82,7 @@ public class DBService {
     }
 
     /**
-     * Get poi by id,
+     * Get poi by id from local database. do not user server
      *
      * @param id id of poi
      * @return POI, or null if no poi with such id in db

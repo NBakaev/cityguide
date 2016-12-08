@@ -20,6 +20,9 @@ public interface ServerPOIsProvider {
     @POST("poi/search")
     Observable<List<Poi>> getPoiInRadius(@Body SearchRequestDto searchRequest);
 
+    @POST("poi/id/{id}")
+    Observable<Poi> getPoiById(@Path(value = "id", encoded = true) String id);
+
     @GET("{fullUrl}")
     Observable<ResponseBody> getIcon(@Path(value = "fullUrl", encoded = true) String fullUrl);
 }

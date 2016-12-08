@@ -5,6 +5,9 @@ import android.location.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Poi implements ClusterItem {
 
     private String name;
@@ -13,15 +16,23 @@ public class Poi implements ClusterItem {
     private String id;
     private String imageUrl;
 
-    // TODO: optional; not used field. remove field on server/client
-    private byte[] image = null;
+    private List<String> imageUrls = new ArrayList<>();
+    private String videoUrl;
 
-    public byte[] getImage() {
-        return image;
+    public List<String> getImageUrls() {
+        return imageUrls;
     }
 
-    public void setImage(byte[] image) {
-        this.image = image;
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
     public String getImageUrl() {
@@ -143,7 +154,10 @@ public class Poi implements ClusterItem {
             return false;
         if (location != null ? !location.equals(poi.location) : poi.location != null) return false;
         if (id != null ? !id.equals(poi.id) : poi.id != null) return false;
-        return imageUrl != null ? imageUrl.equals(poi.imageUrl) : poi.imageUrl == null;
+        if (imageUrl != null ? !imageUrl.equals(poi.imageUrl) : poi.imageUrl != null) return false;
+        if (imageUrls != null ? !imageUrls.equals(poi.imageUrls) : poi.imageUrls != null)
+            return false;
+        return videoUrl != null ? videoUrl.equals(poi.videoUrl) : poi.videoUrl == null;
 
     }
 
@@ -154,6 +168,8 @@ public class Poi implements ClusterItem {
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
+        result = 31 * result + (imageUrls != null ? imageUrls.hashCode() : 0);
+        result = 31 * result + (videoUrl != null ? videoUrl.hashCode() : 0);
         return result;
     }
 }

@@ -54,6 +54,11 @@ public class ServerPoiProvider implements PoiProvider {
     }
 
     @Override
+    public Observable<Poi> getById(String id) {
+        return poiProvider.getPoiById(id);
+    }
+
+    @Override
     public Observable<ResponseBody> getIcon(Poi poi) {
         return poiProvider.getIcon(poi.getImageUrl());
     }
