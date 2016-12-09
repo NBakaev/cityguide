@@ -163,7 +163,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             if (lastLocation != null) {
                 float distanceTo = lastLocation.distanceTo(current.getLocation().toLocation());
-                this.distance.setText(printDistance(distanceTo) + " m");
+                this.distance.setText(printDistance(distanceTo));
             } else {
                 this.distance.setText("");
             }

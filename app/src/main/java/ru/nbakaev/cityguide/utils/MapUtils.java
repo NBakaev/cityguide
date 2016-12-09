@@ -6,8 +6,16 @@ package ru.nbakaev.cityguide.utils;
 
 public class MapUtils {
 
-    public static  String printDistance(Float aFloat){
-        return Float.toString(aFloat);
+    /**
+     * @param distance distance inb metres
+     * @return
+     */
+    public static String printDistance(Float distance) {
+        if (distance > 1000) {
+            return String.format("%.2f", distance / 1000) + " km";
+        }
+
+        return String.format("%.2f", distance) + " m";
     }
 
 }
