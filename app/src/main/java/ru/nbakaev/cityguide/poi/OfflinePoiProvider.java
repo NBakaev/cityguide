@@ -4,12 +4,12 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.google.common.io.Files;
-import com.orm.SugarRecord;
+
+import org.greenrobot.greendao.query.CloseableListIterator;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -19,6 +19,8 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.poi.db.DaoSession;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
 
 import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
@@ -31,6 +33,7 @@ public class OfflinePoiProvider implements PoiProvider {
 
     private final Context context;
     public final static int OFFLINE_CHUNK_SIZE = 3_000;
+    public final static int MAXIMUM_SQL_QUERY_LIMIT_RETURN = 3_000;
 
     public OfflinePoiProvider(Context context) {
         this.context = context;
@@ -44,10 +47,13 @@ public class OfflinePoiProvider implements PoiProvider {
         return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
             @Override
             public void subscribe(ObservableEmitter<List<PoiDb>> e) throws Exception {
-                final Iterator<PoiDb> all = SugarRecord.findWithQueryAsIterator(PoiDb.class,
-//                        "SELECT _id, latitude, longitude FROM POI_DB ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT 65",
-                        "SELECT * FROM POI_DB ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT 5000",
-                        Double.toString(x0), Double.toString(y0));
+                DaoSession daoSession = ((App) context).getDaoSession();
+
+//                daoSession.getPoiDbDao().getDatabase().rawQuery("SELECT * FROM POI_DB ORDER BY abs(LATITUDE - (?)) + abs( LONGITUDE - (?)) LIMIT 5000", new String[]{Double.toString(x0), Double.toString(y0)})
+                CloseableListIterator<PoiDb> all = daoSession.getPoiDbDao().queryRawCreate(
+                        "ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT " + MAXIMUM_SQL_QUERY_LIMIT_RETURN,
+                        Double.toString(x0), Double.toString(y0)
+                ).listIterator();
 
                 List<PoiDb> buffer = new ArrayList<>();
                 while (all.hasNext()) {
@@ -61,6 +67,8 @@ public class OfflinePoiProvider implements PoiProvider {
                 if (buffer.size() > 0){
                     e.onNext(buffer);
                 }
+
+                all.close();
             }
         }).subscribeOn(Schedulers.computation()).map(new Function<List<PoiDb>, List<Poi>>() {
             @Override

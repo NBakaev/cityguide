@@ -30,13 +30,14 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
     Random randrom = new Random();
     LayoutInflater inflater;
     List<City> cities;
-    List<City> selected = new ArrayList<>();
-    MultiSelector multiSelector;
 
-    public CityRecyclerAdapter(Context context, List<City> cities, MultiSelector multiSelector) {
+    MultiSelector selector = new MultiSelector();
+//    MultiSelector multiSelector;
+
+    public CityRecyclerAdapter(Context context, List<City> cities) {
         this.cities = cities;
         inflater = LayoutInflater.from(context);
-        this.multiSelector = multiSelector;
+//        this.multiSelector = multiSelector;
     }
 
     @Override
@@ -50,20 +51,6 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
     public void onBindViewHolder(CityHolder holder, final int position) {
         final City current = cities.get(position);
         holder.setData(current, position);
-        holder.holder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (selected.contains(current)) {
-                    selected.remove(current);
-                    //holder.setBackgroundResource(R.color.white);
-                }
-                else {
-                    selected.add(current);
-                    //holder.setBackgroundResource(R.color.grey_300);
-                }
-                notifyItemChanged(position);
-            }
-        });
     }
 
     @Override
@@ -82,7 +69,7 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
         City current;
 
         public CityHolder(View itemView) {
-            super(itemView);
+            super(itemView, selector);
             holder = (LinearLayout) itemView.findViewById(R.id.cityHolder);
             title = (TextView) itemView.findViewById(R.id.cityTitle);
             poi = (TextView) itemView.findViewById(R.id.cityPOI);
@@ -113,22 +100,29 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
                 imgLoad.setImageResource(R.drawable.ic_update);
             }
 
-            if (multiSelector.isSelected(pos, Integer.decode(current.id)))
-                holder.setBackgroundResource(R.color.grey_300);
-            else
-                holder.setBackgroundResource(R.color.white);
-
             holder.setLongClickable(true);
             holder.setOnLongClickListener(this);
+
+            if (isActivated()) {
+                holder.setBackgroundResource(R.color.grey_300);
+            }
+            else {
+                holder.setBackgroundResource(R.color.white);
+            }
+
         }
+
+
+
+
 
 
         @Override
         public boolean onLongClick(View v) {
-            if (multiSelector.isSelectable())
-            {
-                multiSelector.setSelected(pos, Integer.decode(current.id), !multiSelector.isSelected(pos, Integer.decode(current.id)));
-                return  true;
+            if (!selector.isSelectable()) {
+                selector.setSelectable(true);
+                selector.setSelected(CityHolder.this, true);
+                return true;
             }
             return false;
         }

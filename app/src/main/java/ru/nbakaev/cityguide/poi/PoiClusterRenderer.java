@@ -9,14 +9,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.common.io.Files;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -26,10 +21,8 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.settings.SettingsService;
+import ru.nbakaev.cityguide.utils.CacheUtils;
 import ru.nbakaev.cityguide.utils.StringUtils;
-
-import static ru.nbakaev.cityguide.utils.CacheUtils.getCacheImagePath;
-import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
 
 /**
  * Created by ya on 11/19/2016.
@@ -40,12 +33,17 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
     private static final String TAG = MapsActivity.class.getSimpleName();
     private PoiProvider poiProvider;
     private final BitmapFactory.Options options = new BitmapFactory.Options();
+    private SettingsService settingsService;
+    private CacheUtils cacheUtils;
 
-    public PoiClusterRenderer(Context context, GoogleMap map, ClusterManager<Poi> clusterManager, PoiProvider poiProvider) {
+    public PoiClusterRenderer(Context context, GoogleMap map, ClusterManager<Poi> clusterManager, PoiProvider poiProvider, SettingsService settingsService, CacheUtils cacheUtils) {
         super(context, map, clusterManager);
         this.poiProvider = poiProvider;
+        this.settingsService = settingsService;
+        this.cacheUtils = cacheUtils;
 
-        if (!SettingsService.getSettings().isOffline()) {
+        // in offline cache if already have image with inSampleSize = 7
+        if (!settingsService.getSettings().isOffline()) {
             options.inSampleSize = 7;
         }
     }
@@ -72,7 +70,7 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
                 public void onNext(ResponseBody value) {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
-                        cachePoiImage(bitmap, poi);
+                        cacheUtils.cachePoiImage(bitmap, poi);
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
@@ -104,36 +102,4 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
         }
     }
 
-    private void cachePoiImage(Bitmap bitmap, Poi poi) {
-        if (SettingsService.getSettings().isOffline()) {
-            return;
-        }
-
-        try {
-            String cacheImagePath = getCacheImagePath();
-            File file = new File(cacheImagePath);
-            if (!file.exists()) {
-                if (file.mkdir()) {
-                    Log.d(TAG, "Cache directory is created!");
-                } else {
-                    Log.e(TAG, "Failed cache directory is create!");
-                }
-            }
-
-            String fileExtension = Files.getFileExtension(poi.getImageUrl());
-            File image = getImageCacheFile(poi);
-            FileOutputStream outStream;
-            outStream = new FileOutputStream(image);
-            if (fileExtension.equalsIgnoreCase("png")) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);  /* 100 to keep full quality of the image */
-            } else {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);  /* 100 to keep full quality of the image */
-            }
-
-            outStream.flush();
-            outStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

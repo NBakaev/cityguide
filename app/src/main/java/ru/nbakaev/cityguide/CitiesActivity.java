@@ -22,8 +22,6 @@ public class CitiesActivity extends BaseActivity {
     RecyclerView reciclerView;
     CityRecyclerAdapter adapter;
 
-    MultiSelector multiSelector;
-
     Random random = new Random();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +33,11 @@ public class CitiesActivity extends BaseActivity {
 
         setUpToolbar();
         setUpDrawer();
-        setupMultiselector();
+//        setupMultiselector();
         setUpRecyclerView();
     }
 
-    void setupMultiselector()
-    {
-        multiSelector = new MultiSelector();
-        multiSelector.setSelectable(true);
-    }
+
 
     private void setUpRecyclerView()
     {
@@ -62,7 +56,7 @@ public class CitiesActivity extends BaseActivity {
                 city.lastUpdated = null;
             cities.add(city);
         }
-        adapter = new CityRecyclerAdapter(this, cities, multiSelector);
+        adapter = new CityRecyclerAdapter(this, cities);
         reciclerView.setAdapter(adapter);
 
         LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(this);

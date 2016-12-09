@@ -6,6 +6,7 @@ import android.util.Log;
 import dagger.Module;
 import dagger.Provides;
 import ru.nbakaev.cityguide.di.ApplicationScope;
+import ru.nbakaev.cityguide.poi.server.ServerPoiProvider;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 
@@ -20,12 +21,13 @@ public class PoiProviderConfiguration {
 
     @ApplicationScope
     @Provides
-    public PoiProvider poiProvider(Context context) {
-        AppSettings settings = SettingsService.getSettings();
+    public PoiProvider poiProvider(Context context, SettingsService settingsService) {
+        AppSettings settings = settingsService.getSettings();
         boolean offlineMode = settings.isOffline();
 
         Log.d(TAG, Boolean.toString(offlineMode));
 
+        // TODO: optional; THIS IS NOT DI !!!. move to separate module ???
         if (offlineMode) {
             return new OfflinePoiProvider(context);
         } else {

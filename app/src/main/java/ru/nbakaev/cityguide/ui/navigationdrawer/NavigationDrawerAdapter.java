@@ -2,6 +2,7 @@ package ru.nbakaev.cityguide.ui.navigationdrawer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +17,14 @@ import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
+import ru.nbakaev.cityguide.about.AboutActivity;
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
 
     private List<NavigationDrawerItem> mDataList = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
+    private static int selectedPos = 0;
 
     public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data) {
         this.context = context;
@@ -37,30 +40,41 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, int position) {
-        NavigationDrawerItem current = mDataList.get(position);
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+        if (selectedPos == position){
+            holder.itemView.setBackgroundColor(Color.parseColor("#EEEEEE"));
+        }
 
+        NavigationDrawerItem current = mDataList.get(position);
         holder.imgIcon.setImageResource(current.getImageId());
         holder.title.setText(current.getName());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                selectedPos = holder.getAdapterPosition();
+
                 if (holder.title.getText().toString().equals("Map")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MapsActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
 
-                if (holder.title.getText().toString().equals("Poi")) {
+                if (holder.title.getText().toString().equals("Near me")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
                 if (holder.title.getText().toString().equals("Cities")) {
                     Intent intent = new Intent(NavigationDrawerAdapter.this.context, CitiesActivity.class);
                     NavigationDrawerAdapter.this.context.startActivity(intent);
+
+                }
+                if (holder.title.getText().toString().equals("About")) {
+                    Intent intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
+                    NavigationDrawerAdapter.this.context.startActivity(intent);
                 }
             }
         });
-    }
+            }
+
 
     @Override
     public int getItemCount() {

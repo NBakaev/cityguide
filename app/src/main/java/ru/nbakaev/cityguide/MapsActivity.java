@@ -1,17 +1,11 @@
 package ru.nbakaev.cityguide;
 
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,7 +19,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
-import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,14 +36,12 @@ import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.poi.db.PoiDb;
-import ru.nbakaev.cityguide.settings.SettingsService;
+import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.utils.CacheUtils;
 
-import static ru.nbakaev.cityguide.poi.OfflinePoiProvider.OFFLINE_CHUNK_SIZE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
-import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
@@ -66,11 +57,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Inject
     LocationProvider locationProvider;
 
+    @Inject
+    DBService dbService;
 
-    //    private Map<String, Marker> currentMarkers = new HashMap<>();
-    private Set<String> renderedPois = new HashSet<>();
-
-    private PoiClusterRenderer poiClusterRenderer;
+    @Inject
+    CacheUtils cacheUtils;
 
     private final int PERMISSION_LOCATION_CODE = 1;
     private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
@@ -78,7 +69,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private Date lastDateUserMovingCamera = null;
 
+    // if we start activity with new Intent().putExtra("MOVE_TO_POI_ID", poi.getId());
+    // this variable contains id of POI to which go
+
+    private String moveToPoiId = null;
+    private Set<String> renderedPois = new HashSet<>();
+
     private ClusterManager<Poi> clusterManager;
+    private NotificationService notificationService;
+    private PoiClusterRenderer poiClusterRenderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +93,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         prevLocation = null;
 
         App.getAppComponent().inject(this);
+        notificationService = new NotificationService(getApplicationContext());
+
+        // if activity started with "go to poi"
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String value = extras.getString("MOVE_TO_POI_ID");
+            if (value != null) {
+                moveToPoiId = value;
+            }
+        }
     }
 
+    // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -115,7 +125,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
             switch (grantResults[0]) {
                 case PackageManager.PERMISSION_DENIED:
-                    requestPermission();
+                    requestPermissionLocation();
                     break;
                 case PackageManager.PERMISSION_GRANTED:
                     AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
@@ -141,7 +151,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALL);
     }
 
-    private void requestPermission() {
+    private void requestPermissionLocation() {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_LOCATION_CODE);
     }
 
@@ -160,11 +170,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
         clusterManager = new ClusterManager<>(this, googleMap);
-        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider);
+        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
         clusterManager.setRenderer(poiClusterRenderer);
 
         subscribeToMapsChange();
 
+        // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -174,13 +185,40 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermission();
+            requestPermissionLocation();
             Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
             return;
         } else {
             mMap.setMyLocationEnabled(true);
         }
         locationGrantedPermission();
+
+        if (moveToPoiId != null) {
+            moveToIntentPOI();
+        }
+    }
+
+    private void moveToIntentPOI() {
+        // we cache all POIs from server, so if we have POI id, DB should contain this value
+        Poi poi = dbService.getPoiById(moveToPoiId);
+        if (poi != null) {
+            processMoveToIntentPoi(poi);
+        }
+    }
+
+    private void processMoveToIntentPoi(Poi poi) {
+        Location location = new Location("loca");
+        location.setLatitude(poi.getLocation().getLatitude());
+        location.setLongitude(poi.getLocation().getLongitude());
+        moveAndZoomCameraToLocation(location, false);
+
+        lastDateUserMovingCamera = new Date();
+
+        // TODO: refactor; extract to function that make modal for POI. this is also used in mMap#setOnMarkerClickListener
+        new MaterialDialog.Builder(MapsActivity.this)
+                .title(poi.getName())
+                .content(poi.getDescription())
+                .show();
     }
 
     private void locationGrantedPermission() {
@@ -192,6 +230,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             @Override
             public boolean onMarkerClick(Marker marker) {
 
+                // TODO: we show dialog depend on poi, but should get POI data, so we should "get" POI from marker
                 new MaterialDialog.Builder(MapsActivity.this)
                         .title(marker.getTitle())
                         .content(marker.getSnippet())
@@ -200,6 +239,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
             }
         });
 
+        // TODO: deprecated API usage
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
@@ -211,7 +251,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                 lastDateUserMovingCamera = new Date();
 
-                drawMarkers(location);
+                processNewLocation(location);
             }
         });
     }
@@ -221,7 +261,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
     }
 
-    private void drawMarkers(final Location cameraCenter) {
+    private void processNewLocation(final Location cameraCenter) {
         if (cameraCenter == null) {
             return;
         }
@@ -233,6 +273,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         } else {
             return;
         }
+        // get POIs from server/offline with some distance from current location
         poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<Poi>>() {
                     @Override
@@ -241,7 +282,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
                     @Override
                     public void onNext(List<Poi> value) {
-                        processDrawMarkers(value);
+                        dbService.cachePoiToDB(value);
+                        drawMarkers(value);
                     }
 
                     @Override
@@ -254,87 +296,41 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 });
     }
 
-    private void sendNotificationToNewPois(List<Poi> newPoi) {
+    private void sendNotificationToNewPois(final List<Poi> newPoi) {
+        // do not send notification if user just move map
         if (!isUserMovingCamera()) {
             return;
         }
 
-        if (newPoi.size() > OFFLINE_CHUNK_SIZE){
-            newPoi = newPoi.subList(0,4);
-        }
-
-        Context ctx = getApplication();
-        NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        for (Poi poi : newPoi) {
-            NotificationCompat.Builder b = new NotificationCompat.Builder(ctx);
-
-            b.setAutoCancel(true)
-                    .setDefaults(Notification.DEFAULT_ALL)
-                    .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
-                    .setTicker(poi.getName())
-                    .setContentTitle(poi.getName())
-                    .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
-//                    .setContentInfo("Info")
-            ;
-            Intent notificationIntent = new Intent(this, MapsActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            b.setContentIntent(contentIntent);
-
-            Location location = new Location("M");
-            location.setLatitude(poi.getLocation().getLatitude());
-            location.setLongitude(poi.getLocation().getLongitude());
-
-            if (prevLocation != null) {
-                float v = prevLocation.distanceTo(location);
-                b.setContentText(poi.getDescription() != null ? poi.getDescription() + "," + printDistance(v) : printDistance(v));
-            }
-
-            notificationManager.notify(poi.getId().hashCode(), b.build());
-        }
-
+        notificationService.showNotification(newPoi, prevLocation);
     }
 
-    private void cachePoiToDB(final List<Poi> data) {
-        if (SettingsService.getSettings().isOffline()) {
-            return;
-        }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SugarRecord.saveInTx(PoiDb.of(data));
-            }
-        }).start();
-    }
-
-    private void processDrawMarkers(List<Poi> data) {
-        cachePoiToDB(data);
+    /**
+     * Draw markers for current POIs. If markers is already drawn for some POI - skip POI
+     *
+     * @param data
+     */
+    private void drawMarkers(List<Poi> data) {
         final List<Poi> newPois = new ArrayList<>();
 
         for (final Poi poi : data) {
             if (!renderedPois.contains(poi.getId())) {
-                renderedPois.add(poi.getId());
                 newPois.add(poi);
             }
         }
 
+        // if we have new poi - add new to map
         if (newPois.size() > 0) {
             clusterManager.addItems(newPois);
             // force re-cluster after add
             clusterManager.cluster();
         }
 
-        if (newPois.size() > 5) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    sendNotificationToNewPois(newPois);
-                }
-            }).start();
+        for (final Poi poi : newPois) {
+            renderedPois.add(poi.getId());
         }
 
+        sendNotificationToNewPois(newPois);
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
     }
 
@@ -365,13 +361,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     private void handleNewLocation(Location location) {
-        if (prevLocation == null) {
+        if (prevLocation == null && moveToPoiId == null) {
             // first run app or disconnect - move to current user location
             moveAndZoomCameraToLocation(location, false);
         }
 
         prevLocation = location;
-        drawMarkers(prevLocation);
+        processNewLocation(prevLocation);
 
         // prevent camera go to current location if user just move map
         if (!isUserMovingCamera()) {
@@ -395,11 +391,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     /**
+     * TODO: is it work correctly ???. Maybe better to save last handled location and {@link prevLocation#distanceTo(cameraLocation)}
+     *
      * @return true if user move cameraPosition, and that's why camera location change.
      * false if cameraPosition changes because of location change
      */
     private boolean isUserMovingCamera() {
-        return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 > 5);
+        return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
 }
