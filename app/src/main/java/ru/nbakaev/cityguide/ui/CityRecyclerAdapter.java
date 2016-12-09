@@ -10,10 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bignerdranch.android.multiselector.MultiSelector;
-import com.bignerdranch.android.multiselector.SelectableHolder;
-import com.bignerdranch.android.multiselector.SwappingHolder;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +19,7 @@ import java.util.Random;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.ui.CitySelector.MultiSelector;
 
 public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder>{
 
@@ -30,14 +27,17 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
     Random randrom = new Random();
     LayoutInflater inflater;
     List<City> cities;
+//    List<City> selected = new ArrayList<>();
 
-    MultiSelector selector = new MultiSelector();
+    ru.nbakaev.cityguide.ui.CitySelector.MultiSelector<City> selector;
+//    MultiSelector selector = new MultiSelector();
 //    MultiSelector multiSelector;
 
-    public CityRecyclerAdapter(Context context, List<City> cities) {
+    public CityRecyclerAdapter(Context context, List<City> cities, MultiSelector<City> selector) {
         this.cities = cities;
         inflater = LayoutInflater.from(context);
 //        this.multiSelector = multiSelector;
+        this.selector = selector;
     }
 
     @Override
@@ -58,8 +58,7 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
         return cities.size();
     }
 
-    class CityHolder extends SwappingHolder implements View.OnLongClickListener
-    {
+    class CityHolder extends RecyclerView.ViewHolder {
         TextView title;
         TextView poi;
         ImageView imgThumb;
@@ -69,7 +68,7 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
         City current;
 
         public CityHolder(View itemView) {
-            super(itemView, selector);
+            super(itemView);
             holder = (LinearLayout) itemView.findViewById(R.id.cityHolder);
             title = (TextView) itemView.findViewById(R.id.cityTitle);
             poi = (TextView) itemView.findViewById(R.id.cityPOI);
@@ -77,7 +76,9 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
             imgLoad = (ImageView) itemView.findViewById(R.id.loadCity);
         }
 
-        public void setData(City currentCity, int position)
+
+
+        public void setData(City currentCity, final int position)
         {
             this.pos = position;
 
@@ -100,31 +101,20 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
                 imgLoad.setImageResource(R.drawable.ic_update);
             }
 
-            holder.setLongClickable(true);
-            holder.setOnLongClickListener(this);
-
-            if (isActivated()) {
+            holder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selector.select(current);
+                    notifyItemChanged(position);
+                }
+            });
+            if (selector.isSelected(current)) {
                 holder.setBackgroundResource(R.color.grey_300);
             }
             else {
                 holder.setBackgroundResource(R.color.white);
             }
 
-        }
-
-
-
-
-
-
-        @Override
-        public boolean onLongClick(View v) {
-            if (!selector.isSelectable()) {
-                selector.setSelectable(true);
-                selector.setSelected(CityHolder.this, true);
-                return true;
-            }
-            return false;
         }
     }
 
