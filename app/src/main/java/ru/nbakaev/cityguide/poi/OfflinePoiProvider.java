@@ -22,6 +22,7 @@ import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.App;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
+import ru.nbakaev.cityguide.poi.db.PoiDbDao;
 
 import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
 
@@ -76,6 +77,18 @@ public class OfflinePoiProvider implements PoiProvider {
                 return PoiDb.toPoiList(poiDbs);
             }
         });
+    }
+
+    @Override
+    public Observable<Poi> getById(String id) {
+        DaoSession daoSession = ((App) context).getDaoSession();
+
+        PoiDb poiDb = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.PoiId.eq(id)).unique();
+        if (poiDb == null) {
+            return Observable.empty();
+        }
+
+        return Observable.just(PoiDb.toPoi(poiDb));
     }
 
     /**

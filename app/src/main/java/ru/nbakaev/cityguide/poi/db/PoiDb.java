@@ -1,5 +1,6 @@
 package ru.nbakaev.cityguide.poi.db;
 
+import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -29,13 +30,18 @@ public class PoiDb {
 
     private String imageUrl;
 
+    @Convert(converter = GreenConverter.class, columnType = String.class)
+    private List<String> imageUrls = new ArrayList<>();
+    private String videoUrl;
+
     public PoiDb() {
     }
 
 
-    @Generated(hash = 581838203)
+
+    @Generated(hash = 75642946)
     public PoiDb(Long id, String name, String description, double latitude, double longitude,
-            String poiId, String imageUrl) {
+            String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -43,7 +49,10 @@ public class PoiDb {
         this.longitude = longitude;
         this.poiId = poiId;
         this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
+        this.videoUrl = videoUrl;
     }
+
 
 
     public static PoiDb of(Poi poi) {
@@ -54,6 +63,8 @@ public class PoiDb {
         poiDb.setImageUrl(poi.getImageUrl());
         poiDb.setLatitude(poi.getLocation().getLatitude());
         poiDb.setLongitude(poi.getLocation().getLongitude());
+        poiDb.setVideoUrl(poi.getVideoUrl());
+        poiDb.setImageUrls(poi.getImageUrls());
 
         poiDb.setPoiId(poi.getId());
         return poiDb;
@@ -74,6 +85,8 @@ public class PoiDb {
         poi.setDescription(poiDb.getDescription());
         poi.setLocation(new Poi.PoiLocation(poiDb.getLatitude(), poiDb.getLongitude()));
         poi.setImageUrl(poiDb.getImageUrl());
+        poi.setVideoUrl(poiDb.getVideoUrl());
+        poi.setImageUrls(poiDb.getImageUrls());
 
         return poi;
     }
@@ -141,5 +154,21 @@ public class PoiDb {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }
