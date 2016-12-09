@@ -200,7 +200,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private void moveToIntentPOI() {
         // we cache all POIs from server, so if we have POI id, DB should contain this value
-        Poi poi = dbService.getPoiById(moveToPoiId);
+        Poi poi = dbService.
+                getPoiById(moveToPoiId);
         if (poi != null) {
             processMoveToIntentPoi(poi);
         }
@@ -229,6 +230,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+
+                // do not show dialog on clustered marker
+                // hack clustered marker has not snippet and title
+                if (marker.getTitle() == null && marker.getSnippet() == null){
+                    return false;
+                }
 
                 // TODO: we show dialog depend on poi, but should get POI data, so we should "get" POI from marker
                 new MaterialDialog.Builder(MapsActivity.this)

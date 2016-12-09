@@ -26,6 +26,7 @@ import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
@@ -181,6 +182,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             int itemPosition = recyclerView.getChildLayoutPosition(v);
             Poi poi = mData.get(itemPosition);
             System.out.println(poi);
+
+            // hack to change active tab
+            // 0 is index of MapsActivity
+            NavigationDrawerAdapter.selectedPos = 0;
 
             Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
             i.putExtra("MOVE_TO_POI_ID", poi.getId());

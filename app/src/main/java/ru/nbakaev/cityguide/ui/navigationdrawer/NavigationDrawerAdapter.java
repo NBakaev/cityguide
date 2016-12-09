@@ -23,7 +23,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     private List<NavigationDrawerItem> mDataList = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
-    private static int selectedPos = 0;
+    public static int selectedPos = 0;
 
     public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data) {
         this.context = context;
