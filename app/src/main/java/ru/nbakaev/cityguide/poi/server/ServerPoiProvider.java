@@ -50,7 +50,7 @@ public class ServerPoiProvider implements PoiProvider {
         searchRequest.setLatitude(x0);
         searchRequest.setLongitude(y0);
         searchRequest.setRadius(radius);
-       return poiProvider.getPoiInRadius(searchRequest);
+        return poiProvider.getPoiInRadius(searchRequest);
     }
 
     @Override
@@ -60,6 +60,11 @@ public class ServerPoiProvider implements PoiProvider {
 
     @Override
     public Observable<ResponseBody> getIcon(Poi poi) {
-        return poiProvider.getIcon(poi.getImageUrl());
+        return poiProvider.downloadContent(poi.getImageUrl());
+    }
+
+    @Override
+    public Observable<ResponseBody> downloadData(String url) {
+        return poiProvider.downloadContent(url);
     }
 }

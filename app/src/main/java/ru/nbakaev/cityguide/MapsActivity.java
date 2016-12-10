@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -305,11 +304,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         });
     }
 
-    @Override
-    protected void setUpToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-    }
-
     private void processNewLocation(final Location cameraCenter) {
         if (cameraCenter == null) {
             return;
@@ -456,7 +450,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
         final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
 
-        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(this, poiProvider, poi);
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(this, poiProvider, poi, settingsService);
 
         ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
         if (mCustomPagerAdapter.getCount() == 0) {
