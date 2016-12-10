@@ -28,14 +28,15 @@ Implementation injects with Dagger2 in sturtup (depend get property offline of A
 
 #### code snippets
 
-```java
-
 ##### start map with some POI
-
+```java
 Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
 i.putExtra("MOVE_TO_POI_ID", poi.getId());
 context.startActivity(i);
 ```
+
+##### pull db from device via adb
+`adb pull /data/data/ru.nbakaev.cityguide/databases/poi-db.db .`
 
 Notes:
  - POIs in DB stored as ru.nbakaev.cityguide.poi.db.PoiDb but all methods operate with ru.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class

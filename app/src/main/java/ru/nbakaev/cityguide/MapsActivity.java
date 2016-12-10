@@ -5,12 +5,15 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,13 +40,14 @@ import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
+import ru.nbakaev.cityguide.ui.CustomPagerAdapter;
 import ru.nbakaev.cityguide.utils.AppUtils;
 import ru.nbakaev.cityguide.utils.CacheUtils;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
-public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -73,11 +77,18 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     // this variable contains id of POI to which go
 
     private String moveToPoiId = null;
+    private Poi moveToPoiObject = null;
+
     private Set<String> renderedPois = new HashSet<>();
 
     private ClusterManager<Poi> clusterManager;
     private NotificationService notificationService;
     private PoiClusterRenderer poiClusterRenderer;
+
+    private BottomSheetBehavior mBottomSheetBehavior2;
+    private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
+
+    private View bottomSheet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,15 +204,70 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
         locationGrantedPermission();
 
+        mMap.setOnMapLoadedCallback(this);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (mBottomSheetBehavior2 != null) {
+                    mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+                }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                // do not show dialog on clustered marker
+                // hack clustered marker has  null tag
+                if (marker.getTag() == null || !(marker.getTag() instanceof Poi)) {
+                    return false;
+                }
+
+                Poi poi = (Poi) marker.getTag();
+                showPoiDialog(poi);
+                return false;
+            }
+        });
+
         if (moveToPoiId != null) {
             moveToIntentPOI();
+        }
+
+        if (bottomSheet == null) {
+            setupBottomSheet();
+        }
+    }
+
+    private void setupBottomSheet() {
+        bottomSheet = findViewById(R.id.bottom_sheet1);
+
+        mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+        mBottomSheetBehavior2.setHideable(true);
+
+        bottomSheet.setVisibility(View.INVISIBLE);
+        mBottomSheetBehavior2.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
+    }
+
+    @Override
+    public void onMapLoaded() {
+        int activityHeight = findViewById(R.id.map).getHeight();
+        if (activityHeight > 10) {
+            mBottomSheetBehavior2.setPeekHeight(activityHeight / 3 + activityHeight / 10);
+        }
+
+        // we show dialog here, not in onMapReady(), because map layout is refreshed, and
+        // our dialog is hide
+        if (moveToPoiId != null) {
+            showPoiDialog(moveToPoiObject);
         }
     }
 
     private void moveToIntentPOI() {
         // we cache all POIs from server, so if we have POI id, DB should contain this value
-        Poi poi = dbService.
-                getPoiById(moveToPoiId);
+        Poi poi = dbService.getPoiById(moveToPoiId);
         if (poi != null) {
             processMoveToIntentPoi(poi);
         }
@@ -214,37 +280,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         moveAndZoomCameraToLocation(location, false);
 
         lastDateUserMovingCamera = new Date();
-
-        // TODO: refactor; extract to function that make modal for POI. this is also used in mMap#setOnMarkerClickListener
-        new MaterialDialog.Builder(MapsActivity.this)
-                .title(poi.getName())
-                .content(poi.getDescription())
-                .show();
+        moveToPoiObject = poi;
     }
 
     private void locationGrantedPermission() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setTiltGesturesEnabled(false);
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-                // do not show dialog on clustered marker
-                // hack clustered marker has not snippet and title
-                if (marker.getTitle() == null && marker.getSnippet() == null){
-                    return false;
-                }
-
-                // TODO: we show dialog depend on poi, but should get POI data, so we should "get" POI from marker
-                new MaterialDialog.Builder(MapsActivity.this)
-                        .title(marker.getTitle())
-                        .content(marker.getSnippet())
-                        .show();
-                return false;
-            }
-        });
 
         // TODO: deprecated API usage
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
@@ -398,7 +440,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     /**
-     * TODO: is it work correctly ???. Maybe better to save last handled location and {@link prevLocation#distanceTo(cameraLocation)}
+     * TODO: is it work correctly ???. Maybe better to save last handled location and prevLocation#distanceTo(cameraLocation)
      *
      * @return true if user move cameraPosition, and that's why camera location change.
      * false if cameraPosition changes because of location change
@@ -407,4 +449,28 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
+    private void showPoiDialog(Poi poi) {
+        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheet.setVisibility(View.VISIBLE);
+
+        final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
+        final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
+
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(this, poiProvider, poi);
+
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        if (mCustomPagerAdapter.getCount() == 0) {
+            mViewPager.getLayoutParams().height = 0;
+            mViewPager.setVisibility(View.INVISIBLE);
+        }else{
+            mViewPager.setVisibility(View.VISIBLE);
+            final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+            int pixels = (int) (150 * scale + 0.5f);
+            mViewPager.getLayoutParams().height = pixels;
+        }
+        mViewPager.setAdapter(mCustomPagerAdapter);
+
+        poiName.setText(poi.getName());
+        poiDescription.setText(poi.getDescription());
+    }
 }
