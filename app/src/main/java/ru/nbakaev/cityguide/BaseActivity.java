@@ -2,18 +2,24 @@ package ru.nbakaev.cityguide;
 
 import android.location.Address;
 import android.location.Geocoder;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
+import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
@@ -27,6 +33,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected Toolbar toolbar;
     protected String DEFAULT_TITLE = "City Guide";
+    private List<Poi> searchDataResult = new ArrayList<>();
 
     @Inject
     SettingsService settingsService;
@@ -34,13 +41,39 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void setUpToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("City Guide");
-//        toolbar.inflateMenu(R.menu.menu_main);
+        setupSearchMenu(toolbar.getMenu());
     }
 
     public BaseActivity() {
     }
 
-    protected String setupNameHeader(double latitude, double longitude){
+    public void setupSearchMenu(Menu menu) {
+        if (settingsService == null) {
+            App.getAppComponent().inject(this);
+        }
+
+        if (settingsService.getSettings().isEnableExperimentalFeature()) {
+            toolbar.inflateMenu(R.menu.menu_main);
+
+            final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+            SearchView.OnQueryTextListener listener = new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    // newText is text entered by user to SearchView
+                    Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            };
+            searchView.setOnQueryTextListener(listener);
+        }
+    }
+
+    protected String setupNameHeader(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         String et_lugar;
 
@@ -55,22 +88,21 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("");
 //                }
 //                et_lugar = strReturnedAddress.toString();
-            }
-            else {
+            } else {
                 et_lugar = DEFAULT_TITLE;
             }
         } catch (IOException e) {
             et_lugar = DEFAULT_TITLE;
         }
 
-        if (et_lugar == null){
+        if (et_lugar == null) {
             et_lugar = DEFAULT_TITLE;
         }
         return et_lugar;
     }
 
     protected void setUpDrawer() {
-        if (settingsService == null){
+        if (settingsService == null) {
             App.getAppComponent().inject(this);
         }
 

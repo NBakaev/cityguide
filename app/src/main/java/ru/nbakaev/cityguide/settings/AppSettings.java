@@ -14,15 +14,26 @@ public class AppSettings {
     @Id
     private Long id;
     private boolean offline;
+    private boolean enableExperimentalFeature;
 
-    @Generated(hash = 1129666464)
-    public AppSettings(Long id, boolean offline) {
+    @Generated(hash = 1012696207)
+    public AppSettings(Long id, boolean offline,
+            boolean enableExperimentalFeature) {
         this.id = id;
         this.offline = offline;
+        this.enableExperimentalFeature = enableExperimentalFeature;
     }
 
     @Generated(hash = 93977203)
     public AppSettings() {
+    }
+
+    public boolean isEnableExperimentalFeature() {
+        return enableExperimentalFeature;
+    }
+
+    public void setEnableExperimentalFeature(boolean enableExperimentalFeature) {
+        this.enableExperimentalFeature = enableExperimentalFeature;
     }
 
     public Long getId() {
@@ -43,5 +54,9 @@ public class AppSettings {
 
     public boolean getOffline() {
         return this.offline;
+    }
+
+    public boolean getEnableExperimentalFeature() {
+        return this.enableExperimentalFeature;
     }
 }
