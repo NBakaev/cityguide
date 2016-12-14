@@ -23,7 +23,10 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     private List<NavigationDrawerItem> mDataList = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
+
+    // position of selected item; TODO: refactor - delete / make private
     public static int selectedPos = 0;
+    private static final String SELECTED_ITEM_COLOR = "#EEEEEE";
 
     public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data) {
         this.context = context;
@@ -40,31 +43,33 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        if (selectedPos == position){
-            holder.itemView.setBackgroundColor(Color.parseColor("#EEEEEE"));
+        if (selectedPos == position) {
+            holder.itemView.setBackgroundColor(Color.parseColor(SELECTED_ITEM_COLOR));
         }
 
-        NavigationDrawerItem current = mDataList.get(position);
+        final NavigationDrawerItem current = mDataList.get(position);
         holder.imgIcon.setImageResource(current.getImageId());
-        holder.title.setText(current.getName());
+        holder.title.setText(context.getString(current.getId()));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectedPos = holder.getAdapterPosition();
+                Intent intent;
+                switch (current.getId()) {
+                    case R.string.drawer_map:
+                        intent = new Intent(NavigationDrawerAdapter.this.context, MapsActivity.class);
+                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                        break;
 
-                if (holder.title.getText().toString().equals("Map")) {
-                    Intent intent = new Intent(NavigationDrawerAdapter.this.context, MapsActivity.class);
-                    NavigationDrawerAdapter.this.context.startActivity(intent);
-                }
+                    case R.string.drawer_near_me:
+                        intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
+                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                        break;
 
-                if (holder.title.getText().toString().equals("Near me")) {
-                    Intent intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
-                    NavigationDrawerAdapter.this.context.startActivity(intent);
-                }
-
-                if (holder.title.getText().toString().equals("About")) {
-                    Intent intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
-                    NavigationDrawerAdapter.this.context.startActivity(intent);
+                    case R.string.drawer_about:
+                        intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
+                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                        break;
                 }
             }
         });
