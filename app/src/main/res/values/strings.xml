@@ -25,5 +25,7 @@
 <string name="settings">Settings</string>
 <string name="edit">Edit</string>
 <string name="exit">Exit</string>
+    <string name="downloaded_only">Downloaded only</string>
+    <string name="enable_experimental_feature">enable experimental feature</string>
 
 </resources>

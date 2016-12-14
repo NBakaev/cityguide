@@ -34,7 +34,7 @@
 		android:id="@+id/onlineSwitch"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="Downloaded only"
+		android:text="@string/downloaded_only"
 		android:layout_marginLeft="16dp"
 		android:layout_marginTop="5dp"/>
 

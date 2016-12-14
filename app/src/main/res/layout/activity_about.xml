@@ -41,7 +41,7 @@
             android:id="@+id/enableExperimentalFeature"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="enable experimental feature"
+            android:text="@string/enable_experimental_feature"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="5dp"/>
 
