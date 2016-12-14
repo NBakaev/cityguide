@@ -106,6 +106,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 //    }
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        static final int MAX_DESCRIPTION_LENGTH = 35;
         TextView title;
         TextView description;
         TextView distance;
@@ -128,7 +129,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             this.title.setText(current.getName());
             this.position = position;
             this.current = current;
-            this.description.setText(current.getDescription());
+
+            String visibleDescription = current.getDescription() == null ? "" : current.getDescription().substring(0, MAX_DESCRIPTION_LENGTH).concat("...");
+            this.description.setText(visibleDescription);
 
             if (!StringUtils.isEmpty(current.getImageUrl())) {
                 Observable<ResponseBody> icon = poiProvider.getIcon(current);
