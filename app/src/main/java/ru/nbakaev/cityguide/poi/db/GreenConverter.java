@@ -7,13 +7,11 @@ package ru.nbakaev.cityguide.poi.db;
 import org.greenrobot.greendao.converter.PropertyConverter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * DOLE BREEE SQLITE BREEEEEE!!!**
- * i choosed to convert List into one string
- * that is going to be saved in database, and vice versa
- */
+import ru.nbakaev.cityguide.utils.StringUtils;
+
 
 public class GreenConverter implements PropertyConverter<List<String>, String> {
     @Override
@@ -21,6 +19,10 @@ public class GreenConverter implements PropertyConverter<List<String>, String> {
         if (databaseValue == null) {
             return null;
         } else {
+            if (StringUtils.isEmpty(databaseValue)){
+                return Collections.emptyList();
+            }
+
             List<String> lista = Arrays.asList(databaseValue.split(","));
             return lista;
         }
