@@ -1,7 +1,11 @@
 package ru.nbakaev.cityguide.locaton;
 
+import android.app.Activity;
+import android.app.Application;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,10 +21,12 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import ru.nbakaev.cityguide.App;
 
 
 /**
@@ -28,15 +34,21 @@ import io.reactivex.ObservableOnSubscribe;
  * Created by Nikita on 10/11/2016.
  */
 
-public class AndroidLocationProvider implements LocationProvider, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class AndroidLocationProvider implements LocationProvider, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ComponentCallbacks2 {
+
+    private static final String TAG = "AndroidLocationProvider";
+
+    private static final int ACTIVE_APP_LOCATION_INTERVAL = 10 * 1000;   // 10 seconds, in milliseconds
+    private static final int ACTIVE_APP_LOCATION_INTERVAL_FASTEST = 1 * 1000;   // 1 seconds, in milliseconds
+
+    private static final int BACKGROUND_APP_LOCATION_INTERVAL_FASTEST = 60 * 1000;   // 60 seconds, in milliseconds
+    private static final int BACKGROUND_APP_LOCATION_INTERVAL = 100 * 1000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
-    public static final String TAG = AndroidLocationProvider.class.getSimpleName();
 
     private volatile Location prevLocation;
+    private AtomicBoolean background = new AtomicBoolean();
 
     private final Context context;
     private Observable<Location> locationObservable;
@@ -53,11 +65,16 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+                .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
+                .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST); // 1 second, in milliseconds
 
         mGoogleApiClient.connect();
 
+        // process background / foreground app
+        if (context instanceof App) {
+            context.registerComponentCallbacks(this);
+            ((App) context).registerActivityLifecycleCallbacks(new BackgroundActivityLifecycle());
+        }
 
         locationObservable = Observable.create(new ObservableOnSubscribe<Location>() {
             @Override
@@ -104,7 +121,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         synchronized (this) {
 
             if (prevLocation != null) {
-                if (prevLocation.getTime() > location.getTime()){
+                if (prevLocation.getTime() > location.getTime()) {
                     return;
                 }
 
@@ -129,34 +146,105 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        mGoogleApiClient.connect();
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        if (mGoogleApiClient.isConnected()) {
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//            mGoogleApiClient.disconnect();
-//        }
-//    }
-
-
     @Override
-    public Observable<Location> getCurrentUserLocation () {
+    public Observable<Location> getCurrentUserLocation() {
         return locationObservable;
     }
 
     @Override
-    public void onConnected (Bundle bundle){
+    public void onConnected(Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //    ActivityCompat#requestPermissions
             Toast.makeText(context, "Need permission", Toast.LENGTH_LONG).show();
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+            Log.d(TAG, "onTrimMemory: in background");
+            background.set(true);
+            if (mGoogleApiClient.isConnected()) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                mGoogleApiClient.disconnect();
+
+                mLocationRequest = LocationRequest.create()
+                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                        .setInterval(BACKGROUND_APP_LOCATION_INTERVAL)
+                        .setFastestInterval(BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
+
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+    private void processStart() {
+        Log.d(TAG, "processStart: after background");
+
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+
+            mLocationRequest = LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
+                    .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
+
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+    }
+
+    @Override
+    public void onLowMemory() {
+    }
+
+    class BackgroundActivityLifecycle implements Application.ActivityLifecycleCallbacks {
+
+        @Override
+        public void onActivityCreated(Activity activity, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+            if (background.get()) {
+                processStart();
+            }
+            background.set(false);
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            if (background.get()) {
+                processStart();
+            }
+            background.set(false);
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
+        }
     }
 }
