@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -21,7 +23,6 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -48,14 +49,22 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
     private LocationRequest mLocationRequest;
 
     private volatile Location prevLocation;
-    private AtomicBoolean background = new AtomicBoolean();
+
+    // do not need atomic/volatile; changed only from main thread
+    private boolean background = false;
 
     private final Context context;
     private Observable<Location> locationObservable;
     private List<ObservableEmitter<Location>> observableEmitter = new CopyOnWriteArrayList<>();
+    private Looper looper;
 
     public AndroidLocationProvider(Context context) {
         this.context = context;
+
+        HandlerThread handlerThread = new HandlerThread("AndroidLocationProviderLooper");
+        handlerThread.start();
+        looper = handlerThread.getLooper();
+
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -107,6 +116,11 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 //        }
     }
 
+    /**
+     * called ONLY looper thread. no need any synchronized
+     *
+     * @param location new android device location
+     */
     @Override
     public void onLocationChanged(final Location location) {
         if (prevLocation != null && location.getLatitude() == prevLocation.getLatitude() && location.getLongitude() == prevLocation.getLongitude()) {
@@ -117,22 +131,18 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             return;
         }
 
-        // TODO: optional; do we need synchronized?? this code should be executed only in main thread
-        synchronized (this) {
+        if (prevLocation != null) {
+            if (prevLocation.getTime() > location.getTime()) {
+                return;
+            }
 
-            if (prevLocation != null) {
-                if (prevLocation.getTime() > location.getTime()) {
-                    return;
-                }
-
-                if (location.getLatitude() == prevLocation.getLatitude() && location.getLongitude() == prevLocation.getLongitude()) {
-                    return;
-                } else {
-                    prevLocation = location;
-                }
+            if (location.getLatitude() == prevLocation.getLatitude() && location.getLongitude() == prevLocation.getLongitude()) {
+                return;
             } else {
                 prevLocation = location;
             }
+        } else {
+            prevLocation = location;
         }
 
         Log.d(TAG, location.toString());
@@ -158,14 +168,15 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
             Toast.makeText(context, "Need permission", Toast.LENGTH_LONG).show();
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this, looper);
     }
 
+    // called on main thread
     @Override
     public void onTrimMemory(int level) {
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
             Log.d(TAG, "onTrimMemory: in background");
-            background.set(true);
+            background = true;
             if (mGoogleApiClient.isConnected()) {
                 LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
                 mGoogleApiClient.disconnect();
@@ -180,6 +191,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         }
     }
 
+    // called on main thread
     private void processStart() {
         Log.d(TAG, "processStart: after background");
 
@@ -213,18 +225,18 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
         @Override
         public void onActivityStarted(Activity activity) {
-            if (background.get()) {
+            if (background) {
                 processStart();
             }
-            background.set(false);
+            background = false;
         }
 
         @Override
         public void onActivityResumed(Activity activity) {
-            if (background.get()) {
+            if (background) {
                 processStart();
             }
-            background.set(false);
+            background = false;
         }
 
         @Override

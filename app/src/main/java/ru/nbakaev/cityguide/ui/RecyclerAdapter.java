@@ -184,15 +184,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             int itemPosition = recyclerView.getChildLayoutPosition(v);
             Poi poi = mData.get(itemPosition);
-            System.out.println(poi);
 
             // hack to change active tab
             // 0 is index of MapsActivity
             NavigationDrawerAdapter.selectedPos = 0;
 
-            Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
+            Intent i = new Intent(context, MapsActivity.class);
             i.putExtra("MOVE_TO_POI_ID", poi.getId());
-            RecyclerAdapter.this.context.startActivity(i);
+            context.startActivity(i);
         }
     }
 }
