@@ -15,21 +15,50 @@
         <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/loadedCities"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:text="@string/loaded"
+                android:textAppearance="?android:textAppearance"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:background="@drawable/selected_page"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/citiesToLoad"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:textSize="18sp"
+                android:text="@string/toload"
+                android:textAppearance="?android:textAppearance"
+                android:background="@color/colorPrimary"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/lcitiesAll"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:textSize="18sp"
+                android:text="@string/all"
+                android:textAppearance="?android:textAppearance"
+                android:background="@color/colorPrimary"
+                android:layout_height="wrap_content" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/citiesRecyclerView"
+        </LinearLayout>
+        <android.support.v4.view.ViewPager
             android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_height="0dp"/>
-        <Button
-            android:id="@+id/loadCities"
-            android:background="#ffa500"
-            android:textColor="#ffffff"
-            android:textAppearance="@android:style/TextAppearance"
-            android:textSize="30sp"
-            android:text="@string/load"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:id="@+id/pager"/>
 
     </LinearLayout>
 

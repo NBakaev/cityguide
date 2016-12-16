@@ -1,6 +1,10 @@
 package ru.nbakaev.cityguide;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -8,14 +12,14 @@ import android.widget.Button;
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.fragments.CityFragment;
 import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
-import ru.nbakaev.cityguide.ui.CitySelector.MultiSelector;
-import ru.nbakaev.cityguide.ui.CitySelector.OnItemSelectedListener;
+import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
 
 
 public class CitiesActivity extends BaseActivity {
@@ -23,7 +27,8 @@ public class CitiesActivity extends BaseActivity {
     RecyclerView reciclerView;
     CityRecyclerAdapter adapter;
     Button load;
-    ru.nbakaev.cityguide.ui.CitySelector.MultiSelector<City> selector;
+    ru.nbakaev.cityguide.ui.cityselector.MultiSelector<City> selector;
+    Button pages[];
 
     Random random = new Random();
     @Override
@@ -36,77 +41,50 @@ public class CitiesActivity extends BaseActivity {
 
         setUpToolbar();
         setUpDrawer();
-        setupMultiselector();
-        setUpRecyclerView();
+        setUpPager();
+        //toolbar.setMenu(null, null);
     }
 
-    void  setupMultiselector()
+    void setUpPager()
     {
-        load = (Button) findViewById(R.id.loadCities);
-        load.setVisibility(View.GONE);
-        selector = new MultiSelector<>();
-        selector.setListener(new OnItemSelectedListener<City>() {
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        CityPagerAdapter adapter = new CityPagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(adapter);
+        pages = new Button[]{(Button) findViewById(R.id.loadedCities), (Button) findViewById(R.id.citiesToLoad), (Button) findViewById(R.id.lcitiesAll)};
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onSelect(City item, boolean selected) {
-
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                pages[position].setBackgroundResource(R.color.colorPrimary);
             }
 
             @Override
-            public void onSelectorActivated(boolean activated) {
-                if (activated)
-                    load.setVisibility(View.VISIBLE);
-                else
-                    load.setVisibility(View.GONE);
+            public void onPageSelected(int position) {
+                pages[position].setBackgroundResource(R.drawable.selected_page);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
     }
 
-    private void setUpRecyclerView()
-    {
-        reciclerView = (RecyclerView) findViewById(R.id.citiesRecyclerView);
-        List<City> cities = new ArrayList<>();
-        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        adapter = new CityRecyclerAdapter(this, cities, selector);
-        reciclerView.setAdapter(adapter);
 
-        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(this);
-        mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
-        reciclerView.setLayoutManager(mLinearLayoutManagerVertical);
+    class CityPagerAdapter extends FragmentPagerAdapter {
+        public CityPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return new CityFragment();
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
+
+
 }

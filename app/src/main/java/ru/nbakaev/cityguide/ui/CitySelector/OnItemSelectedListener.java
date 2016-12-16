@@ -1,7 +1,4 @@
-package ru.nbakaev.cityguide.ui.CitySelector;
-
-import java.util.Objects;
-
+package ru.nbakaev.cityguide.ui.cityselector;
 
 
 public interface OnItemSelectedListener<T> {

@@ -5,21 +5,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.city.City;
-import ru.nbakaev.cityguide.poi.Poi;
-import ru.nbakaev.cityguide.ui.CitySelector.MultiSelector;
+import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
 
 public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder>{
 
@@ -29,7 +24,7 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
     List<City> cities;
 //    List<City> selected = new ArrayList<>();
 
-    ru.nbakaev.cityguide.ui.CitySelector.MultiSelector<City> selector;
+    ru.nbakaev.cityguide.ui.cityselector.MultiSelector<City> selector;
 //    MultiSelector selector = new MultiSelector();
 //    MultiSelector multiSelector;
 
