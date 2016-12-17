@@ -21,6 +21,7 @@
 
         <activity
             android:name="ru.nbakaev.cityguide.MapsActivity"
+            android:theme="@style/splashScreenTheme"
             android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

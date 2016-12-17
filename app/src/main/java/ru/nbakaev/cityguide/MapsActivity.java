@@ -91,6 +91,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.MaterialTheme);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.

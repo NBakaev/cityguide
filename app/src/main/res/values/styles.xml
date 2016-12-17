@@ -1,5 +1,9 @@
 <resources>
 
+	<style name="splashScreenTheme" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+		<item name="android:windowBackground">@drawable/splash_screen</item>
+	</style>
+
 	<!-- Base application theme. -->
 	<style name="MaterialTheme" parent="ParentMaterialTheme">
 		<!-- Customize your theme here. -->
