@@ -1,11 +1,7 @@
 package ru.nbakaev.cityguide.locaton;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.HandlerThread;
@@ -27,7 +23,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import ru.nbakaev.cityguide.App;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
+import ru.nbakaev.cityguide.background.ApplicationBackgroundStatus;
 
 
 /**
@@ -35,7 +36,7 @@ import ru.nbakaev.cityguide.App;
  * Created by Nikita on 10/11/2016.
  */
 
-public class AndroidLocationProvider implements LocationProvider, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ComponentCallbacks2 {
+public class AndroidLocationProvider implements LocationProvider, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static final String TAG = "AndroidLocationProvider";
 
@@ -50,15 +51,13 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     private volatile Location prevLocation;
 
-    // do not need atomic/volatile; changed only from main thread
-    private boolean background = false;
-
     private final Context context;
     private Observable<Location> locationObservable;
     private List<ObservableEmitter<Location>> observableEmitter = new CopyOnWriteArrayList<>();
     private Looper looper;
+    private Observable<ApplicationBackgroundStatus> backgroundStatusObservable;
 
-    public AndroidLocationProvider(Context context) {
+    public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware) {
         this.context = context;
 
         HandlerThread handlerThread = new HandlerThread("AndroidLocationProviderLooper");
@@ -71,19 +70,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 .addApi(LocationServices.API)
                 .build();
 
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
-                .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST); // 1 second, in milliseconds
-
-        mGoogleApiClient.connect();
-
-        // process background / foreground app
-        if (context instanceof App) {
-            context.registerComponentCallbacks(this);
-            ((App) context).registerActivityLifecycleCallbacks(new BackgroundActivityLifecycle());
-        }
+        onForeground();
 
         locationObservable = Observable.create(new ObservableOnSubscribe<Location>() {
             @Override
@@ -94,6 +81,38 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 }
             }
         });
+
+        backgroundStatusObservable = androidBackgroundAware.getStatusObservable();
+        subscribeToBackgroundStatus();
+    }
+
+    private void subscribeToBackgroundStatus() {
+        backgroundStatusObservable.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<ApplicationBackgroundStatus>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(ApplicationBackgroundStatus value) {
+                        if (value.equals(ApplicationBackgroundStatus.BACKGROUND)) {
+                            onBackground();
+                        } else if (value.equals(ApplicationBackgroundStatus.FOREGROUND)) {
+                            onForeground();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     @Override
@@ -171,92 +190,31 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this, looper);
     }
 
-    // called on main thread
-    @Override
-    public void onTrimMemory(int level) {
-        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-            Log.d(TAG, "onTrimMemory: in background");
-            background = true;
-            if (mGoogleApiClient.isConnected()) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-                mGoogleApiClient.disconnect();
-
-                mLocationRequest = LocationRequest.create()
-                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                        .setInterval(BACKGROUND_APP_LOCATION_INTERVAL)
-                        .setFastestInterval(BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
-
-                mGoogleApiClient.connect();
-            }
-        }
-    }
-
-    // called on main thread
-    private void processStart() {
-        Log.d(TAG, "processStart: after background");
-
+    private void onBackground() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
-
-            mLocationRequest = LocationRequest.create()
-                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                    .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
-                    .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
-
-            mGoogleApiClient.connect();
         }
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(BACKGROUND_APP_LOCATION_INTERVAL)
+                .setFastestInterval(BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
+
+        mGoogleApiClient.connect();
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration configuration) {
+    // called on main thread
+    private void onForeground() {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
+                .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
+
+        mGoogleApiClient.connect();
     }
 
-    @Override
-    public void onLowMemory() {
-    }
-
-    class BackgroundActivityLifecycle implements Application.ActivityLifecycleCallbacks {
-
-        @Override
-        public void onActivityCreated(Activity activity, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onActivityStarted(Activity activity) {
-            if (background) {
-                processStart();
-            }
-            background = false;
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-            if (background) {
-                processStart();
-            }
-            background = false;
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
-
-        }
-    }
 }

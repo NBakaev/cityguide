@@ -4,6 +4,7 @@ import android.content.Context;
 
 import dagger.Module;
 import dagger.Provides;
+import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.utils.CacheUtils;
@@ -33,6 +34,10 @@ public class AppProviders {
         return new CacheUtils(settingsService);
     }
 
-
+    @ApplicationScope
+    @Provides
+    public AndroidBackgroundAware androidBackgroundAware(Context context) {
+        return new AndroidBackgroundAware(context);
+    }
 
 }
