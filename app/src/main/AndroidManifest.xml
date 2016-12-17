@@ -31,6 +31,10 @@
         </activity>
 
         <activity
+            android:name="ru.nbakaev.cityguide.IntroActivity"
+            android:label="@string/title_activity_maps"></activity>
+
+        <activity
             android:name="ru.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_main"></activity>
 

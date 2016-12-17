@@ -1,17 +1,15 @@
 package ru.nbakaev.cityguide;
 
-import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,10 +37,13 @@ import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
+import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.CustomPagerAdapter;
-import ru.nbakaev.cityguide.utils.AppUtils;
 import ru.nbakaev.cityguide.utils.CacheUtils;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
@@ -66,9 +67,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Inject
     CacheUtils cacheUtils;
 
-    private final int PERMISSION_LOCATION_CODE = 1;
-    private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
-    private final int PERMISSION_ALL = 3;
+    @Inject
+    SettingsService settingsService;
 
     private Date lastDateUserMovingCamera = null;
 
@@ -89,11 +89,23 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     private View bottomSheet;
 
+    private void firstRunOrNeedPermissions() {
+        Intent intent = new Intent(this, IntroActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.MaterialTheme);
 
         super.onCreate(savedInstanceState);
+        App.getAppComponent().inject(this);
+
+        if (settingsService.isFirstRun()) {
+            firstRunOrNeedPermissions();
+            return;
+        }
+
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -117,60 +129,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         }
     }
 
-    // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length == 0) {
-            requestPermissionAll();
-            return;
-        }
-
-        if (requestCode == PERMISSION_ALL) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                return;
-            }
-        }
-
-        if (requestCode == PERMISSION_LOCATION_CODE) {
-
-            switch (grantResults[0]) {
-                case PackageManager.PERMISSION_DENIED:
-                    requestPermissionLocation();
-                    break;
-                case PackageManager.PERMISSION_GRANTED:
-                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                    break;
-            }
-            return;
-        }
-
-        if (requestCode == PERMISSION_READ_WRITE_EXTERNAL) {
-
-            switch (grantResults[0]) {
-                case PackageManager.PERMISSION_DENIED:
-                    requestPermissionStorage();
-                    break;
-                case PackageManager.PERMISSION_GRANTED:
-                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                    break;
-            }
-        }
-    }
-
-    private void requestPermissionAll() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALL);
-    }
-
-    private void requestPermissionLocation() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_LOCATION_CODE);
-    }
-
-    private void requestPermissionStorage() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_READ_WRITE_EXTERNAL);
-    }
-
     /**
      * Manipulates the mMap once available.
      * This callback is triggered when the mMap is ready to be used.
@@ -187,18 +145,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
         subscribeToMapsChange();
 
-        // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionAll();
+        // we have permissions
+        if (ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            firstRunOrNeedPermissions();
             return;
         }
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLocation();
-            Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
+        // we have permissions
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Need location permission");
+            firstRunOrNeedPermissions();
             return;
         } else {
             mMap.setMyLocationEnabled(true);
@@ -458,7 +417,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         if (mCustomPagerAdapter.getCount() == 0) {
             mViewPager.getLayoutParams().height = 0;
             mViewPager.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             mViewPager.setVisibility(View.VISIBLE);
             final float scale = getBaseContext().getResources().getDisplayMetrics().density;
             int pixels = (int) (150 * scale + 0.5f);
