@@ -3,6 +3,7 @@
     <string name="title_activity_maps">CityGuide</string>
     <string name="title_activity_main">Near me</string>
     <string name="title_activity_build">About</string>
+    <string name="title_activity_cities">Cities</string>
 
 <string name="hello_world">Hello world!</string>
 <string name="action_settings">Settings</string>
@@ -21,7 +22,8 @@
 <string name="edit">Edit</string>
 <string name="exit">Exit</string>
 <string name="load">Load</string>
-    <string name="loaded">Loaded</string>
-    <string name="toload">To Load</string>
-    <string name="all">All</string>
+<string name="loaded">Loaded</string>
+<string name="toload">To Download</string>
+<string name="all">All</string>
+<string name="load_or_update">Download\\Update</string>
 </resources>

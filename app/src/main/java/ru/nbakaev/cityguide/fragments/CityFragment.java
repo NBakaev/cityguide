@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,19 +32,25 @@ public class CityFragment extends Fragment {
     private RecyclerView reciclerView;
     private Random random = new Random();
     private CityRecyclerAdapter adapter;
+    private List<City> cities;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
+    public void setSelector(MultiSelector<City> selector)
+    {
+        this.selector = selector;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cities, container);
+        View view = inflater.inflate(R.layout.fragment_cities, container, false);
         findAllViews(view);
-        setupMultiselector();
+        //setupMultiselector();
         setUpRecyclerView();
         return  view;
     }
@@ -52,20 +61,7 @@ public class CityFragment extends Fragment {
         reciclerView = (RecyclerView) view.findViewById(R.id.citiesRecyclerView);
     }
 
-    void  setupMultiselector()
-    {
-        selector = new MultiSelector<>();
-        selector.setListener(new OnItemSelectedListener<City>() {
-            @Override
-            public void onSelect(City item, boolean selected) {
 
-            }
-
-            @Override
-            public void onSelectorActivated(boolean activated) {
-            }
-        });
-    }
 
     private void setUpRecyclerView()
     {

@@ -1,11 +1,14 @@
 package ru.nbakaev.cityguide.ui.cityselector;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
 
-public class MultiSelector<T> {
+public class MultiSelector<T> implements Serializable{
     protected List<T> selected = new ArrayList<>();
     protected OnItemSelectedListener<T> listener = null;
     boolean activated = false;
