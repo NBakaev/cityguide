@@ -2,6 +2,7 @@ package ru.nbakaev.cityguide.di;
 
 import dagger.Component;
 import ru.nbakaev.cityguide.AppModule;
+import ru.nbakaev.cityguide.BackgrounNotificationService;
 import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.IntroActivity;
 import ru.nbakaev.cityguide.MainActivity;
@@ -27,5 +28,7 @@ public interface AppComponent {
     void inject(AboutActivity aboutActivity);
 
     void inject(IntroActivity introActivity);
+
+    void inject(BackgrounNotificationService service);
 
 }

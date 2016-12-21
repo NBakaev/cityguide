@@ -1,5 +1,9 @@
 package ru.nbakaev.cityguide;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.multidex.MultiDexApplication;
 
 import org.greenrobot.greendao.database.Database;
@@ -43,9 +47,28 @@ public class App extends MultiDexApplication {
 
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
+
+
+//        Intent intent = new Intent(BackgrounNotificationService.class.getName());
+//        intent.setPackage(this.getPackageName());
+
+//        bindService(intent, new ServiceConnection() {
+//            @Override
+//            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+//
+//            }
+//
+//            @Override
+//            public void onServiceDisconnected(ComponentName componentName) {
+//
+//            }
+//        }, BIND_AUTO_CREATE);
+        startService(new Intent(getApplicationContext(), BackgrounNotificationService.class));
     }
 
     public DaoSession getDaoSession() {
         return daoSession;
     }
+
+
 }

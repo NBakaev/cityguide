@@ -39,12 +39,12 @@ buildscript {
 
 apply plugin: 'hu.supercluster.paperwork'
 
-paperwork {
-    set = [
-            buildTime: buildTime("yyyy-MM-dd HH:mm:ss"),
-            gitSha:     gitSha(),
-    ]
-}
+//paperwork {
+//    set = [
+//            buildTime: buildTime("yyyy-MM-dd HH:mm:ss"),
+//            gitSha:     gitSha(),
+//    ]
+//}
 
 // Apply plugin
 apply plugin: 'com.neenbedankt.android-apt'

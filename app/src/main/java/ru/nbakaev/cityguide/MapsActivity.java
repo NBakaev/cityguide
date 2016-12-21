@@ -306,7 +306,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             return;
         }
 
-        notificationService.showNotification(newPoi, prevLocation);
+        //notificationService.showNotification(newPoi, prevLocation);
     }
 
     /**

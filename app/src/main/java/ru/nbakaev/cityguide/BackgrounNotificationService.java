@@ -1,0 +1,144 @@
+package ru.nbakaev.cityguide;
+
+import android.Manifest;
+import android.app.Service;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Binder;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
+
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
+import ru.nbakaev.cityguide.locaton.AndroidLocationProvider;
+import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.PoiProvider;
+
+import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
+import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
+
+/**
+ * Created by Наташа on 20.12.2016.
+ */
+
+public class BackgrounNotificationService extends Service{
+
+    @Inject
+    LocationProvider locationProvider;
+
+    NotificationService notificationService;
+
+    private static final String TAG = BackgrounNotificationService.class.getSimpleName();
+    private Location locationForPoi;
+    @Inject
+    PoiProvider poiProvider;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        //locationProvider = new AndroidLocationProvider(this, new AndroidBackgroundAware(this));
+        App.getAppComponent().inject(this);
+        notificationService = new NotificationService(this);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return new Binder();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.w("Service", "StartCommand");
+        //subscribeToLocationChange();
+        subscribeToLocationChange();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void subscribeToLocationChange() {
+
+        Observer<Location> locationObserver = new Observer<Location>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, d.toString());
+            }
+
+            @Override
+            public void onNext(Location value) {
+                Log.d("Service", "Next Location");
+                processNewLocation(value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, e.toString());
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        };
+
+        locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(locationObserver);
+    }
+
+    private void processNewLocation(final Location cameraCenter) {
+        if (cameraCenter == null) {
+            return;
+        }
+
+        // if distance between downloaded POI and current location > 20 metres - download new POIs
+        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
+            locationForPoi = cameraCenter;
+        } else {
+            return;
+        }
+        // get POIs from server/offline with some distance from current location
+        poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Poi>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(List<Poi> value) {
+                        notificationService.showNotification(value, cameraCenter);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
+    }
+}

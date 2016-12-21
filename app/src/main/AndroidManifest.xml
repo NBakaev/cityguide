@@ -42,6 +42,10 @@
             android:name="ru.nbakaev.cityguide.about.AboutActivity"
             android:label="@string/title_activity_build"></activity>
 
+        <service android:name=".BackgrounNotificationService"
+            android:enabled="true"
+            ></service>
+
     </application>
 
 </manifest>
