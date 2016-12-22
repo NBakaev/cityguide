@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
 
 public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder>{
@@ -78,17 +78,17 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
             this.pos = position;
 
             this.current = currentCity;
-            title.setText(current.name);
-            if (current.POINumber>0)
+            title.setText(current.getName());
+            if (current.getPois()>0)
             {
                 poi.setVisibility(View.VISIBLE);
-                poi.setText(current.POINumber + (current.POINumber == 1 ? " POI" : " POIs"));
+                poi.setText(current.getPois()+ (current.getPois() == 1 ? " POI" : " POIs"));
             }
             else
             {
                 poi.setVisibility(View.GONE);
             }
-            if (current.lastUpdated==null)
+            if (current.getLastUpdate()==null)
             {
                 imgLoad.setImageResource(R.drawable.ic_load);
             }

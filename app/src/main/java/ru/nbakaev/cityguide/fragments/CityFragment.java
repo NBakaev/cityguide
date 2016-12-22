@@ -8,20 +8,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
-import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
 
 /**
  * Created by Наташа on 16.12.2016.
@@ -32,7 +27,7 @@ public class CityFragment extends Fragment {
     private RecyclerView reciclerView;
     private Random random = new Random();
     private CityRecyclerAdapter adapter;
-    private List<City> cities;
+    private List<City> cities = new ArrayList<>();
 
 
     @Override
@@ -61,48 +56,42 @@ public class CityFragment extends Fragment {
         reciclerView = (RecyclerView) view.findViewById(R.id.citiesRecyclerView);
     }
 
+    public void setCities(List<City> cities)
+    {
+        this.cities = cities;
+        if (reciclerView!=null)
+            setUpRecyclerView();
+    }
 
+    public CityRecyclerAdapter getAdapter()
+    {
+        return adapter;
+    }
+
+    public void selectAll()
+    {
+        for (City city : cities)
+        {
+            if (!selector.isSelected(city)) {
+                selector.select(city);
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
 
     private void setUpRecyclerView()
     {
-        List<City> cities = new ArrayList<>();
-        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
+//        List<City> cities = new ArrayList<>();
+//        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
+//        for (int i=0; i<citiesArray.length; i++)
+//        {
+//            City city = new City();
+//            city.setId(""+i);
+//            city.setName(citiesArray[i]);
+//            city.setPois(random.nextInt(100));
+//            cities.add(city);
+//        }
+
         adapter = new CityRecyclerAdapter(getActivity(), cities, selector);
         reciclerView.setAdapter(adapter);
 

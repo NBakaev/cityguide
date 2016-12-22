@@ -8,6 +8,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.poi.Poi;
 
 /**
@@ -20,10 +21,13 @@ public interface ServerPOIsProvider {
     @POST("poi/search")
     Observable<List<Poi>> getPoiInRadius(@Body SearchRequestDto searchRequest);
 
-    @POST("poi/id/{id}")
+    @GET("poi/id/{id}")
     Observable<Poi> getPoiById(@Path(value = "id", encoded = true) String id);
 
     @GET("{fullUrl}")
     Observable<ResponseBody> downloadContent(@Path(value = "fullUrl", encoded = true) String fullUrl);
+
+    @GET("city")
+    Observable<List<City>> getCities();
 }
 

@@ -227,11 +227,34 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     private void moveToIntentPOI() {
         // we cache all POIs from server, so if we have POI id, DB should contain this value
-        Poi poi = dbService.getPoiById(moveToPoiId);
-        if (poi != null) {
-            processMoveToIntentPoi(poi);
-        }
-    }
+//        Poi poi = dbService.getPoiById(moveToPoiId);
+//        if (poi != null) {
+//            processMoveToIntentPoi(poi);
+//        }
+        poiProvider.getById(moveToPoiId).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Poi>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Poi value) {
+                        if (value!=null)
+                            processMoveToIntentPoi(value);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+}
 
     private void processMoveToIntentPoi(Poi poi) {
         Location location = new Location("loca");

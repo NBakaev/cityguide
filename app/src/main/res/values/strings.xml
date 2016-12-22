@@ -46,6 +46,8 @@
 <string name="toload">To Download</string>
 <string name="all">All</string>
 <string name="load_or_update">Download\\Update</string>
+    <string name="select_all">Select all</string>
+    <string name="deselect_all">Deselect all</string>
 
 <string name="downloaded_only">Downloaded only</string>
 <string name="enable_experimental_feature">enable experimental feature</string>

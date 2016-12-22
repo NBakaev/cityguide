@@ -35,6 +35,16 @@ public class MultiSelector<T> implements Serializable{
         }
     }
 
+    public void clear()
+    {
+        selected.clear();
+        activated = false;
+        if (listener!=null) {
+            listener.onClear();
+            listener.onSelectorActivated(activated);
+        }
+    }
+
     public OnItemSelectedListener<T> getListener() {
         return listener;
     }
