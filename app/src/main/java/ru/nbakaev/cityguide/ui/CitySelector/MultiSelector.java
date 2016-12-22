@@ -45,6 +45,11 @@ public class MultiSelector<T> implements Serializable{
         }
     }
 
+    public List<T> getSelected()
+    {
+        return selected;
+    }
+
     public OnItemSelectedListener<T> getListener() {
         return listener;
     }

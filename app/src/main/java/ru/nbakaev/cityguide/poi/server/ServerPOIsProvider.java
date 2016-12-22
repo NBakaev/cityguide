@@ -29,5 +29,9 @@ public interface ServerPOIsProvider {
 
     @GET("city")
     Observable<List<City>> getCities();
+
+    @GET("poi/city/id/{id}")
+    Observable<List<Poi>> getPoiFromCity( @Path(value = "id", encoded = true) String id);
+
 }
 

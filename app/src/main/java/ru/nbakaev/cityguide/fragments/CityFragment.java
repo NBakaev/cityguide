@@ -15,8 +15,10 @@ import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.utils.CacheUtils;
 
 /**
  * Created by Наташа on 16.12.2016.
@@ -28,6 +30,8 @@ public class CityFragment extends Fragment {
     private Random random = new Random();
     private CityRecyclerAdapter adapter;
     private List<City> cities = new ArrayList<>();
+    CacheUtils cacheUtils;
+    PoiProvider poiProvider;
 
 
     @Override
@@ -38,6 +42,15 @@ public class CityFragment extends Fragment {
     public void setSelector(MultiSelector<City> selector)
     {
         this.selector = selector;
+    }
+
+    public void setCacheUtils(CacheUtils cacheUtils)
+    {
+        this.cacheUtils = cacheUtils;
+    }
+
+    public void setPoiProvider(PoiProvider poiProvider) {
+        this.poiProvider = poiProvider;
     }
 
     @Nullable
@@ -81,18 +94,8 @@ public class CityFragment extends Fragment {
 
     private void setUpRecyclerView()
     {
-//        List<City> cities = new ArrayList<>();
-//        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
-//        for (int i=0; i<citiesArray.length; i++)
-//        {
-//            City city = new City();
-//            city.setId(""+i);
-//            city.setName(citiesArray[i]);
-//            city.setPois(random.nextInt(100));
-//            cities.add(city);
-//        }
 
-        adapter = new CityRecyclerAdapter(getActivity(), cities, selector);
+        adapter = new CityRecyclerAdapter(getActivity(), cities, selector, poiProvider, cacheUtils);
         reciclerView.setAdapter(adapter);
 
         LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(getActivity());

@@ -34,7 +34,8 @@ public class ServerPoiProvider implements PoiProvider {
         RxJava2CallAdapterFactory rxAdapter = RxJava2CallAdapterFactory.create();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        //objectMapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -66,6 +67,11 @@ public class ServerPoiProvider implements PoiProvider {
     }
 
     @Override
+    public Observable<ResponseBody> getIcon(City city) {
+        return poiProvider.downloadContent(city.getImageUrl());
+    }
+
+    @Override
     public Observable<ResponseBody> downloadData(String url) {
         return poiProvider.downloadContent(url);
     }
@@ -73,5 +79,9 @@ public class ServerPoiProvider implements PoiProvider {
     public Observable<List<City>> getCities()
     {
         return poiProvider.getCities();
+    }
+    public Observable<List<Poi>> getPoiFromCity(String cityId)
+    {
+        return poiProvider.getPoiFromCity(cityId);
     }
 }

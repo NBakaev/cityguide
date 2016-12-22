@@ -1,9 +1,11 @@
 package ru.nbakaev.cityguide.poi;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class City {
     private String name;
     private String id;
@@ -96,5 +98,15 @@ public class City {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof City)
+        {
+            City city = (City) obj;
+            return this.id.equals(city.id) && this.lastUpdate.equals(city.lastUpdate);
+        }
+        return super.equals(obj);
     }
 }

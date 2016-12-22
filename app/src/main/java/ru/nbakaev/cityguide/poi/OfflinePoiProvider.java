@@ -113,6 +113,12 @@ public class OfflinePoiProvider implements PoiProvider {
     }
 
     @Override
+    public Observable<ResponseBody> getIcon(City city) {
+        return null;
+    }
+
+
+    @Override
     public Observable<ResponseBody> downloadData(String url) {
         Toast.makeText(context, "Disable offline mode to download content", Toast.LENGTH_LONG).show();
         return Observable.empty();
