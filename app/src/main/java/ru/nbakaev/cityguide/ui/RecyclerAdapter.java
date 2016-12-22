@@ -26,6 +26,7 @@ import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
 import ru.nbakaev.cityguide.utils.StringUtils;
 
 import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
@@ -105,6 +106,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 //    }
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        static final int MAX_DESCRIPTION_LENGTH = 35;
         TextView title;
         TextView description;
         TextView distance;
@@ -127,7 +129,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             this.title.setText(current.getName());
             this.position = position;
             this.current = current;
-            this.description.setText(current.getDescription());
+
+            String visibleDescription = current.getDescription() == null ? "" : current.getDescription().substring(0, MAX_DESCRIPTION_LENGTH).concat("...");
+            this.description.setText(visibleDescription);
 
             if (!StringUtils.isEmpty(current.getImageUrl())) {
                 Observable<ResponseBody> icon = poiProvider.getIcon(current);
@@ -162,7 +166,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             if (lastLocation != null) {
                 float distanceTo = lastLocation.distanceTo(current.getLocation().toLocation());
-                this.distance.setText(printDistance(distanceTo) + " m");
+                this.distance.setText(printDistance(distanceTo));
             } else {
                 this.distance.setText("");
             }
@@ -180,11 +184,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             int itemPosition = recyclerView.getChildLayoutPosition(v);
             Poi poi = mData.get(itemPosition);
-            System.out.println(poi);
 
-            Intent i = new Intent(RecyclerAdapter.this.context, MapsActivity.class);
+            // hack to change active tab
+            // 0 is index of MapsActivity
+            NavigationDrawerAdapter.selectedPos = 0;
+
+            Intent i = new Intent(context, MapsActivity.class);
             i.putExtra("MOVE_TO_POI_ID", poi.getId());
-            RecyclerAdapter.this.context.startActivity(i);
+            context.startActivity(i);
         }
     }
 }

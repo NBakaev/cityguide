@@ -58,6 +58,8 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
     protected void onClusterItemRendered(final Poi poi, final Marker marker) {
         super.onClusterItemRendered(poi, marker);
 
+        marker.setTag(poi);
+
         if (!StringUtils.isEmpty(poi.getImageUrl())) {
             Observable<ResponseBody> icon = poiProvider.getIcon(poi);
             Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
@@ -97,9 +99,9 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
     @Override
     protected void onBeforeClusterItemRendered(final Poi poi, final MarkerOptions markerOptions) {
         markerOptions.title(poi.getName());
-        if (!StringUtils.isEmpty(poi.getDescription())) {
-            markerOptions.snippet(poi.getDescription());
-        }
+//        if (!StringUtils.isEmpty(poi.getDescription())) {
+//            markerOptions.snippet(poi.getDescription());
+//        }
     }
 
 }

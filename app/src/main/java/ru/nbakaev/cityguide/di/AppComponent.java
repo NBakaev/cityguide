@@ -4,6 +4,7 @@ import dagger.Component;
 import ru.nbakaev.cityguide.AppModule;
 import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.BaseActivity;
+import ru.nbakaev.cityguide.IntroActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.about.AboutActivity;
@@ -25,5 +26,7 @@ public interface AppComponent {
     void inject(BaseActivity baseActivity);
 
     void inject(AboutActivity aboutActivity);
+
+    void inject(IntroActivity introActivity);
 
 }

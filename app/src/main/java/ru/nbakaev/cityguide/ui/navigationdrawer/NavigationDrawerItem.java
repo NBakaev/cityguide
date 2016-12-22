@@ -1,55 +1,21 @@
 package ru.nbakaev.cityguide.ui.navigationdrawer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ru.nbakaev.cityguide.R;
-
-
 public class NavigationDrawerItem {
 
-    private String name;
+    private int id;
     private int imageId;
 
-    public String getName() {
-        return name;
+    public NavigationDrawerItem(int id, int imageId) {
+        this.id = id;
+        this.imageId = imageId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public int getId() {
+        return id;
     }
 
     public int getImageId() {
         return imageId;
     }
 
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
-    }
-
-    public static List<NavigationDrawerItem> getData() {
-        List<NavigationDrawerItem> dataList = new ArrayList<>();
-
-        int[] imageIds = getImages();
-        String[] titles = getTitles();
-
-        for (int i = 0; i < titles.length; i++) {
-            NavigationDrawerItem navItem = new NavigationDrawerItem();
-            navItem.setName(titles[i]);
-            navItem.setImageId(imageIds[i]);
-            dataList.add(navItem);
-        }
-        return dataList;
-    }
-
-    private static int[] getImages() {
-        return new int[]{R.drawable.ic_landscape, R.drawable.ic_planet,  R.drawable.ic_ocean, R.drawable.ic_city};
-    }
-
-    private static String[] getTitles() {
-
-        return new String[]{
-                "Map", "Near me", "About", "Cities"
-        };
-    }
 }

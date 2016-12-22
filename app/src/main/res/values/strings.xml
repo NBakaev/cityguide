@@ -5,6 +5,25 @@
     <string name="title_activity_build">About</string>
     <string name="title_activity_cities">Cities</string>
 
+
+    <string name="drawer_map">Map</string>
+    <string name="drawer_near_me">Near me</string>
+    <string name="drawer_about">About</string>
+    <string name="drawer_cities">Cities</string>
+
+
+    <string name="onboarding_1_title">Hello</string>
+    <string name="onboarding_1_description">CityGuide helps you to find interest objects near you</string>
+
+    <string name="onboarding_2_title">Show nearest</string>
+    <string name="onboarding_2_description">POIs and get push notifications</string>
+
+    <string name="onboarding_3_title">Scan QR code</string>
+    <string name="onboarding_3_description">scan qr code by camera and get information about sight</string>
+
+    <string name="onboarding_4_title">We need some permissions</string>
+    <string name="onboarding_4_description">To show nearest POIs and find by QR code. Please click allow on the next slide</string>
+
 <string name="hello_world">Hello world!</string>
 <string name="action_settings">Settings</string>
 <string name="name">Title</string>
@@ -21,9 +40,14 @@
 <string name="settings">Settings</string>
 <string name="edit">Edit</string>
 <string name="exit">Exit</string>
+
 <string name="load">Load</string>
 <string name="loaded">Loaded</string>
 <string name="toload">To Download</string>
 <string name="all">All</string>
 <string name="load_or_update">Download\\Update</string>
+
+<string name="downloaded_only">Downloaded only</string>
+<string name="enable_experimental_feature">enable experimental feature</string>
+
 </resources>

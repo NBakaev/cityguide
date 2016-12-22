@@ -24,6 +24,10 @@ public class SettingsService {
         return "https://s2.nbakaev.ru/api/v1/";
     }
 
+    public boolean isFirstRun(){
+        return getSettings().isFirstRun();
+    }
+
     public AppSettings getSettings() {
         if (appSettings != null){
             return appSettings;

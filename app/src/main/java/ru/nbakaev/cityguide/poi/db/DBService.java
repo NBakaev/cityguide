@@ -39,7 +39,6 @@ public class DBService {
      * @return true when all saved
      */
     public Future<Boolean> cachePoiToDB(final List<Poi> data) {
-        final List<PoiDb> of = PoiDb.of(data);
 
         if (data == null || data.isEmpty()) {
             return null;
@@ -52,6 +51,7 @@ public class DBService {
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() {
+                final List<PoiDb> of = PoiDb.of(data);
                 try {
 //                    it's better to save all in one transaction(daoSession.getPoiDbDao().saveInTx(of)), but ORM can't insert object if it have id(is should be null)
 //                    but if id is null we have another problems

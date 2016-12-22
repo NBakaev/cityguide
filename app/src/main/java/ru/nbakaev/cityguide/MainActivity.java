@@ -2,6 +2,7 @@ package ru.nbakaev.cityguide;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -83,17 +84,12 @@ public class MainActivity extends BaseActivity {
         locationProvider.getCurrentUserLocation().subscribe(locationObserver);
     }
 
-    private void handleNewLocation(Location prevLocation) {
+    private void handleNewLocation(@NonNull Location prevLocation) {
         final double x;
         final double y;
 
-        if (prevLocation == null) {
-            x = 0;
-            y = 0;
-        } else {
-            x = prevLocation.getLatitude();
-            y = prevLocation.getLongitude();
-        }
+        x = prevLocation.getLatitude();
+        y = prevLocation.getLongitude();
 
         poiProvider.getData(x, y, DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<Poi>>() {
@@ -105,6 +101,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Poi> value) {
                         dbService.cachePoiToDB(value);
+                        // pass MainActivity context instead of applicationContext to have right borders in recycler view
                         RecyclerAdapter adapter = new RecyclerAdapter(MainActivity.this, value, locationProvider, poiProvider);
                         recyclerView.setAdapter(adapter);
                     }

@@ -1,43 +1,48 @@
-
-
-<android.support.v4.widget.DrawerLayout
-android:id="@+id/drawer_layout"
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="ru.nbakaev.cityguide.MapsActivity" />
+        android:layout_height="match_parent">
 
-    <!-- Full Height Navigation Drawer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <include
+                android:id="@+id/toolbar"
+                layout="@layout/toolbar" />
 
-<fragment
-    android:id="@+id/nav_drwr_fragment"
-    android:name="ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment"
-    android:layout_width="@dimen/nav_drawer_width"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    app:layout="@layout/fragment_navigation_drawer"
-    tools:layout="@layout/fragment_navigation_drawer"/>
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="ru.nbakaev.cityguide.MapsActivity" />
+            <!-- Full Height Navigation Drawer -->
 
-</android.support.v4.widget.DrawerLayout>
+        </LinearLayout>
 
+        <fragment
+            android:id="@+id/nav_drwr_fragment"
+            android:name="ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment"
+            android:layout_width="@dimen/nav_drawer_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:layout="@layout/fragment_navigation_drawer"
+            tools:layout="@layout/fragment_navigation_drawer" />
+
+    </android.support.v4.widget.DrawerLayout>
+
+    <!-- Bottom Sheet Content -->
+    <include layout="@layout/poi_details" />
+
+</android.support.design.widget.CoordinatorLayout>

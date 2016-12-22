@@ -4,6 +4,7 @@ import android.content.Context;
 
 import dagger.Module;
 import dagger.Provides;
+import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
 import ru.nbakaev.cityguide.di.ApplicationScope;
 
 /**
@@ -15,8 +16,8 @@ public class LocationProviderConfiguration {
 
     @ApplicationScope
     @Provides
-    public LocationProvider locationProvider(Context context) {
-        return new AndroidLocationProvider(context);
+    public LocationProvider locationProvider(Context context, AndroidBackgroundAware androidBackgroundAware) {
+        return new AndroidLocationProvider(context, androidBackgroundAware);
     }
 
 }

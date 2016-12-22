@@ -1,16 +1,16 @@
 package ru.nbakaev.cityguide;
 
-import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,13 +37,17 @@ import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.settings.SettingsService;
+import ru.nbakaev.cityguide.ui.CustomPagerAdapter;
 import ru.nbakaev.cityguide.utils.CacheUtils;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
-public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -63,9 +67,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Inject
     CacheUtils cacheUtils;
 
-    private final int PERMISSION_LOCATION_CODE = 1;
-    private final int PERMISSION_READ_WRITE_EXTERNAL = 2;
-    private final int PERMISSION_ALL = 3;
+    @Inject
+    SettingsService settingsService;
 
     private Date lastDateUserMovingCamera = null;
 
@@ -73,15 +76,36 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     // this variable contains id of POI to which go
 
     private String moveToPoiId = null;
+    private Poi moveToPoiObject = null;
+
     private Set<String> renderedPois = new HashSet<>();
 
     private ClusterManager<Poi> clusterManager;
     private NotificationService notificationService;
     private PoiClusterRenderer poiClusterRenderer;
 
+    private BottomSheetBehavior mBottomSheetBehavior2;
+    private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
+
+    private View bottomSheet;
+
+    private void firstRunOrNeedPermissions() {
+        Intent intent = new Intent(this, IntroActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.MaterialTheme);
+
         super.onCreate(savedInstanceState);
+        App.getAppComponent().inject(this);
+
+        if (settingsService.isFirstRun()) {
+            firstRunOrNeedPermissions();
+            return;
+        }
+
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -105,60 +129,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
     }
 
-    // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length == 0) {
-            requestPermissionAll();
-            return;
-        }
-
-        if (requestCode == PERMISSION_ALL) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                return;
-            }
-        }
-
-        if (requestCode == PERMISSION_LOCATION_CODE) {
-
-            switch (grantResults[0]) {
-                case PackageManager.PERMISSION_DENIED:
-                    requestPermissionLocation();
-                    break;
-                case PackageManager.PERMISSION_GRANTED:
-                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                    break;
-            }
-            return;
-        }
-
-        if (requestCode == PERMISSION_READ_WRITE_EXTERNAL) {
-
-            switch (grantResults[0]) {
-                case PackageManager.PERMISSION_DENIED:
-                    requestPermissionStorage();
-                    break;
-                case PackageManager.PERMISSION_GRANTED:
-                    AppUtils.doRestart(getApplicationContext()); // restart to activate all location observable services
-                    break;
-            }
-        }
-    }
-
-    private void requestPermissionAll() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALL);
-    }
-
-    private void requestPermissionLocation() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_LOCATION_CODE);
-    }
-
-    private void requestPermissionStorage() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_READ_WRITE_EXTERNAL);
-    }
-
     /**
      * Manipulates the mMap once available.
      * This callback is triggered when the mMap is ready to be used.
@@ -175,26 +145,83 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
         subscribeToMapsChange();
 
-        // TODO: optional; https://trello.com/c/7wHEDXAv/41-refactor-runtime-permissions
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionAll();
+        // we have permissions
+        if (ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            firstRunOrNeedPermissions();
             return;
         }
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLocation();
-            Toast.makeText(getApplicationContext(), "Need location permission", Toast.LENGTH_LONG).show();
+        // we have permissions
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Need location permission");
+            firstRunOrNeedPermissions();
             return;
         } else {
             mMap.setMyLocationEnabled(true);
         }
         locationGrantedPermission();
 
+        mMap.setOnMapLoadedCallback(this);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (mBottomSheetBehavior2 != null) {
+                    mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+                }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                // do not show dialog on clustered marker
+                // hack clustered marker has  null tag
+                if (marker.getTag() == null || !(marker.getTag() instanceof Poi)) {
+                    return false;
+                }
+
+                Poi poi = (Poi) marker.getTag();
+                showPoiDialog(poi);
+                return false;
+            }
+        });
+
         if (moveToPoiId != null) {
             moveToIntentPOI();
+        }
+
+        if (bottomSheet == null) {
+            setupBottomSheet();
+        }
+    }
+
+    private void setupBottomSheet() {
+        bottomSheet = findViewById(R.id.bottom_sheet1);
+
+        mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+        mBottomSheetBehavior2.setHideable(true);
+
+        bottomSheet.setVisibility(View.INVISIBLE);
+        mBottomSheetBehavior2.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
+    }
+
+    @Override
+    public void onMapLoaded() {
+        int activityHeight = findViewById(R.id.map).getHeight();
+        if (activityHeight > 10) {
+            mBottomSheetBehavior2.setPeekHeight(activityHeight / 3 + activityHeight / 10);
+        }
+
+        // we show dialog here, not in onMapReady(), because map layout is refreshed, and
+        // our dialog is hide
+        if (moveToPoiId != null) {
+            showPoiDialog(moveToPoiObject);
         }
     }
 
@@ -213,31 +240,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         moveAndZoomCameraToLocation(location, false);
 
         lastDateUserMovingCamera = new Date();
-
-        // TODO: refactor; extract to function that make modal for POI. this is also used in mMap#setOnMarkerClickListener
-        new MaterialDialog.Builder(MapsActivity.this)
-                .title(poi.getName())
-                .content(poi.getDescription())
-                .show();
+        moveToPoiObject = poi;
     }
 
     private void locationGrantedPermission() {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setTiltGesturesEnabled(false);
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-                // TODO: we show dialog depend on poi, but should get POI data, so we should "get" POI from marker
-                new MaterialDialog.Builder(MapsActivity.this)
-                        .title(marker.getTitle())
-                        .content(marker.getSnippet())
-                        .show();
-                return false;
-            }
-        });
 
         // TODO: deprecated API usage
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
@@ -254,11 +263,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
                 processNewLocation(location);
             }
         });
-    }
-
-    @Override
-    protected void setUpToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
     }
 
     private void processNewLocation(final Location cameraCenter) {
@@ -391,7 +395,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     }
 
     /**
-     * TODO: is it work correctly ???. Maybe better to save last handled location and {@link prevLocation#distanceTo(cameraLocation)}
+     * TODO: is it work correctly ???. Maybe better to save last handled location and prevLocation#distanceTo(cameraLocation)
      *
      * @return true if user move cameraPosition, and that's why camera location change.
      * false if cameraPosition changes because of location change
@@ -400,4 +404,28 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
+    private void showPoiDialog(Poi poi) {
+        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheet.setVisibility(View.VISIBLE);
+
+        final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
+        final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
+
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(this, poiProvider, poi, settingsService);
+
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        if (mCustomPagerAdapter.getCount() == 0) {
+            mViewPager.getLayoutParams().height = 0;
+            mViewPager.setVisibility(View.INVISIBLE);
+        } else {
+            mViewPager.setVisibility(View.VISIBLE);
+            final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+            int pixels = (int) (150 * scale + 0.5f);
+            mViewPager.getLayoutParams().height = pixels;
+        }
+        mViewPager.setAdapter(mCustomPagerAdapter);
+
+        poiName.setText(poi.getName());
+        poiDescription.setText(poi.getDescription());
+    }
 }

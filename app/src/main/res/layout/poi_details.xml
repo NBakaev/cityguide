@@ -1,0 +1,48 @@
+
+<android.support.v4.widget.NestedScrollView
+    android:id="@+id/bottom_sheet1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="true"
+    android:background="@android:color/white"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v4.view.ViewPager
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="150dp">
+        </android.support.v4.view.ViewPager>
+
+        <TextView
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/poi_details_name"
+            android:text="poi_details_name"
+            android:textSize="16sp"
+            android:textAllCaps="true"
+            android:padding="16dp"/>
+
+        <TextView
+            android:background="#ffffff"
+            android:textColor="#000000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/poi_details_description"
+            android:text="poi_details_description"
+            android:padding="16dp"
+            android:textSize="16sp"/>
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

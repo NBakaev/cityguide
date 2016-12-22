@@ -17,4 +17,6 @@ public interface PoiProvider {
     Observable<Poi> getById(String id);
     Observable<ResponseBody> getIcon(Poi poi);
 
+    Observable<ResponseBody> downloadData(String url);
+
 }

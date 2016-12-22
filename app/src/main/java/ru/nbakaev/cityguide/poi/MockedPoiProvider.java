@@ -82,7 +82,7 @@
 //    }
 //
 //    @Override
-//    public Observable<ResponseBody> getIcon(Poi poi) {
+//    public Observable<ResponseBody> downloadContent(Poi poi) {
 //        return null;
 //    }
 //

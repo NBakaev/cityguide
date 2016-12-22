@@ -24,5 +24,5 @@ public interface ServerPOIsProvider {
     Observable<Poi> getPoiById(@Path(value = "id", encoded = true) String id);
 
     @GET("{fullUrl}")
-    Observable<ResponseBody> getIcon(@Path(value = "fullUrl", encoded = true) String fullUrl);
+    Observable<ResponseBody> downloadContent(@Path(value = "fullUrl", encoded = true) String fullUrl);
 }
