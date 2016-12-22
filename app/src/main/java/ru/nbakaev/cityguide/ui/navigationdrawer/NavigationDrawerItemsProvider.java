@@ -18,6 +18,7 @@ public class NavigationDrawerItemsProvider {
         dataList.add(new NavigationDrawerItem(R.string.drawer_near_me, R.drawable.ic_near_me_black_24dp));
         dataList.add(new NavigationDrawerItem(R.string.drawer_about, R.drawable.ic_build_black_24dp));
         dataList.add(new NavigationDrawerItem(R.string.drawer_cities, R.drawable.ic_city));
+        dataList.add(new NavigationDrawerItem(R.string.drawer_qr, R.drawable.ic_qr));
 
         return dataList;
     }

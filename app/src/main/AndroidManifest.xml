@@ -68,6 +68,20 @@
             android:name="ru.nbakaev.cityguide.about.AboutActivity"
             android:label="@string/title_activity_build"></activity>
 
+        <activity
+            android:name="ru.nbakaev.cityguide.QrReadActivity"
+            android:parentActivityName=".MapsActivity"
+            android:label="@string/title_activity_maps">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="https"
+                    android:host="s2.nbakaev.ru"
+                    />
+            </intent-filter>
+        </activity>
 
 
     </application>

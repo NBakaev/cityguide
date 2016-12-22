@@ -16,6 +16,7 @@ import java.util.List;
 import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.QrReadActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.about.AboutActivity;
 
@@ -76,6 +77,10 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
                     case R.string.drawer_about:
                         intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
+                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                        break;
+                    case R.string.drawer_qr:
+                        intent = new Intent(NavigationDrawerAdapter.this.context, QrReadActivity.class);
                         NavigationDrawerAdapter.this.context.startActivity(intent);
                         break;
 

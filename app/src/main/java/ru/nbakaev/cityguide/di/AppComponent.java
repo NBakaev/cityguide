@@ -8,6 +8,7 @@ import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.IntroActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.QrReadActivity;
 import ru.nbakaev.cityguide.about.AboutActivity;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
 import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
@@ -31,6 +32,8 @@ public interface AppComponent {
     void inject(AboutActivity aboutActivity);
 
     void inject(IntroActivity introActivity);
+
+    void inject (QrReadActivity qrReadActivity);
 
     void inject(BackgrounNotificationService service);
 
