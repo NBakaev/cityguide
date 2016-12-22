@@ -52,6 +52,7 @@
 <string name="empty_search">Oh!\nUnfortunately, no results were found.</string>
     <string name="only_online">Sorry!\nThis feature is available only in online mode.\nPlease, turn of "Downloaded only" mode and restart the app.</string>
 
+<string name="track_me">Track me</string>
 <string name="downloaded_only">Downloaded only</string>
 <string name="enable_experimental_feature">enable experimental feature</string>
 

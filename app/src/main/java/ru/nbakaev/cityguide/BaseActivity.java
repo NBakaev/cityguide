@@ -1,5 +1,6 @@
 package ru.nbakaev.cityguide;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.view.MenuItemCompat;
@@ -24,6 +25,7 @@ import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
 import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.utils.SharedPreferencesUtils;
 
 /**
  * Created by Nikita on 10/9/2016.
@@ -119,6 +121,23 @@ public abstract class BaseActivity extends AppCompatActivity {
                 settings.setOffline(isChecked);
                 settingsService.saveSettings(settings);
                 AppUtils.doRestart(getApplicationContext()); // restart app to reload dagger
+            }
+        });
+
+        SwitchCompat trackMeSwitch = (SwitchCompat) findViewById(R.id.trackMeSwitch);
+        trackMeSwitch.setChecked(new SharedPreferencesUtils(getApplicationContext()).getTrackMe());
+        trackMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                new SharedPreferencesUtils(getApplicationContext()).setTrackMe(isChecked);
+                Intent serviceIntent = new Intent(getApplicationContext(), BackgrounNotificationService.class);
+                if (isChecked) {
+                    startService(serviceIntent);
+                }
+                else
+                {
+                    stopService(serviceIntent);
+                }
             }
         });
     }

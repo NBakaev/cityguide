@@ -63,7 +63,7 @@ public class App extends MultiDexApplication {
 //
 //            }
 //        }, BIND_AUTO_CREATE);
-        startService(new Intent(getApplicationContext(), BackgrounNotificationService.class));
+
     }
 
     public DaoSession getDaoSession() {

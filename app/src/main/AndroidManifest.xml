@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+
+
+
 
     <application
         android:allowBackup="true"
@@ -19,6 +23,26 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <receiver
+            android:name=".broadcastreceivers.BroadcastReceiverOnBootComplete"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".BackgrounNotificationService"
+            android:enabled="true"
+            ></service>
         <activity
             android:name="ru.nbakaev.cityguide.MapsActivity"
             android:theme="@style/splashScreenTheme"
@@ -45,9 +69,7 @@
             android:name="ru.nbakaev.cityguide.about.AboutActivity"
             android:label="@string/title_activity_build"></activity>
 
-        <service android:name=".BackgrounNotificationService"
-            android:enabled="true"
-            ></service>
+
 
     </application>
 

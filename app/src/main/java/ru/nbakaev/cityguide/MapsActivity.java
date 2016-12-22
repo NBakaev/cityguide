@@ -220,17 +220,12 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
         // we show dialog here, not in onMapReady(), because map layout is refreshed, and
         // our dialog is hide
-        if (moveToPoiId != null) {
+        if (moveToPoiId != null&&moveToPoiObject!=null) {
             showPoiDialog(moveToPoiObject);
         }
     }
 
     private void moveToIntentPOI() {
-        // we cache all POIs from server, so if we have POI id, DB should contain this value
-//        Poi poi = dbService.getPoiById(moveToPoiId);
-//        if (poi != null) {
-//            processMoveToIntentPoi(poi);
-//        }
         poiProvider.getById(moveToPoiId).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Poi>() {
                     @Override
@@ -264,6 +259,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
         lastDateUserMovingCamera = new Date();
         moveToPoiObject = poi;
+        showPoiDialog(moveToPoiObject);
     }
 
     private void locationGrantedPermission() {
