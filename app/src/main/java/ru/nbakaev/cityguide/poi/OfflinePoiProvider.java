@@ -43,7 +43,7 @@ public class OfflinePoiProvider implements PoiProvider {
     }
 
     @Override
-    public Observable<List<Poi>> getData(final double x0, final double y0, int radius) {
+    public Observable<List<Poi>> getData(final double x0, final double y0, final int radius) {
         // if we have large collection, it's better for performance to return some iterator, not read whole list from database
         // so, we can chunk some objects to lists and return
         return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
@@ -60,6 +60,11 @@ public class OfflinePoiProvider implements PoiProvider {
                 List<PoiDb> buffer = new ArrayList<>();
                 while (all.hasNext()) {
                     PoiDb next = all.next();
+
+                    if (meterDistanceBetweenPoints(x0, y0, next.getLatitude(), next.getLongitude()) > radius){
+                        break;
+                    }
+
                     buffer.add(next);
                     if (buffer.size() == OFFLINE_CHUNK_SIZE) {
                         e.onNext(buffer);
@@ -78,6 +83,22 @@ public class OfflinePoiProvider implements PoiProvider {
                 return PoiDb.toPoiList(poiDbs);
             }
         });
+    }
+
+    private double meterDistanceBetweenPoints(double lat_a, double lng_a, double lat_b, double lng_b) {
+        float pk = (float) (180.f/Math.PI);
+
+        double a1 = lat_a / pk;
+        double a2 = lng_a / pk;
+        double b1 = lat_b / pk;
+        double b2 = lng_b / pk;
+
+        double t1 = Math.cos(a1)*Math.cos(a2)*Math.cos(b1)*Math.cos(b2);
+        double t2 = Math.cos(a1)*Math.sin(a2)*Math.cos(b1)*Math.sin(b2);
+        double t3 = Math.sin(a1)* Math.sin(b1);
+        double tt = Math.acos(t1 + t2 + t3);
+
+        return 6366000*tt;
     }
 
     @Override
