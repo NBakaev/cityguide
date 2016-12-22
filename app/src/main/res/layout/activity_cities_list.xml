@@ -1,0 +1,74 @@
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:animateLayoutChanges="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/loadedCities"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:text="@string/loaded"
+                android:textAppearance="?android:textAppearance"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:background="@drawable/selected_page"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/citiesToLoad"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:textSize="18sp"
+                android:text="@string/toload"
+                android:textAppearance="?android:textAppearance"
+                android:background="@color/colorPrimary"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/lcitiesAll"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:textSize="18sp"
+                android:text="@string/all"
+                android:textAppearance="?android:textAppearance"
+                android:background="@color/colorPrimary"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <android.support.v4.view.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/pager"/>
+
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/nav_drwr_fragment"
+        android:name="ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment"
+        android:layout_width="@dimen/nav_drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:layout="@layout/fragment_navigation_drawer"
+        tools:layout="@layout/fragment_navigation_drawer"/>
+
+</android.support.v4.widget.DrawerLayout>

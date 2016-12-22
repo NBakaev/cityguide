@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
+import ru.nbakaev.cityguide.CitiesActivity;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.R;
@@ -61,6 +62,13 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                         NavigationDrawerAdapter.this.context.startActivity(intent);
                         break;
 
+                    case R.string.drawer_cities:
+
+                        intent = new Intent(NavigationDrawerAdapter.this.context, CitiesActivity.class);
+                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                        break;
+
+
                     case R.string.drawer_near_me:
                         intent = new Intent(NavigationDrawerAdapter.this.context, MainActivity.class);
                         NavigationDrawerAdapter.this.context.startActivity(intent);
@@ -70,10 +78,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                         intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
                         NavigationDrawerAdapter.this.context.startActivity(intent);
                         break;
+
                 }
             }
         });
     }
+
 
     @Override
     public int getItemCount() {
