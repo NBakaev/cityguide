@@ -15,7 +15,6 @@ import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.utils.AppUtils;
 
 /**
  * Created by ya on 11/26/2016.
@@ -59,8 +58,7 @@ public class AboutActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 AppSettings settings = settingsService.getSettings();
                 settings.setEnableExperimentalFeature(isChecked);
-                settingsService.saveSettings(settings);
-                AppUtils.doRestart(getApplicationContext()); // restart app to reload dagger
+                settingsService.saveSettingsAndRestart(settings);
             }
         });
     }

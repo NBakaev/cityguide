@@ -23,7 +23,6 @@ import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
-import ru.nbakaev.cityguide.utils.AppUtils;
 
 /**
  * Created by Nikita on 10/9/2016.
@@ -117,8 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 AppSettings settings = settingsService.getSettings();
                 settings.setOffline(isChecked);
-                settingsService.saveSettings(settings);
-                AppUtils.doRestart(getApplicationContext()); // restart app to reload dagger
+                settingsService.saveSettingsAndRestart(settings);
             }
         });
     }
