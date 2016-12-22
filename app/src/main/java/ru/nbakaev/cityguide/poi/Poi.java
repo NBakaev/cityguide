@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Poi implements ClusterItem {
@@ -14,10 +15,28 @@ public class Poi implements ClusterItem {
     private String description;
     private PoiLocation location;
     private String id;
+    private String cityId;
+    private Date lastUpdate;
     private String imageUrl;
 
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 
     public List<String> getImageUrls() {
         return imageUrls;

@@ -26,3 +26,4 @@ public interface ServerPOIsProvider {
     @GET("{fullUrl}")
     Observable<ResponseBody> downloadContent(@Path(value = "fullUrl", encoded = true) String fullUrl);
 }
+

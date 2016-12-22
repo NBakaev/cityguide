@@ -50,7 +50,8 @@ public class ServerPoiProvider implements PoiProvider {
         searchRequest.setLatitude(x0);
         searchRequest.setLongitude(y0);
         searchRequest.setRadius(radius);
-        return poiProvider.getPoiInRadius(searchRequest);
+        Observable<List<Poi>> result = poiProvider.getPoiInRadius(searchRequest);
+        return result;
     }
 
     @Override

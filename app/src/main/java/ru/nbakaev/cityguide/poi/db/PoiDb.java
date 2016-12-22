@@ -7,6 +7,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ru.nbakaev.cityguide.poi.Poi;
@@ -16,6 +17,10 @@ public class PoiDb {
 
     @Id(autoincrement = false)
     private Long id;
+
+    private String cityId;
+    @Convert(converter = DateGreenConverter.class, columnType = Long.class)
+    private Date lastUpdate;
 
     private String name;
 
@@ -39,10 +44,12 @@ public class PoiDb {
 
 
 
-    @Generated(hash = 75642946)
-    public PoiDb(Long id, String name, String description, double latitude, double longitude,
-            String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
+    @Generated(hash = 97188934)
+    public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, double latitude,
+            double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
         this.id = id;
+        this.cityId = cityId;
+        this.lastUpdate = lastUpdate;
         this.name = name;
         this.description = description;
         this.latitude = latitude;
@@ -65,7 +72,8 @@ public class PoiDb {
         poiDb.setLongitude(poi.getLocation().getLongitude());
         poiDb.setVideoUrl(poi.getVideoUrl());
         poiDb.setImageUrls(poi.getImageUrls());
-
+        poiDb.setCityId(poi.getCityId());
+        poiDb.setLastUpdate(poi.getLastUpdate());
         poiDb.setPoiId(poi.getId());
         return poiDb;
     }
@@ -87,6 +95,8 @@ public class PoiDb {
         poi.setImageUrl(poiDb.getImageUrl());
         poi.setVideoUrl(poiDb.getVideoUrl());
         poi.setImageUrls(poiDb.getImageUrls());
+        poi.setLastUpdate(poiDb.getLastUpdate());
+        poi.setCityId(poiDb.getCityId());
 
         return poi;
     }
@@ -170,5 +180,21 @@ public class PoiDb {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }
