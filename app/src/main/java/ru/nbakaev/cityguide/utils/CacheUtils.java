@@ -55,7 +55,7 @@ public class CacheUtils {
     }
 
     public void cachePoiImage(Bitmap bitmap, Poi poi) {
-        if (settingsService.getSettings().isOffline()) {
+        if (settingsService.isOffline()) {
             return;
         }
 
@@ -87,7 +87,7 @@ public class CacheUtils {
         }
     }
     public void cacheCityImage(Bitmap bitmap, City city) {
-        if (settingsService.getSettings().isOffline()) {
+        if (settingsService.isOffline()) {
             return;
         }
 

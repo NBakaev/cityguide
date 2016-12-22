@@ -55,7 +55,7 @@ public class CustomPagerAdapter extends PagerAdapter {
         mLayoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // in offline cache if already have image with inSampleSize = 7
-        if (!settingsService.getSettings().isOffline()) {
+        if (!settingsService.isOffline()) {
             options.inSampleSize = 2;
         }
     }

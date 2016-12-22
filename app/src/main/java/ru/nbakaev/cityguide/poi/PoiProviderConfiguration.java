@@ -7,7 +7,6 @@ import dagger.Module;
 import dagger.Provides;
 import ru.nbakaev.cityguide.di.ApplicationScope;
 import ru.nbakaev.cityguide.poi.server.ServerPoiProvider;
-import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 
 /**
@@ -22,8 +21,7 @@ public class PoiProviderConfiguration {
     @ApplicationScope
     @Provides
     public PoiProvider poiProvider(Context context, SettingsService settingsService) {
-        AppSettings settings = settingsService.getSettings();
-        boolean offlineMode = settings.isOffline();
+        boolean offlineMode = settingsService.isOffline();
 
         Log.d(TAG, Boolean.toString(offlineMode));
 

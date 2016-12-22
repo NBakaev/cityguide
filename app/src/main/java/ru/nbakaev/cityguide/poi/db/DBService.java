@@ -46,7 +46,7 @@ public class DBService {
             return null;
         }
 
-        if (settingsService.getSettings().isOffline()) {
+        if (settingsService.isOffline()) {
             return null;
         }
 
@@ -127,7 +127,7 @@ public class DBService {
             return null;
         }
 
-        if (settingsService.getSettings().isOffline()) {
+        if (settingsService.isOffline()) {
             return null;
         }
 

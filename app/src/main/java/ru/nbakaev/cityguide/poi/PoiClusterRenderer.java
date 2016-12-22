@@ -43,7 +43,7 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
         this.cacheUtils = cacheUtils;
 
         // in offline cache if already have image with inSampleSize = 7
-        if (!settingsService.getSettings().isOffline()) {
+        if (!settingsService.isOffline()) {
             options.inSampleSize = 7;
         }
     }

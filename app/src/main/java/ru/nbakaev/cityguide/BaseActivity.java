@@ -110,7 +110,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         drawerFragment.setUpDrawer(R.id.nav_drwr_fragment, drawerLayout, toolbar);
 
         SwitchCompat offlineModeSwitch = (SwitchCompat) findViewById(R.id.onlineSwitch);
-        offlineModeSwitch.setChecked(settingsService.getSettings().isOffline());
+        offlineModeSwitch.setChecked(settingsService.isOffline());
+
+        if (settingsService.isOfflineForced()){
+            offlineModeSwitch.setClickable(false);
+        }
+
         offlineModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

@@ -1,6 +1,8 @@
 package ru.nbakaev.cityguide.settings;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import ru.nbakaev.cityguide.App;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
@@ -15,22 +17,37 @@ public class SettingsService {
     private Context context;
     private DaoSession daoSession;
     private AppSettings appSettings;
+    private boolean isOfflineForced = false;
 
     public SettingsService(Context context) {
         this.context = context;
         this.daoSession = ((App) context).getDaoSession();
+
+        if (!isNetworkAvailable()) {
+            isOfflineForced = true;
+        }
     }
 
-    public static String getServerUrl(){
+    public boolean isOffline() {
+        return isOfflineForced || getSettings().isOffline();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public static String getServerUrl() {
         return "https://s2.nbakaev.ru/api/v1/";
     }
 
-    public boolean isFirstRun(){
+    public boolean isFirstRun() {
         return getSettings().isFirstRun();
     }
 
     public AppSettings getSettings() {
-        if (appSettings != null){
+        if (appSettings != null) {
             return appSettings;
         }
 
@@ -54,4 +71,7 @@ public class SettingsService {
         AppUtils.doRestart(context); // restart app to reload dagger
     }
 
+    public boolean isOfflineForced() {
+        return isOfflineForced;
+    }
 }

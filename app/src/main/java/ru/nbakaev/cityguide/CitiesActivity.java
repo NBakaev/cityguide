@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,13 +26,12 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.fragments.CityFragment;
 import ru.nbakaev.cityguide.fragments.EmptyFragment;
 import ru.nbakaev.cityguide.poi.City;
-import ru.nbakaev.cityguide.fragments.CityFragment;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.poi.server.ServerPoiProvider;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
 import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
@@ -71,7 +69,7 @@ public class CitiesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         App.getAppComponent().inject(this);
-        offline = settingsService.getSettings().isOffline();
+        offline = settingsService.isOffline();
         //poiProvider = new ServerPoiProvider(this);
 
         setContentView(R.layout.activity_cities_list);
