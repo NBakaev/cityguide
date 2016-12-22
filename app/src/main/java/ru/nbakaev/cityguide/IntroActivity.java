@@ -13,6 +13,8 @@ import android.support.v4.app.Fragment;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 
+import java.lang.reflect.Field;
+
 import javax.inject.Inject;
 
 import ru.nbakaev.cityguide.settings.AppSettings;
@@ -47,12 +49,9 @@ public class IntroActivity extends AppIntro {
         addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_3_title), getString(R.string.onboarding_3_description), R.drawable.onboarding_logo, bottomColor));
         addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_4_title), getString(R.string.onboarding_4_description), R.drawable.onboarding_logo, bottomColor));
 
-        // Ask for permission
-        askForPermissions(ALL_PERMISSIONS, 2);
-
-        // Hide Skip/Done button.
         showSkipButton(false);
         setProgressButtonEnabled(true);
+        setSwipeLock(false);
     }
 
     @Override
@@ -83,7 +82,25 @@ public class IntroActivity extends AppIntro {
     @Override
     public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment) {
         super.onSlideChanged(oldFragment, newFragment);
-        // Do something when the slide changes.
+
+        // TODO: refactor
+        try {
+            if (newFragment == null){
+                return;
+            }
+
+            Field field = Fragment.class.getDeclaredField("mIndex");
+            field.setAccessible(true);
+
+            int fragmentIndex = field.getInt(newFragment);
+
+            // position of fragment where ask permission
+            if (fragmentIndex == 2) {
+                requestPermissionAll();
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -98,7 +115,7 @@ public class IntroActivity extends AppIntro {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 pager.setCurrentItem(pager.getCurrentItem() + 1);
                 return;
-            }else{
+            } else {
                 requestPermissionAll();
             }
         }
