@@ -14,14 +14,16 @@ public class AppSettings {
     @Id
     private Long id;
     private boolean offline;
+    private boolean tracked;
     private boolean enableExperimentalFeature;
     private boolean firstRun = true;
 
-    @Generated(hash = 1163415535)
-    public AppSettings(Long id, boolean offline, boolean enableExperimentalFeature,
-            boolean firstRun) {
+    @Generated(hash = 1109753121)
+    public AppSettings(Long id, boolean offline, boolean tracked,
+            boolean enableExperimentalFeature, boolean firstRun) {
         this.id = id;
         this.offline = offline;
+        this.tracked = tracked;
         this.enableExperimentalFeature = enableExperimentalFeature;
         this.firstRun = firstRun;
     }
@@ -74,4 +76,14 @@ public class AppSettings {
     public boolean getFirstRun() {
         return this.firstRun;
     }
+
+    public boolean getTracked() {
+        return this.tracked;
+    }
+
+    public void setTracked(boolean tracked) {
+        this.tracked = tracked;
+    }
+
+
 }
