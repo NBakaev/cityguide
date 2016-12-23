@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -75,11 +76,12 @@ public class QrReadActivity extends BaseActivity {
         setUpToolbar();
         setUpDrawer();
         toolbar.setTitle(R.string.drawer_qr);
-        poiDescription =(TextView)findViewById(R.id.PoiDescription);
-        poiImage = (ImageView)findViewById(R.id.PoiImage);;
+        poiDescription = (TextView) findViewById(R.id.PoiDescription);
+        poiImage = (ImageView) findViewById(R.id.PoiImage);
+        ;
         scrollView = (ScrollView) findViewById(R.id.scrollView);
         empty = (LinearLayout) findViewById(R.id.empty);
-        btnMap = (LinearLayout)findViewById(R.id.btnMap);
+        btnMap = (LinearLayout) findViewById(R.id.btnMap);
         btnRetry = (Button) findViewById(R.id.btnRetry);
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +92,7 @@ public class QrReadActivity extends BaseActivity {
         btnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(poiId != null) {
+                if (poiId != null) {
                     Intent i = new Intent(QrReadActivity.this, MapsActivity.class);
                     i.putExtra("MOVE_TO_POI_ID", poiId);
                     QrReadActivity.this.startActivity(i);
@@ -99,47 +101,49 @@ public class QrReadActivity extends BaseActivity {
         });
         Intent intent = getIntent();
         String sData = intent.getDataString();
-        if(sData != null)
-        {
-            if(IsOurQrCode(sData)){
+        if (sData != null) {
+            if (IsOurQrCode(sData)) {
                 poiId = getPoiFromUrl(sData);
                 getPoi(poiId);
             }
-        }
-        else {
+        } else {
             getQrCode();
         }
     }
 
-    protected void getQrCode()
-    {
+    protected void getQrCode() {
         new IntentIntegrator(this).initiateScan();
     }
 
-    protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             lastScannedCode = result.getContents();
-            boolean isPoi = IsOurQrCode(lastScannedCode);
-            if (isPoi == true) {
-                poiId = getPoiFromUrl(lastScannedCode);
-                getPoi(poiId);
+            if (lastScannedCode != null) {
+                boolean isPoi = IsOurQrCode(lastScannedCode);
+                if (isPoi == true) {
+                    poiId = getPoiFromUrl(lastScannedCode);
+                    getPoi(poiId);
+                }
             }
         }
     }
-    protected boolean IsOurQrCode(String lScannedCode){
+
+    protected boolean IsOurQrCode(String lScannedCode) {
         String teml = "(https://s2.nbakaev.ru/#/poi/).+";
         Pattern pattern = Pattern.compile(teml);
         Matcher matcher = pattern.matcher(lScannedCode);
         boolean res = matcher.matches();
-        return  res;
+        return res;
     }
+
     protected String getPoiFromUrl(String Url) {
         String templ = "(https://s2.nbakaev.ru/#/poi/)";
         String res = Url.split(templ)[1];
         return res;
     }
-    protected void setImg(final Poi poi){
+
+    protected void setImg(final Poi poi) {
         Observable<ResponseBody> icon = poiProvider.getIcon(poi);
         Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
             @Override
@@ -171,7 +175,8 @@ public class QrReadActivity extends BaseActivity {
 
         icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
     }
-    protected void getPoi(String poiId){
+
+    protected void getPoi(String poiId) {
         poiProvider.getById(poiId).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Poi>() {
 
@@ -197,7 +202,8 @@ public class QrReadActivity extends BaseActivity {
                     }
                 });
     }
-    protected void fillPOiFields(Poi poi){
+
+    protected void fillPOiFields(Poi poi) {
         poiDescription.setText(poi.getDescription());
         poiDescription.setVisibility(View.VISIBLE);
         toolbar.setTitle(poi.getName());
@@ -205,9 +211,9 @@ public class QrReadActivity extends BaseActivity {
         empty.setVisibility(View.GONE);
         scrollView.setVisibility(View.VISIBLE);
 
-            if (!StringUtils.isEmpty(poi.getImageUrl())) {
-                setImg(poi);
-            }
+        if (!StringUtils.isEmpty(poi.getImageUrl())) {
+            setImg(poi);
+        }
     }
 
 }
