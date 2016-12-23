@@ -8,20 +8,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
-import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
+import ru.nbakaev.cityguide.utils.CacheUtils;
 
 /**
  * Created by Наташа on 16.12.2016.
@@ -30,9 +28,12 @@ import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
 public class CityFragment extends Fragment {
     private MultiSelector<City> selector;
     private RecyclerView reciclerView;
+    private LinearLayout empty;
     private Random random = new Random();
     private CityRecyclerAdapter adapter;
-    private List<City> cities;
+    private List<City> cities = new ArrayList<>();
+    CacheUtils cacheUtils;
+    PoiProvider poiProvider;
 
 
     @Override
@@ -43,6 +44,15 @@ public class CityFragment extends Fragment {
     public void setSelector(MultiSelector<City> selector)
     {
         this.selector = selector;
+    }
+
+    public void setCacheUtils(CacheUtils cacheUtils)
+    {
+        this.cacheUtils = cacheUtils;
+    }
+
+    public void setPoiProvider(PoiProvider poiProvider) {
+        this.poiProvider = poiProvider;
     }
 
     @Nullable
@@ -59,55 +69,42 @@ public class CityFragment extends Fragment {
     {
 
         reciclerView = (RecyclerView) view.findViewById(R.id.citiesRecyclerView);
+        empty = (LinearLayout) view.findViewById(R.id.empty);
     }
 
+    public void setCities(List<City> cities)
+    {
+        this.cities = cities;
+        if (reciclerView!=null)
+            setUpRecyclerView();
+    }
 
+    public CityRecyclerAdapter getAdapter()
+    {
+        return adapter;
+    }
+
+    public void selectAll()
+    {
+        for (City city : cities)
+        {
+            if (!selector.isSelected(city)) {
+                selector.select(city);
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
 
     private void setUpRecyclerView()
     {
-        List<City> cities = new ArrayList<>();
-        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        for (int i=0; i<citiesArray.length; i++)
-        {
-            City city = new City();
-            city.id = ""+i;
-            city.name = citiesArray[i];
-            city.POINumber = random.nextInt(100);
-            city.lastUpdated = null;
-            cities.add(city);
-        }
-        adapter = new CityRecyclerAdapter(getActivity(), cities, selector);
+
+        adapter = new CityRecyclerAdapter(getActivity(), cities, selector, poiProvider, cacheUtils);
         reciclerView.setAdapter(adapter);
 
         LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(getActivity());
         mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
         reciclerView.setLayoutManager(mLinearLayoutManagerVertical);
+        reciclerView.setVisibility(cities.isEmpty() ? View.GONE : View.VISIBLE);
+        empty.setVisibility(cities.isEmpty() ? View.VISIBLE : View.GONE);
     }
 }

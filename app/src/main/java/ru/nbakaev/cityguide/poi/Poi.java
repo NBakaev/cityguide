@@ -176,6 +176,10 @@ public class Poi implements ClusterItem {
         if (imageUrl != null ? !imageUrl.equals(poi.imageUrl) : poi.imageUrl != null) return false;
         if (imageUrls != null ? !imageUrls.equals(poi.imageUrls) : poi.imageUrls != null)
             return false;
+        if (cityId != null ? !cityId.equals(poi.cityId) : poi.cityId != null)
+            return false;
+        if (lastUpdate != null ? !lastUpdate.equals(poi.lastUpdate) : poi.lastUpdate != null)
+            return false;
         return videoUrl != null ? videoUrl.equals(poi.videoUrl) : poi.videoUrl == null;
 
     }
