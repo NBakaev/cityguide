@@ -46,6 +46,7 @@
             android:name="ru.nbakaev.cityguide.MapsActivity"
             android:theme="@style/splashScreenTheme"
             android:label="@string/title_activity_maps">
+            android:launchMode="singleTop"
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

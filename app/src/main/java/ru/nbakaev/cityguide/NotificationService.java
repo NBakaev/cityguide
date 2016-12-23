@@ -1,7 +1,6 @@
 package ru.nbakaev.cityguide;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
-import android.widget.RemoteViews;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -21,8 +19,6 @@ import com.squareup.picasso.Target;
 import java.util.List;
 
 import ru.nbakaev.cityguide.poi.Poi;
-
-import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
 
 /**
  * Created by ya on 11/22/2016.
@@ -162,9 +158,10 @@ public class NotificationService {
 
         }
         Intent notificationIntent = new Intent(context, MapsActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        notificationIntent.setAction(Long.toString(System.currentTimeMillis()));
         notificationIntent.putExtra("MOVE_TO_POI_ID", poi.getId());
-        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+//        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        PendingIntent launchIntent = PendingIntent.getActivity(context,0, notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(launchIntent)
                 .setAutoCancel(true);
         Notification notification = mBuilder.build();

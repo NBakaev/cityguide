@@ -88,6 +88,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
 
     private View bottomSheet;
+    private boolean googleMapsInit = false;
 
     private void firstRunOrNeedPermissions() {
         Intent intent = new Intent(this, IntroActivity.class);
@@ -125,6 +126,21 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             String value = extras.getString("MOVE_TO_POI_ID");
             if (value != null) {
                 moveToPoiId = value;
+                if (googleMapsInit){
+                    moveToIntentPOI();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            String value = extras.getString("MOVE_TO_POI_ID");
+            if (value != null) {
+                moveToPoiId = value;
+                moveToIntentPOI();
             }
         }
     }
@@ -198,6 +214,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         if (bottomSheet == null) {
             setupBottomSheet();
         }
+        googleMapsInit = true;
     }
 
     private void setupBottomSheet() {
@@ -220,7 +237,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
         // we show dialog here, not in onMapReady(), because map layout is refreshed, and
         // our dialog is hide
-        if (moveToPoiId != null&&moveToPoiObject!=null) {
+        if (moveToPoiId != null && moveToPoiObject != null) {
             showPoiDialog(moveToPoiObject);
         }
     }
@@ -235,7 +252,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
                     @Override
                     public void onNext(Poi value) {
-                        if (value!=null)
+                        if (value != null)
                             processMoveToIntentPoi(value);
                     }
 
@@ -249,7 +266,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
                     }
                 });
-}
+    }
 
     private void processMoveToIntentPoi(Poi poi) {
         Location location = new Location("loca");
