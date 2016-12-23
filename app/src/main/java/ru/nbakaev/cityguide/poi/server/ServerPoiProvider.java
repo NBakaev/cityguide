@@ -76,10 +76,12 @@ public class ServerPoiProvider implements PoiProvider {
         return poiProvider.downloadContent(url);
     }
 
+    @Override
     public Observable<List<City>> getCities()
     {
         return poiProvider.getCities();
     }
+    @Override
     public Observable<List<Poi>> getPoiFromCity(String cityId)
     {
         return poiProvider.getPoiFromCity(cityId);

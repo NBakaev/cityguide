@@ -20,6 +20,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.poi.db.CityDB;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
 import ru.nbakaev.cityguide.poi.db.PoiDbDao;
@@ -109,12 +110,22 @@ public class OfflinePoiProvider implements PoiProvider {
                 e.printStackTrace();
             }
         }
-        return null;
+        return Observable.empty();
     }
 
     @Override
     public Observable<ResponseBody> getIcon(City city) {
-        return null;
+        File image = getImageCacheFile(city);
+        if (image.exists()) {
+            try {
+                byte[] bytes = Files.toByteArray(image);
+                ResponseBody responseBody = ResponseBody.create(MediaType.parse("image/png"), bytes);
+                return Observable.just(responseBody);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return Observable.empty();
     }
 
 
@@ -122,6 +133,48 @@ public class OfflinePoiProvider implements PoiProvider {
     public Observable<ResponseBody> downloadData(String url) {
         Toast.makeText(context, "Disable offline mode to download content", Toast.LENGTH_LONG).show();
         return Observable.empty();
+    }
+
+    @Override
+    public Observable<List<City>> getCities() {
+        return Observable.create(new ObservableOnSubscribe<List<CityDB>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<CityDB>> e) throws Exception {
+                DaoSession daoSession = ((App) context).getDaoSession();
+
+                List<CityDB> loaded = daoSession.getCityDBDao().loadAll();
+                if (loaded.size() > 0){
+                    e.onNext(loaded);
+                }
+
+            }
+        }).subscribeOn(Schedulers.computation()).map(new Function<List<CityDB>, List<City>>() {
+            @Override
+            public List<City> apply(List<CityDB> cityDBs) throws Exception {
+                return CityDB.toCityList(cityDBs);
+            }
+        });
+    }
+
+    @Override
+    public Observable<List<Poi>> getPoiFromCity(final String cityId) {
+        return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<PoiDb>> e) throws Exception {
+                DaoSession daoSession = ((App) context).getDaoSession();
+
+                List<PoiDb> loaded = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.CityId.eq(cityId)).list();
+                if (loaded.size() > 0){
+                    e.onNext(loaded);
+                }
+
+            }
+        }).subscribeOn(Schedulers.computation()).map(new Function<List<PoiDb>, List<Poi>>() {
+            @Override
+            public List<Poi> apply(List<PoiDb> poiDbs) throws Exception {
+                return PoiDb.toPoiList(poiDbs);
+            }
+        });
     }
 
 }

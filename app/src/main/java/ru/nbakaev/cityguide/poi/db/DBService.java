@@ -88,9 +88,9 @@ public class DBService {
             return null;
         }
 
-        if (settingsService.getSettings().isOffline()) {
-            return null;
-        }
+//        if (settingsService.getSettings().isOffline()) {
+//            return null;
+//        }
 
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
@@ -171,9 +171,9 @@ public class DBService {
             return null;
         }
 
-        if (settingsService.getSettings().isOffline()) {
-            return null;
-        }
+//        if (settingsService.getSettings().isOffline()) {
+//            return null;
+//        }
 
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override

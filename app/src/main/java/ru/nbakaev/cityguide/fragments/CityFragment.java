@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import ru.nbakaev.cityguide.utils.CacheUtils;
 public class CityFragment extends Fragment {
     private MultiSelector<City> selector;
     private RecyclerView reciclerView;
+    private LinearLayout empty;
     private Random random = new Random();
     private CityRecyclerAdapter adapter;
     private List<City> cities = new ArrayList<>();
@@ -67,6 +69,7 @@ public class CityFragment extends Fragment {
     {
 
         reciclerView = (RecyclerView) view.findViewById(R.id.citiesRecyclerView);
+        empty = (LinearLayout) view.findViewById(R.id.empty);
     }
 
     public void setCities(List<City> cities)
@@ -101,5 +104,7 @@ public class CityFragment extends Fragment {
         LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(getActivity());
         mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
         reciclerView.setLayoutManager(mLinearLayoutManagerVertical);
+        reciclerView.setVisibility(cities.isEmpty() ? View.GONE : View.VISIBLE);
+        empty.setVisibility(cities.isEmpty() ? View.VISIBLE : View.GONE);
     }
 }

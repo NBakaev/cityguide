@@ -27,9 +27,11 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.fragments.EmptyFragment;
 import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.fragments.CityFragment;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.poi.server.ServerPoiProvider;
 import ru.nbakaev.cityguide.settings.SettingsService;
@@ -45,8 +47,9 @@ public class CitiesActivity extends BaseActivity {
     ArrayList<MultiSelector<City>> selectors;
     CityFragment fragments[];
     ViewPager pager;
-    ServerPoiProvider poiProvider;
-    boolean isOffline = true;
+    @Inject
+    PoiProvider poiProvider;
+    boolean offline = true;
 
     Random random = new Random();
 
@@ -68,8 +71,8 @@ public class CitiesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         App.getAppComponent().inject(this);
-        isOffline = settingsService.getSettings().isOffline();
-        poiProvider = new ServerPoiProvider(this);
+        offline = settingsService.getSettings().isOffline();
+        //poiProvider = new ServerPoiProvider(this);
 
         setContentView(R.layout.activity_cities_list);
 
@@ -85,6 +88,11 @@ public class CitiesActivity extends BaseActivity {
             fragment.setPoiProvider(poiProvider);
             fragments[i] = fragment;
         }
+
+        if (offline)
+        {
+            fragments[1] = new EmptyFragment();
+        }
         setUpPager();
         setCitiesLists();
 
@@ -92,64 +100,59 @@ public class CitiesActivity extends BaseActivity {
 
     List<City> loaded = new ArrayList<>();
     List<City> fromServer = new ArrayList<>();
-    List<City> toLoad =  new ArrayList<>();
+    List<City> toLoad = new ArrayList<>();
 
     private void setCitiesLists() {
 //        setLoadedCities();
 //        setToLoadCities();
 //        setAllCities();
 //        getAllCities();
-        if (dbService != null)
+        if (dbService != null) {
             loaded = dbService.getCitiesFromDB();
+        }
         setLoadedCities(loaded);
-        poiProvider.getCities().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<City>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
+        if (offline) {
+            setAllCities(loaded);
+            setToLoadCities(new ArrayList<City>());
+        }else {
+            poiProvider.getCities().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<City>>() {
+                @Override
+                public void onSubscribe(Disposable d) {
 
-            }
+                }
 
-            @Override
-            public void onNext(List<City> value) {
-                fromServer = value;
-                setAllCities(fromServer);
-                toLoad = new ArrayList<City>(fromServer);
-                toLoad.removeAll(loaded);
-                setToLoadCities(toLoad);
-            }
+                @Override
+                public void onNext(List<City> value) {
+                    fromServer = value;
+                    setAllCities(fromServer);
+                    toLoad = new ArrayList<City>(fromServer);
+                    toLoad.removeAll(loaded);
+                    setToLoadCities(toLoad);
+                }
 
-            @Override
-            public void onError(Throwable e) {
+                @Override
+                public void onError(Throwable e) {
 
-            }
+                }
 
-            @Override
-            public void onComplete() {
+                @Override
+                public void onComplete() {
 
-            }
-        });
+                }
+            });
+        }
     }
 
 
     private void setToLoadCities(List<City> cities) {
-//        List<City> cities = new ArrayList<>();
-//        String citiesArray[] = {"Moscow", "SntPetersburg", "Kazan", "Nizniy Novgorod", "Perm"};
-//        for (int i = 0; i < citiesArray.length; i++) {
-//            City city = new City();
-//            city.setId("" + i);
-//            city.setName(citiesArray[i]);
-//            city.setPois(random.nextInt(100));
-//            cities.add(city);
-//        }
-//        fragments[1].setCities(cities);
         fragments[1].setCities(cities);
     }
 
     private void setLoadedCities(List<City> cities) {
-            fragments[0].setCities(cities);
+        fragments[0].setCities(cities);
     }
 
-    private void setAllCities(List<City> cities)
-    {
+    private void setAllCities(List<City> cities) {
         fragments[2].setCities(cities);
     }
 
@@ -245,7 +248,7 @@ public class CitiesActivity extends BaseActivity {
         MenuItem deselect = menu.findItem(R.id.deselectAll);
 
         delete.setVisible(MENU_ACTIVE);
-        load.setVisible(MENU_ACTIVE&&!isOffline);
+        load.setVisible(MENU_ACTIVE && !offline);
         selectAll.setVisible(MENU_ACTIVE);
         deselect.setVisible(MENU_ACTIVE);
         getSupportActionBar().setDisplayShowTitleEnabled(!MENU_ACTIVE);

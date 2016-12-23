@@ -20,4 +20,7 @@ public interface PoiProvider {
 
     Observable<ResponseBody> downloadData(String url);
 
+    Observable<List<City>> getCities();
+    Observable<List<Poi>> getPoiFromCity(String cityId);
+
 }
