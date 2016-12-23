@@ -16,7 +16,11 @@ public interface PoiProvider {
     Observable<List<Poi>> getData(double x0, double y0, int radius);
     Observable<Poi> getById(String id);
     Observable<ResponseBody> getIcon(Poi poi);
+    Observable<ResponseBody> getIcon(City city);
 
     Observable<ResponseBody> downloadData(String url);
+
+    Observable<List<City>> getCities();
+    Observable<List<Poi>> getPoiFromCity(String cityId);
 
 }

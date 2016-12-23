@@ -130,7 +130,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             this.position = position;
             this.current = current;
 
-            String visibleDescription = current.getDescription() == null ? "" : current.getDescription().substring(0, MAX_DESCRIPTION_LENGTH).concat("...");
+            String visibleDescription = current.getDescription() == null ? "" : current.getDescription().substring(0, Math.min(MAX_DESCRIPTION_LENGTH, current.getDescription().length())).concat("...");
             this.description.setText(visibleDescription);
 
             if (!StringUtils.isEmpty(current.getImageUrl())) {

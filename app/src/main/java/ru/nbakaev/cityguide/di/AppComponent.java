@@ -25,6 +25,8 @@ public interface AppComponent {
 
     void inject(BaseActivity baseActivity);
 
+    void inject(CitiesActivity citiesActivity);
+
     void inject(AboutActivity aboutActivity);
 
     void inject(IntroActivity introActivity);

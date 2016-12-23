@@ -12,6 +12,7 @@ import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 
@@ -33,7 +34,8 @@ public class ServerPoiProvider implements PoiProvider {
         RxJava2CallAdapterFactory rxAdapter = RxJava2CallAdapterFactory.create();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        //objectMapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -65,7 +67,23 @@ public class ServerPoiProvider implements PoiProvider {
     }
 
     @Override
+    public Observable<ResponseBody> getIcon(City city) {
+        return poiProvider.downloadContent(city.getImageUrl());
+    }
+
+    @Override
     public Observable<ResponseBody> downloadData(String url) {
         return poiProvider.downloadContent(url);
+    }
+
+    @Override
+    public Observable<List<City>> getCities()
+    {
+        return poiProvider.getCities();
+    }
+    @Override
+    public Observable<List<Poi>> getPoiFromCity(String cityId)
+    {
+        return poiProvider.getPoiFromCity(cityId);
     }
 }
