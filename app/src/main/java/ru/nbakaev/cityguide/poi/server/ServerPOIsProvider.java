@@ -8,7 +8,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
 
 /**
@@ -31,7 +31,7 @@ public interface ServerPOIsProvider {
     Observable<List<City>> getCities();
 
     @GET("poi/city/id/{id}")
-    Observable<List<Poi>> getPoiFromCity( @Path(value = "id", encoded = true) String id);
+    Observable<List<Poi>> getPoiFromCity(@Path(value = "id", encoded = true) String id);
 
 }
 

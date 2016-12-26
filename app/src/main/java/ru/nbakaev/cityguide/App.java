@@ -1,14 +1,11 @@
 package ru.nbakaev.cityguide;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.support.multidex.MultiDexApplication;
 
 import org.greenrobot.greendao.database.Database;
 
 import ru.nbakaev.cityguide.di.AppComponent;
+import ru.nbakaev.cityguide.di.AppModule;
 import ru.nbakaev.cityguide.di.DaggerAppComponent;
 import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
 import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;

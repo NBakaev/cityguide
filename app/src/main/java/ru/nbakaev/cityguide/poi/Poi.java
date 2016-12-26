@@ -113,7 +113,7 @@ public class Poi implements ClusterItem {
         private double latitude = 0.0;
         private double longitude = 0.0;
 
-        public Location toLocation(){
+        public Location toLocation() {
             Location location = new Location("Server");
             location.setLatitude(this.latitude);
             location.setLongitude(this.longitude);

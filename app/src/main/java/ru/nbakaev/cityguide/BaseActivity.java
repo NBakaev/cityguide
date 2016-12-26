@@ -21,12 +21,12 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.push.BackgrounNotificationService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
 
-import ru.nbakaev.cityguide.utils.AppUtils;
-import ru.nbakaev.cityguide.utils.SharedPreferencesUtils;
+import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 
 /**
@@ -117,7 +117,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         SwitchCompat offlineModeSwitch = (SwitchCompat) findViewById(R.id.onlineSwitch);
         offlineModeSwitch.setChecked(settingsService.isOffline());
 
-        if (settingsService.isOfflineForced()){
+        if (settingsService.isOfflineForced()) {
             offlineModeSwitch.setClickable(false);
         }
 
@@ -139,9 +139,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Intent serviceIntent = new Intent(getApplicationContext(), BackgrounNotificationService.class);
                 if (isChecked) {
                     startService(serviceIntent);
-                }
-                else
-                {
+                } else {
                     stopService(serviceIntent);
                 }
             }

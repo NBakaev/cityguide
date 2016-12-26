@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.utils;
+package ru.nbakaev.cityguide.util;
 
 public abstract class StringUtils {
 

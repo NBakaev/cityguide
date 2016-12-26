@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ru.nbakaev.cityguide.utils.StringUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 
 public class GreenConverter implements PropertyConverter<List<String>, String> {
@@ -19,7 +19,7 @@ public class GreenConverter implements PropertyConverter<List<String>, String> {
         if (databaseValue == null) {
             return null;
         } else {
-            if (StringUtils.isEmpty(databaseValue)){
+            if (StringUtils.isEmpty(databaseValue)) {
                 return Collections.emptyList();
             }
 

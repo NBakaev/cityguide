@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-
 import java.util.List;
-import java.util.Random;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -24,32 +20,28 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
-import ru.nbakaev.cityguide.utils.CacheUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
 
-public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder>{
+public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder> {
 
     final BitmapFactory.Options options = new BitmapFactory.Options();
-    Random randrom = new Random();
     LayoutInflater inflater;
     List<City> cities;
     PoiProvider poiProvider;
     CacheUtils cacheUtils;
-//    List<City> selected = new ArrayList<>();
 
     ru.nbakaev.cityguide.ui.cityselector.MultiSelector<City> selector;
-//    MultiSelector selector = new MultiSelector();
-//    MultiSelector multiSelector;
 
     public CityRecyclerAdapter(Context context, List<City> cities, MultiSelector<City> selector, PoiProvider poiProvider, CacheUtils cacheUtils) {
         this.cities = cities;
         inflater = LayoutInflater.from(context);
-//        this.multiSelector = multiSelector;
         this.selector = selector;
         this.poiProvider = poiProvider;
         this.cacheUtils = cacheUtils;
+        this.options.inSampleSize = 7;
     }
 
     @Override
@@ -87,20 +79,15 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
         }
 
 
-
-        public void setData(City currentCity, final int position)
-        {
+        public void setData(City currentCity, final int position) {
             this.pos = position;
 
             this.current = currentCity;
             title.setText(current.getName());
-            if (current.getPois()>0)
-            {
+            if (current.getPois() > 0) {
                 poi.setVisibility(View.VISIBLE);
-                poi.setText(current.getPois()+ (current.getPois() == 1 ? " POI" : " POIs"));
-            }
-            else
-            {
+                poi.setText(current.getPois() + (current.getPois() == 1 ? " POI" : " POIs"));
+            } else {
                 poi.setVisibility(View.GONE);
             }
 
@@ -111,12 +98,9 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
                     notifyItemChanged(position);
                 }
             });
-            if (current.getImageUrl()==null)
-            {
+            if (current.getImageUrl() == null) {
                 imgThumb.setVisibility(View.GONE);
-            }
-            else
-            {
+            } else {
                 imgThumb.setImageResource(R.drawable.ic_placeholder);
                 imgThumb.setVisibility(View.VISIBLE);
                 setIcon();
@@ -124,15 +108,13 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
             }
             if (selector.isSelected(current)) {
                 holder.setBackgroundResource(R.color.grey_300);
-            }
-            else {
+            } else {
                 holder.setBackgroundResource(R.color.white);
             }
 
         }
 
-        private void setIcon()
-        {
+        private void setIcon() {
             Observable<ResponseBody> icon = poiProvider.getIcon(current);
             Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
                 @Override

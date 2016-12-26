@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.utils;
+package ru.nbakaev.cityguide.util;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

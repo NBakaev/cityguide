@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.utils;
+package ru.nbakaev.cityguide.util;
 
 /**
  * Created by Nikita on 10/24/2016.

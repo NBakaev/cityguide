@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.push;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -18,6 +18,9 @@ import com.squareup.picasso.Target;
 
 import java.util.List;
 
+import ru.nbakaev.cityguide.NearbyActivity;
+import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 
 /**
@@ -51,11 +54,9 @@ public class NotificationService {
         if (newPoi.size() < 1) {
             return;
         }
-        if (1==newPoi.size())
-        {
+        if (1 == newPoi.size()) {
             singleNotification(newPoi.get(0), prevLocation);
-        }
-        else {
+        } else {
             multipleNotification(newPoi);
         }
     }
@@ -89,8 +90,8 @@ public class NotificationService {
         inboxStyle.setSummaryText("Nearest POIs " + size);
         mBuilder.setStyle(inboxStyle);
         // Issue the notification here.
-        Intent notificationIntent = new Intent(context, MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Intent notificationIntent = new Intent(context, NearbyActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         mBuilder.setContentIntent(launchIntent)
                 .setAutoCancel(true);
@@ -99,7 +100,7 @@ public class NotificationService {
     }
 
     void singleNotification(final Poi poi, final Location prevLocation) {
-        if (poi.getImageUrl() != null&&!poi.getImageUrl().trim().equals("")) {
+        if (poi.getImageUrl() != null && !poi.getImageUrl().trim().equals("")) {
             Picasso.with(context).load(poi.getImageUrl()).into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -161,7 +162,7 @@ public class NotificationService {
         notificationIntent.setAction(Long.toString(System.currentTimeMillis()));
         notificationIntent.putExtra("MOVE_TO_POI_ID", poi.getId());
 //        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-        PendingIntent launchIntent = PendingIntent.getActivity(context,0, notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(launchIntent)
                 .setAutoCancel(true);
         Notification notification = mBuilder.build();

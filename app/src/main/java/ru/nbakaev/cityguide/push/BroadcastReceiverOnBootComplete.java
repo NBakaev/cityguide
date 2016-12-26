@@ -1,11 +1,10 @@
-package ru.nbakaev.cityguide.broadcastreceivers;
+package ru.nbakaev.cityguide.push;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import ru.nbakaev.cityguide.BackgrounNotificationService;
-import ru.nbakaev.cityguide.utils.SharedPreferencesUtils;
+import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 public class BroadcastReceiverOnBootComplete extends BroadcastReceiver {
 

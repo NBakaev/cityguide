@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.fragments;
+package ru.nbakaev.cityguide.city;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,11 +15,10 @@ import java.util.List;
 import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
-import ru.nbakaev.cityguide.utils.CacheUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
 
 /**
  * Created by Наташа on 16.12.2016.
@@ -41,13 +40,11 @@ public class CityFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    public void setSelector(MultiSelector<City> selector)
-    {
+    public void setSelector(MultiSelector<City> selector) {
         this.selector = selector;
     }
 
-    public void setCacheUtils(CacheUtils cacheUtils)
-    {
+    public void setCacheUtils(CacheUtils cacheUtils) {
         this.cacheUtils = cacheUtils;
     }
 
@@ -62,32 +59,27 @@ public class CityFragment extends Fragment {
         findAllViews(view);
         //setupMultiselector();
         setUpRecyclerView();
-        return  view;
+        return view;
     }
 
-    void findAllViews(View view)
-    {
+    void findAllViews(View view) {
 
         reciclerView = (RecyclerView) view.findViewById(R.id.citiesRecyclerView);
         empty = (LinearLayout) view.findViewById(R.id.empty);
     }
 
-    public void setCities(List<City> cities)
-    {
+    public void setCities(List<City> cities) {
         this.cities = cities;
-        if (reciclerView!=null)
+        if (reciclerView != null)
             setUpRecyclerView();
     }
 
-    public CityRecyclerAdapter getAdapter()
-    {
+    public CityRecyclerAdapter getAdapter() {
         return adapter;
     }
 
-    public void selectAll()
-    {
-        for (City city : cities)
-        {
+    public void selectAll() {
+        for (City city : cities) {
             if (!selector.isSelected(city)) {
                 selector.select(city);
             }
@@ -95,8 +87,7 @@ public class CityFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    private void setUpRecyclerView()
-    {
+    private void setUpRecyclerView() {
 
         adapter = new CityRecyclerAdapter(getActivity(), cities, selector, poiProvider, cacheUtils);
         reciclerView.setAdapter(adapter);

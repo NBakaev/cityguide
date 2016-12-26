@@ -23,7 +23,7 @@
             android:value="@string/google_maps_key" />
 
         <receiver
-            android:name=".broadcastreceivers.BroadcastReceiverOnBootComplete"
+            android:name=".push.BroadcastReceiverOnBootComplete"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -39,7 +39,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".BackgrounNotificationService"
+        <service android:name=".push.BackgrounNotificationService"
             android:enabled="true"
             ></service>
         <activity
@@ -59,7 +59,7 @@
             android:label="@string/title_activity_maps"></activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.MainActivity"
+            android:name="ru.nbakaev.cityguide.NearbyActivity"
             android:label="@string/title_activity_maps"></activity>
         <activity
             android:name="ru.nbakaev.cityguide.CitiesActivity"

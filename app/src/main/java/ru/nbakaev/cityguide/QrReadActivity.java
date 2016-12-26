@@ -1,30 +1,19 @@
 package ru.nbakaev.cityguide;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,11 +27,8 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.utils.CacheUtils;
-import ru.nbakaev.cityguide.utils.StringUtils;
-
-import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
+import ru.nbakaev.cityguide.util.CacheUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by user on 21.12.2016.

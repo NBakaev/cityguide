@@ -24,9 +24,9 @@ import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 
-public class MainActivity extends BaseActivity {
+public class NearbyActivity extends BaseActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = NearbyActivity.class.getSimpleName();
 
     @Inject
     PoiProvider poiProvider;
@@ -76,7 +76,7 @@ public class MainActivity extends BaseActivity {
             }
         };
 
-        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(MainActivity.this);
+        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(NearbyActivity.this);
         mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -101,8 +101,8 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Poi> value) {
                         dbService.cachePoiToDB(value);
-                        // pass MainActivity context instead of applicationContext to have right borders in recycler view
-                        RecyclerAdapter adapter = new RecyclerAdapter(MainActivity.this, value, locationProvider, poiProvider);
+                        // pass NearbyActivity context instead of applicationContext to have right borders in recycler view
+                        RecyclerAdapter adapter = new RecyclerAdapter(NearbyActivity.this, value, locationProvider, poiProvider);
                         recyclerView.setAdapter(adapter);
                     }
 

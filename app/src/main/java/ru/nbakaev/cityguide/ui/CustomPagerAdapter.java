@@ -28,7 +28,7 @@ import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.utils.StringUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by ya on 12/10/2016.

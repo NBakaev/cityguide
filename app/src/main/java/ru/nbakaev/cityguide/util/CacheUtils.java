@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.utils;
+package ru.nbakaev.cityguide.util;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.settings.SettingsService;
 
@@ -29,6 +29,7 @@ public class CacheUtils {
     }
 
     private static String cachePath;
+
     static {
         File sdCardDirectory = Environment.getExternalStorageDirectory();
         cachePath = sdCardDirectory + "/cityguide/";
@@ -86,6 +87,7 @@ public class CacheUtils {
             e.printStackTrace();
         }
     }
+
     public void cacheCityImage(Bitmap bitmap, City city) {
         if (settingsService.isOffline()) {
             return;

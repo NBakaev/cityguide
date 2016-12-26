@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.poi.db;
+package ru.nbakaev.cityguide.city;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ru.nbakaev.cityguide.poi.City;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.poi.db.DateGreenConverter;
+import ru.nbakaev.cityguide.poi.db.GreenConverter;
 
 /**
  * Created by Наташа on 22.12.2016.
@@ -34,8 +35,8 @@ public class CityDB {
     private double approximateRadius = 0;
     private double latitude = 0.0;
     private double longitude = 0.0;
-    public CityDB()
-    {
+
+    public CityDB() {
 
     }
 
@@ -55,8 +56,7 @@ public class CityDB {
         this.longitude = longitude;
     }
 
-    public static CityDB of(City city)
-    {
+    public static CityDB of(City city) {
         CityDB cityDB = new CityDB();
         cityDB.setId((long) city.getId().hashCode());
         cityDB.setApproximateRadius(city.getApproximateRadius());
@@ -73,16 +73,15 @@ public class CityDB {
         return cityDB;
     }
 
-    public static List<CityDB> of(List<City>cities) {
+    public static List<CityDB> of(List<City> cities) {
         ArrayList<CityDB> cityDBs = new ArrayList<>();
-        for (City city:cities) {
+        for (City city : cities) {
             cityDBs.add(CityDB.of(city));
         }
         return cityDBs;
     }
 
-    public static City toCity(CityDB cityDB)
-    {
+    public static City toCity(CityDB cityDB) {
         City city = new City();
         city.setApproximateRadius(cityDB.getApproximateRadius());
         city.setPois(cityDB.getPois());

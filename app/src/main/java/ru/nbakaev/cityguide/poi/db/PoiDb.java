@@ -45,10 +45,9 @@ public class PoiDb {
     }
 
 
-
     @Generated(hash = 97188934)
     public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, double latitude,
-            double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
+                 double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
         this.id = id;
         this.cityId = cityId;
         this.lastUpdate = lastUpdate;
@@ -61,7 +60,6 @@ public class PoiDb {
         this.imageUrls = imageUrls;
         this.videoUrl = videoUrl;
     }
-
 
 
     public static PoiDb of(Poi poi) {

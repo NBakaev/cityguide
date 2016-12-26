@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.util.AppUtils;
 
 /**
  * Created by ya on 12/17/2016.
@@ -85,7 +85,7 @@ public class IntroActivity extends AppIntro {
 
         // TODO: refactor
         try {
-            if (newFragment == null){
+            if (newFragment == null) {
                 return;
             }
 

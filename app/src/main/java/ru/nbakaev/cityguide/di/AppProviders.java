@@ -7,7 +7,7 @@ import dagger.Provides;
 import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.utils.CacheUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
 
 /**
  * Created by Nikita on 10/11/2016.

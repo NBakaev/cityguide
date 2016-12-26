@@ -21,14 +21,14 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.MapsActivity;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.utils.CacheUtils;
-import ru.nbakaev.cityguide.utils.StringUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by ya on 11/19/2016.
  */
 
-public class PoiClusterRenderer extends DefaultClusterRenderer<Poi>  {
+public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     private PoiProvider poiProvider;

@@ -10,7 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import ru.nbakaev.cityguide.App;
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.city.CityDB;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.settings.SettingsService;
 
@@ -82,6 +83,7 @@ public class DBService {
 
         return executor.submit(callable);
     }
+
     public Future<Boolean> deletePoiFromDB(final List<Poi> data) {
 
         if (data == null || data.isEmpty()) {
@@ -121,6 +123,7 @@ public class DBService {
 
         return executor.submit(callable);
     }
+
     public Future<Boolean> cacheCityToDB(final List<City> data) {
 
         if (data == null || data.isEmpty()) {
@@ -166,7 +169,8 @@ public class DBService {
 
 
     }
-    public Future<Boolean> deleteCityFromDB(final List<City> data){
+
+    public Future<Boolean> deleteCityFromDB(final List<City> data) {
         if (data == null || data.isEmpty()) {
             return null;
         }
@@ -206,8 +210,7 @@ public class DBService {
         return executor.submit(callable);
     }
 
-    public List<City> getCitiesFromDB()
-    {
+    public List<City> getCitiesFromDB() {
         List<CityDB> cityDBs = daoSession.getCityDBDao().loadAll();
         if (cityDBs == null)
             return new ArrayList<>();

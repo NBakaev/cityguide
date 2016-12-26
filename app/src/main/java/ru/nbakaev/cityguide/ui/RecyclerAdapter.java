@@ -27,9 +27,9 @@ import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
-import ru.nbakaev.cityguide.utils.StringUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
 
-import static ru.nbakaev.cityguide.utils.MapUtils.printDistance;
+import static ru.nbakaev.cityguide.util.MapUtils.printDistance;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
     private List<Poi> mData;

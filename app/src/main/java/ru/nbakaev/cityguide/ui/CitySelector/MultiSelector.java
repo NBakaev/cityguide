@@ -7,46 +7,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-public class MultiSelector<T> implements Serializable{
+public class MultiSelector<T> implements Serializable {
     protected List<T> selected = new ArrayList<>();
     protected OnItemSelectedListener<T> listener = null;
     boolean activated = false;
 
-    public MultiSelector()
-    {
+    public MultiSelector() {
 
     }
-    public void select(T item)
-    {
+
+    public void select(T item) {
         boolean result = !selected.contains(item);
         if (result)
             selected.add(item);
         else
             selected.remove(item);
 
-        if (listener!=null)
+        if (listener != null)
             listener.onSelect(item, result);
-        if (activated!=selected.size()>0)
-        {
-            activated=!activated;
-            if (listener!=null)
+        if (activated != selected.size() > 0) {
+            activated = !activated;
+            if (listener != null)
                 listener.onSelectorActivated(activated);
         }
     }
 
-    public void clear()
-    {
+    public void clear() {
         selected.clear();
         activated = false;
-        if (listener!=null) {
+        if (listener != null) {
             listener.onClear();
             listener.onSelectorActivated(activated);
         }
     }
 
-    public List<T> getSelected()
-    {
+    public List<T> getSelected() {
         return selected;
     }
 
@@ -58,14 +53,12 @@ public class MultiSelector<T> implements Serializable{
         this.listener = listener;
     }
 
-    public boolean isSelected(T item)
-    {
+    public boolean isSelected(T item) {
         return selected.contains(item);
     }
 
-    public boolean isActivated()
-    {
-        return  isActivated();
+    public boolean isActivated() {
+        return isActivated();
     }
 
 }

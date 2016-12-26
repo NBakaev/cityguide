@@ -1,10 +1,13 @@
-package ru.nbakaev.cityguide.poi;
+package ru.nbakaev.cityguide.city;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import ru.nbakaev.cityguide.poi.Poi;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class City {
     private String name;
@@ -102,8 +105,7 @@ public class City {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof City)
-        {
+        if (obj instanceof City) {
             City city = (City) obj;
             return this.id.equals(city.id) && this.lastUpdate.equals(city.lastUpdate);
         }

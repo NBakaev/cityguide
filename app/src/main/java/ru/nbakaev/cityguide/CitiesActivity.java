@@ -26,16 +26,16 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import ru.nbakaev.cityguide.fragments.CityFragment;
-import ru.nbakaev.cityguide.fragments.EmptyFragment;
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.CityFragment;
+import ru.nbakaev.cityguide.city.EmptyFragment;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
 import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
-import ru.nbakaev.cityguide.utils.CacheUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
 
 
 public class CitiesActivity extends BaseActivity {
@@ -48,8 +48,6 @@ public class CitiesActivity extends BaseActivity {
     @Inject
     PoiProvider poiProvider;
     boolean offline = true;
-
-    Random random = new Random();
 
     @Inject
     DBService dbService;
@@ -87,8 +85,7 @@ public class CitiesActivity extends BaseActivity {
             fragments[i] = fragment;
         }
 
-        if (offline)
-        {
+        if (offline) {
             fragments[1] = new EmptyFragment();
         }
         setUpPager();
@@ -112,7 +109,7 @@ public class CitiesActivity extends BaseActivity {
         if (offline) {
             setAllCities(loaded);
             setToLoadCities(new ArrayList<City>());
-        }else {
+        } else {
             poiProvider.getCities().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<List<City>>() {
                 @Override
                 public void onSubscribe(Disposable d) {

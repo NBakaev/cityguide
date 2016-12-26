@@ -1,21 +1,12 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.push;
 
-import android.Manifest;
 import android.app.Service;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-
 
 import java.util.List;
 
@@ -25,8 +16,7 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import ru.nbakaev.cityguide.background.AndroidBackgroundAware;
-import ru.nbakaev.cityguide.locaton.AndroidLocationProvider;
+import ru.nbakaev.cityguide.App;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
@@ -38,7 +28,7 @@ import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CA
  * Created by Наташа on 20.12.2016.
  */
 
-public class BackgrounNotificationService extends Service{
+public class BackgrounNotificationService extends Service {
 
     @Inject
     LocationProvider locationProvider;

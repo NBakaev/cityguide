@@ -37,9 +37,10 @@ import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
+import ru.nbakaev.cityguide.push.NotificationService;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.CustomPagerAdapter;
-import ru.nbakaev.cityguide.utils.CacheUtils;
+import ru.nbakaev.cityguide.util.CacheUtils;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -126,7 +127,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             String value = extras.getString("MOVE_TO_POI_ID");
             if (value != null) {
                 moveToPoiId = value;
-                if (googleMapsInit){
+                if (googleMapsInit) {
                     moveToIntentPOI();
                 }
             }

@@ -20,7 +20,7 @@ public class AppSettings {
 
     @Generated(hash = 1109753121)
     public AppSettings(Long id, boolean offline, boolean tracked,
-            boolean enableExperimentalFeature, boolean firstRun) {
+                       boolean enableExperimentalFeature, boolean firstRun) {
         this.id = id;
         this.offline = offline;
         this.tracked = tracked;

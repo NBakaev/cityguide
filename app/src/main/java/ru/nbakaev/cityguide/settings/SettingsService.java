@@ -6,7 +6,7 @@ import android.net.NetworkInfo;
 
 import ru.nbakaev.cityguide.App;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
-import ru.nbakaev.cityguide.utils.AppUtils;
+import ru.nbakaev.cityguide.util.AppUtils;
 
 /**
  * Created by ya on 11/17/2016.

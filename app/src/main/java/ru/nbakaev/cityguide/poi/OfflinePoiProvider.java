@@ -20,12 +20,13 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.App;
-import ru.nbakaev.cityguide.poi.db.CityDB;
+import ru.nbakaev.cityguide.city.City;
+import ru.nbakaev.cityguide.city.CityDB;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
 import ru.nbakaev.cityguide.poi.db.PoiDb;
 import ru.nbakaev.cityguide.poi.db.PoiDbDao;
 
-import static ru.nbakaev.cityguide.utils.CacheUtils.getImageCacheFile;
+import static ru.nbakaev.cityguide.util.CacheUtils.getImageCacheFile;
 
 /**
  * Created by Nikita on 10/14/2016.
@@ -61,7 +62,7 @@ public class OfflinePoiProvider implements PoiProvider {
                 while (all.hasNext()) {
                     PoiDb next = all.next();
 
-                    if (meterDistanceBetweenPoints(x0, y0, next.getLatitude(), next.getLongitude()) > radius){
+                    if (meterDistanceBetweenPoints(x0, y0, next.getLatitude(), next.getLongitude()) > radius) {
                         break;
                     }
 
@@ -71,7 +72,7 @@ public class OfflinePoiProvider implements PoiProvider {
                         buffer = new ArrayList<>();
                     }
                 }
-                if (buffer.size() > 0){
+                if (buffer.size() > 0) {
                     e.onNext(buffer);
                 }
 
@@ -86,19 +87,19 @@ public class OfflinePoiProvider implements PoiProvider {
     }
 
     private double meterDistanceBetweenPoints(double lat_a, double lng_a, double lat_b, double lng_b) {
-        float pk = (float) (180.f/Math.PI);
+        float pk = (float) (180.f / Math.PI);
 
         double a1 = lat_a / pk;
         double a2 = lng_a / pk;
         double b1 = lat_b / pk;
         double b2 = lng_b / pk;
 
-        double t1 = Math.cos(a1)*Math.cos(a2)*Math.cos(b1)*Math.cos(b2);
-        double t2 = Math.cos(a1)*Math.sin(a2)*Math.cos(b1)*Math.sin(b2);
-        double t3 = Math.sin(a1)* Math.sin(b1);
+        double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
+        double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
+        double t3 = Math.sin(a1) * Math.sin(b1);
         double tt = Math.acos(t1 + t2 + t3);
 
-        return 6366000*tt;
+        return 6366000 * tt;
     }
 
     @Override
@@ -164,7 +165,7 @@ public class OfflinePoiProvider implements PoiProvider {
                 DaoSession daoSession = ((App) context).getDaoSession();
 
                 List<CityDB> loaded = daoSession.getCityDBDao().loadAll();
-                if (loaded.size() > 0){
+                if (loaded.size() > 0) {
                     e.onNext(loaded);
                 }
 
@@ -185,7 +186,7 @@ public class OfflinePoiProvider implements PoiProvider {
                 DaoSession daoSession = ((App) context).getDaoSession();
 
                 List<PoiDb> loaded = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.CityId.eq(cityId)).list();
-                if (loaded.size() > 0){
+                if (loaded.size() > 0) {
                     e.onNext(loaded);
                 }
 

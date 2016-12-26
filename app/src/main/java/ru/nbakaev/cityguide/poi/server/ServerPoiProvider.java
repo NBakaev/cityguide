@@ -12,7 +12,7 @@ import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import ru.nbakaev.cityguide.poi.City;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 
@@ -77,13 +77,12 @@ public class ServerPoiProvider implements PoiProvider {
     }
 
     @Override
-    public Observable<List<City>> getCities()
-    {
+    public Observable<List<City>> getCities() {
         return poiProvider.getCities();
     }
+
     @Override
-    public Observable<List<Poi>> getPoiFromCity(String cityId)
-    {
+    public Observable<List<Poi>> getPoiFromCity(String cityId) {
         return poiProvider.getPoiFromCity(cityId);
     }
 }
