@@ -18,8 +18,8 @@ import com.squareup.picasso.Target;
 
 import java.util.List;
 
-import ru.nbakaev.cityguide.NearbyActivity;
-import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.NearbyFragment;
+import ru.nbakaev.cityguide.MapsFragment;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 
@@ -90,7 +90,7 @@ public class NotificationService {
         inboxStyle.setSummaryText("Nearest POIs " + size);
         mBuilder.setStyle(inboxStyle);
         // Issue the notification here.
-        Intent notificationIntent = new Intent(context, NearbyActivity.class);
+        Intent notificationIntent = new Intent(context, NearbyFragment.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         mBuilder.setContentIntent(launchIntent)
@@ -158,7 +158,7 @@ public class NotificationService {
             mBuilder.setStyle(bigTextStyle);
 
         }
-        Intent notificationIntent = new Intent(context, MapsActivity.class);
+        Intent notificationIntent = new Intent(context, MapsFragment.class);
         notificationIntent.setAction(Long.toString(System.currentTimeMillis()));
         notificationIntent.putExtra("MOVE_TO_POI_ID", poi.getId());
 //        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);

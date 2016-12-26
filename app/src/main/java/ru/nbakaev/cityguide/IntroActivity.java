@@ -74,7 +74,7 @@ public class IntroActivity extends AppIntro {
         if (Build.VERSION.SDK_INT >= 23) {
             AppUtils.doRestart(getApplicationContext());
         } else {
-            Intent intent = new Intent(this, MapsActivity.class);
+            Intent intent = new Intent(this, MapsFragment.class);
             startActivity(intent);
         }
     }

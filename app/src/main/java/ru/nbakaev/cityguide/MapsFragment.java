@@ -1,14 +1,17 @@
 package ru.nbakaev.cityguide;
 
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -48,9 +51,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
-public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
+public class MapsFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
-    private static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String TAG = MapsFragment.class.getSimpleName();
 
     private GoogleMap mMap;
     private Location prevLocation;
@@ -91,38 +94,20 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private View bottomSheet;
     private boolean googleMapsInit = false;
 
-    private void firstRunOrNeedPermissions() {
-        Intent intent = new Intent(this, IntroActivity.class);
-        startActivity(intent);
+    private BaseActivity baseActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        baseActivity = (BaseActivity) context;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.MaterialTheme);
-
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
 
-        if (settingsService.isFirstRun()) {
-            firstRunOrNeedPermissions();
-            return;
-        }
-
-        setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        setUpToolbar();
-        setUpDrawer();
-
-        prevLocation = null;
-
-        App.getAppComponent().inject(this);
-        notificationService = new NotificationService(getApplicationContext());
-
-        // if activity started with "go to poi"
-        Bundle extras = getIntent().getExtras();
+//         if activity started with "go to poi"
+        Bundle extras = this.getArguments();
         if (extras != null) {
             String value = extras.getString("MOVE_TO_POI_ID");
             if (value != null) {
@@ -134,16 +119,22 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         }
     }
 
+    @Nullable
     @Override
-    public void onNewIntent(Intent intent) {
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
-            String value = extras.getString("MOVE_TO_POI_ID");
-            if (value != null) {
-                moveToPoiId = value;
-                moveToIntentPOI();
-            }
-        }
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        App.getAppComponent().inject(this);
+        View inflate = inflater.inflate(R.layout.activity_maps, container, false);
+
+        // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        prevLocation = null;
+
+        App.getAppComponent().inject(this);
+
+        return inflate;
     }
 
     /**
@@ -156,25 +147,25 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
-        clusterManager = new ClusterManager<>(this, googleMap);
-        poiClusterRenderer = new PoiClusterRenderer(this, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
+        clusterManager = new ClusterManager<>(baseActivity, googleMap);
+        poiClusterRenderer = new PoiClusterRenderer(baseActivity, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
         clusterManager.setRenderer(poiClusterRenderer);
 
         subscribeToMapsChange();
 
         // we have permissions
-        if (ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            firstRunOrNeedPermissions();
+        if (ActivityCompat.checkSelfPermission(baseActivity, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            firstRunOrNeedPermissions();
             return;
         }
 
         // we have permissions
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(baseActivity, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "Need location permission");
-            firstRunOrNeedPermissions();
+//            firstRunOrNeedPermissions();
             return;
         } else {
             mMap.setMyLocationEnabled(true);
@@ -219,10 +210,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     }
 
     private void setupBottomSheet() {
-        bottomSheet = findViewById(R.id.bottom_sheet1);
+        bottomSheet = getView().findViewById(R.id.bottom_sheet1);
 
         mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+//        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
         mBottomSheetBehavior2.setHideable(true);
 
         bottomSheet.setVisibility(View.INVISIBLE);
@@ -231,7 +222,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     @Override
     public void onMapLoaded() {
-        int activityHeight = findViewById(R.id.map).getHeight();
+        showBottomViewOnLoad();
+    }
+
+    private void showBottomViewOnLoad() {
+        int activityHeight = getView().findViewById(R.id.map).getHeight();
         if (activityHeight > 10) {
             mBottomSheetBehavior2.setPeekHeight(activityHeight / 3 + activityHeight / 10);
         }
@@ -277,7 +272,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
         lastDateUserMovingCamera = new Date();
         moveToPoiObject = poi;
-        showPoiDialog(moveToPoiObject);
     }
 
     private void locationGrantedPermission() {
@@ -310,7 +304,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         // if distance between downloaded POI and current location > 20 metres - download new POIs
         if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
             locationForPoi = cameraCenter;
-            toolbar.setTitle(setupNameHeader(locationForPoi.getLatitude(), locationForPoi.getLongitude()));
+            baseActivity.toolbar.setTitle(baseActivity.setupNameHeader(locationForPoi.getLatitude(), locationForPoi.getLongitude()));
         } else {
             return;
         }
@@ -335,15 +329,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                     public void onComplete() {
                     }
                 });
-    }
-
-    private void sendNotificationToNewPois(final List<Poi> newPoi) {
-        // do not send notification if user just move map
-        if (!isUserMovingCamera()) {
-            return;
-        }
-
-        //notificationService.showNotification(newPoi, prevLocation);
     }
 
     /**
@@ -371,7 +356,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             renderedPois.add(poi.getId());
         }
 
-        sendNotificationToNewPois(newPois);
         Log.d(TAG, "Download new Poi for location" + locationForPoi.toString());
     }
 
@@ -448,15 +432,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
         final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
 
-        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(this, poiProvider, poi, settingsService);
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);
 
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        ViewPager mViewPager = (ViewPager) getView().findViewById(R.id.pager);
         if (mCustomPagerAdapter.getCount() == 0) {
             mViewPager.getLayoutParams().height = 0;
             mViewPager.setVisibility(View.INVISIBLE);
         } else {
             mViewPager.setVisibility(View.VISIBLE);
-            final float scale = getBaseContext().getResources().getDisplayMetrics().density;
+            final float scale = baseActivity.getBaseContext().getResources().getDisplayMetrics().density;
             int pixels = (int) (150 * scale + 0.5f);
             mViewPager.getLayoutParams().height = pixels;
         }

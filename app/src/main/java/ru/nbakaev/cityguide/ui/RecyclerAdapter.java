@@ -1,10 +1,12 @@
 package ru.nbakaev.cityguide.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.MapsFragment;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.locaton.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
@@ -41,13 +43,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private final BitmapFactory.Options options = new BitmapFactory.Options();
 
     private static final String TAG = RecyclerAdapter.class.getSimpleName();
+    private FragmentManager fragmentManager;
 
-    public RecyclerAdapter(Context context, List<Poi> data, LocationProvider locationProvider, PoiProvider poiProvider) {
+    public RecyclerAdapter(Context context, List<Poi> data, LocationProvider locationProvider, PoiProvider poiProvider, FragmentManager fragmentManager) {
         inflater = LayoutInflater.from(context);
         this.mData = data;
         this.locationProvider = locationProvider;
         this.context = context;
         this.poiProvider = poiProvider;
+        this.fragmentManager = fragmentManager;
 
         Observer<Location> locationObserver = new Observer<Location>() {
             @Override
@@ -186,12 +190,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             Poi poi = mData.get(itemPosition);
 
             // hack to change active tab
-            // 0 is index of MapsActivity
+            // 0 is index of MapsFragment
             NavigationDrawerAdapter.selectedPos = 0;
 
-            Intent i = new Intent(context, MapsActivity.class);
-            i.putExtra("MOVE_TO_POI_ID", poi.getId());
-            context.startActivity(i);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            MapsFragment mapsFragment = new MapsFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("MOVE_TO_POI_ID", poi.getId());
+            mapsFragment.setArguments(bundle);
+
+            fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
+            fragmentTransaction.commit();
         }
     }
 }

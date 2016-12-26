@@ -1,12 +1,17 @@
 package ru.nbakaev.cityguide;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.List;
 
@@ -24,9 +29,9 @@ import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 
-public class NearbyActivity extends BaseActivity {
+public class NearbyFragment extends BaseFragment {
 
-    private static final String TAG = NearbyActivity.class.getSimpleName();
+    private static final String TAG = NearbyFragment.class.getSimpleName();
 
     @Inject
     PoiProvider poiProvider;
@@ -39,21 +44,30 @@ public class NearbyActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
 
+    private BaseActivity baseActivity;
+
+    private View view;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        baseActivity = (BaseActivity) context;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         App.getAppComponent().inject(this);
-        setContentView(R.layout.activity_main);
-
-        setUpToolbar();
-        setUpDrawer();
+        view = inflater.inflate(R.layout.activity_nearby, container, false);
         setUpRecyclerView();
-        toolbar.setTitle(getString(R.string.title_activity_main));
+
+        baseActivity.toolbar.setTitle(getString(R.string.title_activity_main));
+        return view;
     }
 
     private void setUpRecyclerView() {
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
 
         Observer<Location> locationObserver = new Observer<Location>() {
             @Override
@@ -76,7 +90,7 @@ public class NearbyActivity extends BaseActivity {
             }
         };
 
-        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(NearbyActivity.this);
+        LinearLayoutManager mLinearLayoutManagerVertical = new LinearLayoutManager(baseActivity);
         mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -101,8 +115,8 @@ public class NearbyActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Poi> value) {
                         dbService.cachePoiToDB(value);
-                        // pass NearbyActivity context instead of applicationContext to have right borders in recycler view
-                        RecyclerAdapter adapter = new RecyclerAdapter(NearbyActivity.this, value, locationProvider, poiProvider);
+                        // pass NearbyFragment context instead of applicationContext to have right borders in recycler view
+                        RecyclerAdapter adapter = new RecyclerAdapter(baseActivity, value, locationProvider, poiProvider, getFragmentManager());
                         recyclerView.setAdapter(adapter);
                     }
 

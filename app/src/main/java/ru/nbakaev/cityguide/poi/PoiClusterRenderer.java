@@ -19,7 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.MapsFragment;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.util.CacheUtils;
 import ru.nbakaev.cityguide.util.StringUtils;
@@ -30,7 +30,7 @@ import ru.nbakaev.cityguide.util.StringUtils;
 
 public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
 
-    private static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String TAG = MapsFragment.class.getSimpleName();
     private PoiProvider poiProvider;
     private final BitmapFactory.Options options = new BitmapFactory.Options();
     private SettingsService settingsService;

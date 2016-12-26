@@ -3,7 +3,11 @@ package ru.nbakaev.cityguide.ui.navigationdrawer;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.nbakaev.cityguide.CitiesActivity;
-import ru.nbakaev.cityguide.NearbyActivity;
-import ru.nbakaev.cityguide.MapsActivity;
+import ru.nbakaev.cityguide.MapsFragment;
+import ru.nbakaev.cityguide.NearbyFragment;
 import ru.nbakaev.cityguide.QrReadActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.about.AboutActivity;
@@ -29,11 +33,15 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     // position of selected item; TODO: refactor - delete / make private
     public static int selectedPos = 0;
     private static final String SELECTED_ITEM_COLOR = "#EEEEEE";
+    FragmentManager fragmentManager;
+    DrawerLayout drawerLayout;
 
-    public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data) {
+    public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data, FragmentManager fragmentManager, DrawerLayout drawerLayout) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.mDataList = data;
+        this.fragmentManager = fragmentManager;
+        this.drawerLayout = drawerLayout;
     }
 
     @Override
@@ -58,22 +66,29 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                 selectedPos = holder.getAdapterPosition();
                 Intent intent;
                 switch (current.getId()) {
-                    case R.string.drawer_map:
-                        intent = new Intent(NavigationDrawerAdapter.this.context, MapsActivity.class);
-                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                    case R.string.drawer_map: {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        MapsFragment mapsFragment = new MapsFragment();
+                        fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
+                        drawerLayout.closeDrawer(Gravity.LEFT, false);
+                        fragmentTransaction.commit();
                         break;
+                    }
 
                     case R.string.drawer_cities:
-
                         intent = new Intent(NavigationDrawerAdapter.this.context, CitiesActivity.class);
                         NavigationDrawerAdapter.this.context.startActivity(intent);
                         break;
 
 
-                    case R.string.drawer_near_me:
-                        intent = new Intent(NavigationDrawerAdapter.this.context, NearbyActivity.class);
-                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                    case R.string.drawer_near_me: {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        NearbyFragment mapsActivity = new NearbyFragment();
+                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                        drawerLayout.closeDrawer(Gravity.LEFT, false);
+                        fragmentTransaction.commit();
                         break;
+                    }
 
                     case R.string.drawer_about:
                         intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);

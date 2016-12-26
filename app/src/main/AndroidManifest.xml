@@ -43,7 +43,7 @@
             android:enabled="true"
             ></service>
         <activity
-            android:name="ru.nbakaev.cityguide.MapsActivity"
+            android:name="ru.nbakaev.cityguide.MainActivity"
             android:theme="@style/splashScreenTheme"
             android:label="@string/title_activity_maps">
             android:launchMode="singleTop"
@@ -59,7 +59,7 @@
             android:label="@string/title_activity_maps"></activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.NearbyActivity"
+            android:name="ru.nbakaev.cityguide.NearbyFragment"
             android:label="@string/title_activity_maps"></activity>
         <activity
             android:name="ru.nbakaev.cityguide.CitiesActivity"
@@ -71,7 +71,7 @@
 
         <activity
             android:name="ru.nbakaev.cityguide.QrReadActivity"
-            android:parentActivityName=".MapsActivity"
+            android:parentActivityName=".MapsFragment"
             android:label="@string/title_activity_maps">
 
             <intent-filter>

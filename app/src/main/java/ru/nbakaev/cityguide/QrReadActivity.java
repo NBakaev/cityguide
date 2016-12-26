@@ -79,7 +79,7 @@ public class QrReadActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (poiId != null) {
-                    Intent i = new Intent(QrReadActivity.this, MapsActivity.class);
+                    Intent i = new Intent(QrReadActivity.this, MapsFragment.class);
                     i.putExtra("MOVE_TO_POI_ID", poiId);
                     QrReadActivity.this.startActivity(i);
                 }

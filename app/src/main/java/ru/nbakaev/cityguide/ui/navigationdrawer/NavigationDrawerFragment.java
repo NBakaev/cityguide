@@ -21,18 +21,13 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-
-        setUpRecyclerView(view);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
     }
 
-    private void setUpRecyclerView(View view) {
+    public void setUpRecyclerView(DrawerLayout mDrawerLayout) {
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.drawerList);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.drawerList);
-
-        NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), NavigationDrawerItemsProvider.getData());
+        NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), NavigationDrawerItemsProvider.getData(), getFragmentManager(), mDrawerLayout);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }

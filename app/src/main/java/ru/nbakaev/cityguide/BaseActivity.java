@@ -113,6 +113,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.nav_drwr_fragment);
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerFragment.setUpDrawer(R.id.nav_drwr_fragment, drawerLayout, toolbar);
+        drawerFragment.setUpRecyclerView(drawerLayout);
 
         SwitchCompat offlineModeSwitch = (SwitchCompat) findViewById(R.id.onlineSwitch);
         offlineModeSwitch.setChecked(settingsService.isOffline());
