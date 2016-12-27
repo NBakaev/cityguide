@@ -62,15 +62,15 @@
             android:name="ru.nbakaev.cityguide.NearbyFragment"
             android:label="@string/title_activity_maps"></activity>
         <activity
-            android:name="ru.nbakaev.cityguide.CitiesActivity"
+            android:name="ru.nbakaev.cityguide.CitiesFragment"
             android:label="@string/title_activity_maps"></activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.about.AboutActivity"
+            android:name="ru.nbakaev.cityguide.AboutFragment"
             android:label="@string/title_activity_build"></activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.QrReadActivity"
+            android:name="ru.nbakaev.cityguide.QrScanFragment"
             android:parentActivityName=".MapsFragment"
             android:label="@string/title_activity_maps">
 

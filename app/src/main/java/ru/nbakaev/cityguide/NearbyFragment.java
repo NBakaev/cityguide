@@ -59,7 +59,7 @@ public class NearbyFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
-        view = inflater.inflate(R.layout.activity_nearby, container, false);
+        view = inflater.inflate(R.layout.fragment_nearby, container, false);
         setUpRecyclerView();
 
         baseActivity.toolbar.setTitle(getString(R.string.title_activity_main));

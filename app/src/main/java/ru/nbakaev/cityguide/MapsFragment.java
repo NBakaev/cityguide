@@ -124,7 +124,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
-        View inflate = inflater.inflate(R.layout.activity_maps, container, false);
+        View inflate = inflater.inflate(R.layout.fragment_maps, container, false);
 
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);

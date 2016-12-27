@@ -1,17 +1,18 @@
-package ru.nbakaev.cityguide.about;
+package ru.nbakaev.cityguide;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.SwitchCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import javax.inject.Inject;
 
 import hu.supercluster.paperwork.Paperwork;
-import ru.nbakaev.cityguide.App;
-import ru.nbakaev.cityguide.BaseActivity;
-import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
@@ -20,7 +21,7 @@ import ru.nbakaev.cityguide.settings.SettingsService;
  * Created by ya on 11/26/2016.
  */
 
-public class AboutActivity extends BaseActivity {
+public class AboutFragment extends BaseFragment {
 
     @Inject
     DBService dbService;
@@ -28,30 +29,35 @@ public class AboutActivity extends BaseActivity {
     @Inject
     SettingsService settingsService;
 
+    BaseActivity baseActivity;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        baseActivity = (BaseActivity) context;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         App.getAppComponent().inject(this);
-        setContentView(R.layout.activity_about);
+        View view = inflater.inflate(R.layout.fragment_about, container, false);
 
-        setUpToolbar();
-        setUpDrawer();
-
-        Paperwork paperwork = new Paperwork(getApplicationContext());
+        Paperwork paperwork = new Paperwork(baseActivity.getApplicationContext());
         String gitSha = paperwork.get("gitSha");
         String buildTime = paperwork.get("buildTime");
 
-        TextView buildGitView = (TextView) findViewById(R.id.aboutBuilderGit);
-        TextView buildTimeView = (TextView) findViewById(R.id.aboutBuilderTime);
-        TextView dbPoisElementsCount = (TextView) findViewById(R.id.dbPoisElementsCount);
+        TextView buildGitView = (TextView) view.findViewById(R.id.aboutBuilderGit);
+        TextView buildTimeView = (TextView) view.findViewById(R.id.aboutBuilderTime);
+        TextView dbPoisElementsCount = (TextView) view.findViewById(R.id.dbPoisElementsCount);
 
         buildGitView.setText("git: " + gitSha);
         buildTimeView.setText("build time: " + buildTime);
         dbPoisElementsCount.setText("POIs downloaded: " + Long.toString(dbService.getPoisInDB()));
 
 
-        SwitchCompat offlineModeSwitch = (SwitchCompat) findViewById(R.id.enableExperimentalFeature);
+        SwitchCompat offlineModeSwitch = (SwitchCompat) view.findViewById(R.id.enableExperimentalFeature);
         offlineModeSwitch.setChecked(settingsService.getSettings().isEnableExperimentalFeature());
         offlineModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -61,5 +67,8 @@ public class AboutActivity extends BaseActivity {
                 settingsService.saveSettingsAndRestart(settings);
             }
         });
+
+        return view;
     }
+
 }

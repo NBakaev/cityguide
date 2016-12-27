@@ -1,23 +1,24 @@
 package ru.nbakaev.cityguide;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Future;
 
 import javax.inject.Inject;
@@ -26,9 +27,9 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.city.CityFragment;
 import ru.nbakaev.cityguide.city.EmptyFragment;
-import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
@@ -38,16 +39,22 @@ import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
 import ru.nbakaev.cityguide.util.CacheUtils;
 
 
-public class CitiesActivity extends BaseActivity {
+public class CitiesFragment extends BaseFragment {
 
     Button pages[];
     boolean MENU_ACTIVE = false;
     ArrayList<MultiSelector<City>> selectors;
     CityFragment fragments[];
     ViewPager pager;
+
+    List<City> loaded = new ArrayList<>();
+    List<City> fromServer = new ArrayList<>();
+    List<City> toLoad = new ArrayList<>();
+
+    boolean offline = true;
+
     @Inject
     PoiProvider poiProvider;
-    boolean offline = true;
 
     @Inject
     DBService dbService;
@@ -58,23 +65,37 @@ public class CitiesActivity extends BaseActivity {
     @Inject
     CacheUtils cacheUtils;
 
-    public CitiesActivity() {
+    BaseActivity baseActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        baseActivity = (BaseActivity) context;
+    }
+
+    public CitiesFragment() {
         super();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpPager();
+        setCitiesLists();
+    }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
+        View view = inflater.inflate(R.layout.fragment_cities_main, container, false);
+
         offline = settingsService.isOffline();
         //poiProvider = new ServerPoiProvider(this);
 
-        setContentView(R.layout.activity_cities_list);
-
-        setUpToolbar();
         setupMultiselector();
-        setUpDrawer();
         fragments = new CityFragment[3];
 
         for (int i = 0; i < 3; i++) {
@@ -88,15 +109,9 @@ public class CitiesActivity extends BaseActivity {
         if (offline) {
             fragments[1] = new EmptyFragment();
         }
-        setUpPager();
-        setCitiesLists();
 
+        return view;
     }
-
-    List<City> loaded = new ArrayList<>();
-    List<City> fromServer = new ArrayList<>();
-    List<City> toLoad = new ArrayList<>();
-
     private void setCitiesLists() {
 //        setLoadedCities();
 //        setToLoadCities();
@@ -180,21 +195,21 @@ public class CitiesActivity extends BaseActivity {
 
     private void setMenuActtivated(boolean activated) {
         MENU_ACTIVE = activated;
-        invalidateOptionsMenu();
+        baseActivity.invalidateOptionsMenu();
     }
 
-    @Override
-    protected void setUpToolbar() {
-        super.setUpToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.title_activity_cities);
-    }
+//    @Override
+//    protected void setUpToolbar() {
+//        super.setUpToolbar();
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setTitle(R.string.title_activity_cities);
+//    }
 
     void setUpPager() {
-        pager = (ViewPager) findViewById(R.id.pager);
-        CityPagerAdapter adapter = new CityPagerAdapter(getSupportFragmentManager());
+        pager = (ViewPager) getView().findViewById(R.id.pager);
+        CityPagerAdapter adapter = new CityPagerAdapter(baseActivity.getSupportFragmentManager());
         pager.setAdapter(adapter);
-        pages = new Button[]{(Button) findViewById(R.id.loadedCities), (Button) findViewById(R.id.citiesToLoad), (Button) findViewById(R.id.lcitiesAll)};
+        pages = new Button[]{(Button) getView().findViewById(R.id.loadedCities), (Button) getView().findViewById(R.id.citiesToLoad), (Button) getView().findViewById(R.id.lcitiesAll)};
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -204,12 +219,12 @@ public class CitiesActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 for (int i = 0; i < 3; i++) {
                     pages[i].setBackgroundResource(R.color.colorPrimary);
-                    pages[i].setTextColor(ContextCompat.getColor(CitiesActivity.this, R.color.grey_200));
+                    pages[i].setTextColor(ContextCompat.getColor(baseActivity, R.color.grey_200));
                     pages[i].setTypeface(null, Typeface.NORMAL);
                     selectors.get(i).clear();
                 }
                 pages[position].setBackgroundResource(R.drawable.selected_page);
-                pages[position].setTextColor(ContextCompat.getColor(CitiesActivity.this, R.color.white));
+                pages[position].setTextColor(ContextCompat.getColor(baseActivity, R.color.white));
                 pages[position].setTypeface(null, Typeface.BOLD);
             }
 
@@ -229,32 +244,32 @@ public class CitiesActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        int position = -1;
-        if (pager != null) {
-            position = pager.getCurrentItem();
-        }
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.city_menu, menu);
-        MenuItem delete = menu.findItem(R.id.delete);
-        MenuItem load = menu.findItem(R.id.load);
-        MenuItem selectAll = menu.findItem(R.id.selectAll);
-        MenuItem deselect = menu.findItem(R.id.deselectAll);
-
-        delete.setVisible(MENU_ACTIVE);
-        load.setVisible(MENU_ACTIVE && !offline);
-        selectAll.setVisible(MENU_ACTIVE);
-        deselect.setVisible(MENU_ACTIVE);
-        getSupportActionBar().setDisplayShowTitleEnabled(!MENU_ACTIVE);
-        if (MENU_ACTIVE) {
-            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
-        } else {
-            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
-        }
-
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        int position = -1;
+//        if (pager != null) {
+//            position = pager.getCurrentItem();
+//        }
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.city_menu, menu);
+//        MenuItem delete = menu.findItem(R.id.delete);
+//        MenuItem load = menu.findItem(R.id.load);
+//        MenuItem selectAll = menu.findItem(R.id.selectAll);
+//        MenuItem deselect = menu.findItem(R.id.deselectAll);
+//
+//        delete.setVisible(MENU_ACTIVE);
+//        load.setVisible(MENU_ACTIVE && !offline);
+//        selectAll.setVisible(MENU_ACTIVE);
+//        deselect.setVisible(MENU_ACTIVE);
+//        getSupportActionBar().setDisplayShowTitleEnabled(!MENU_ACTIVE);
+//        if (MENU_ACTIVE) {
+//            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
+//        } else {
+//            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+//        }
+//
+//        return true;
+//    }
 
     class CityPagerAdapter extends FragmentPagerAdapter {
         public CityPagerAdapter(FragmentManager fm) {
@@ -263,9 +278,6 @@ public class CitiesActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-//            CityFragment fragment = new CityFragment();
-//            fragment.setSelector(selector);
-//            return fragment;
             return fragments[position];
         }
 
@@ -300,7 +312,7 @@ public class CitiesActivity extends BaseActivity {
     }
 
     private void saveCities(final List<City> cities, final MultiSelector<City> selector) {
-        final ProgressDialog dialog = new ProgressDialog(this);
+        final ProgressDialog dialog = new ProgressDialog(baseActivity);
         dialog.setMessage("Loading the cities...");
         dialog.setCancelable(false);
         dialog.setIndeterminate(true);
@@ -350,7 +362,7 @@ public class CitiesActivity extends BaseActivity {
     }
 
     private void removeCities(final List<City> cities, final MultiSelector<City> selector) {
-        final ProgressDialog dialog = new ProgressDialog(this);
+        final ProgressDialog dialog = new ProgressDialog(baseActivity);
         dialog.setMessage("Removing the cities...");
         dialog.setCancelable(false);
         dialog.setIndeterminate(true);

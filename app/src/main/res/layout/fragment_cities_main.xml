@@ -12,9 +12,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar"/>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -62,14 +59,5 @@
             android:id="@+id/pager"/>
 
     </LinearLayout>
-
-    <fragment
-        android:id="@+id/nav_drwr_fragment"
-        android:name="ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment"
-        android:layout_width="@dimen/nav_drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:layout="@layout/fragment_navigation_drawer"
-        tools:layout="@layout/fragment_navigation_drawer"/>
 
 </android.support.v4.widget.DrawerLayout>

@@ -1,7 +1,6 @@
 package ru.nbakaev.cityguide.ui.navigationdrawer;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,15 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ru.nbakaev.cityguide.CitiesActivity;
+import ru.nbakaev.cityguide.AboutFragment;
+import ru.nbakaev.cityguide.CitiesFragment;
 import ru.nbakaev.cityguide.MapsFragment;
 import ru.nbakaev.cityguide.NearbyFragment;
-import ru.nbakaev.cityguide.QrReadActivity;
+import ru.nbakaev.cityguide.QrScanFragment;
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.about.AboutActivity;
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
 
@@ -35,6 +35,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     private static final String SELECTED_ITEM_COLOR = "#EEEEEE";
     FragmentManager fragmentManager;
     DrawerLayout drawerLayout;
+
+    private List<MyViewHolder> allItems = new ArrayList<>();
 
     public NavigationDrawerAdapter(Context context, List<NavigationDrawerItem> data, FragmentManager fragmentManager, DrawerLayout drawerLayout) {
         this.context = context;
@@ -53,8 +55,10 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        if (selectedPos == position) {
-            holder.itemView.setBackgroundColor(Color.parseColor(SELECTED_ITEM_COLOR));
+        allItems.add(holder);
+
+        if (position == 0){
+            setActiveItem(position);
         }
 
         final NavigationDrawerItem current = mDataList.get(position);
@@ -63,11 +67,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedPos = holder.getAdapterPosition();
-                Intent intent;
+                setActiveItem(position);
                 switch (current.getId()) {
                     case R.string.drawer_map: {
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.addToBackStack(null);
                         MapsFragment mapsFragment = new MapsFragment();
                         fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
@@ -75,14 +80,22 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                         break;
                     }
 
-                    case R.string.drawer_cities:
-                        intent = new Intent(NavigationDrawerAdapter.this.context, CitiesActivity.class);
-                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                    case R.string.drawer_cities: {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.addToBackStack(null);
+                        CitiesFragment mapsFragment = new CitiesFragment();
+                        fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
+                        drawerLayout.closeDrawer(Gravity.LEFT, false);
+                        fragmentTransaction.commit();
                         break;
-
+                    }
 
                     case R.string.drawer_near_me: {
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.addToBackStack(null);
                         NearbyFragment mapsActivity = new NearbyFragment();
                         fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
@@ -90,20 +103,41 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                         break;
                     }
 
-                    case R.string.drawer_about:
-                        intent = new Intent(NavigationDrawerAdapter.this.context, AboutActivity.class);
-                        NavigationDrawerAdapter.this.context.startActivity(intent);
+                    case R.string.drawer_about: {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.addToBackStack(null);
+                        AboutFragment mapsActivity = new AboutFragment();
+                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                        drawerLayout.closeDrawer(Gravity.LEFT, false);
+                        fragmentTransaction.commit();
                         break;
-                    case R.string.drawer_qr:
-                        intent = new Intent(NavigationDrawerAdapter.this.context, QrReadActivity.class);
-                        NavigationDrawerAdapter.this.context.startActivity(intent);
-                        break;
+                    }
 
+                    case R.string.drawer_qr: {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        fragmentTransaction.addToBackStack(null);
+                        QrScanFragment mapsActivity = new QrScanFragment();
+                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                        drawerLayout.closeDrawer(Gravity.LEFT, false);
+                        fragmentTransaction.commit();
+                        break;
+                    }
                 }
             }
         });
     }
 
+    private void setActiveItem(int index) {
+        MyViewHolder holder = allItems.get(index);
+        for (MyViewHolder allItem : allItems) {
+            allItem.itemView.setBackgroundColor(Color.parseColor("white"));
+        }
+        holder.itemView.setBackgroundColor(Color.parseColor(SELECTED_ITEM_COLOR));
+    }
 
     @Override
     public int getItemCount() {

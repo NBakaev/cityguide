@@ -1,0 +1,38 @@
+<!-- Full Height Navigation Drawer -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/aboutBuilderGit"
+        android:layout_width="wrap_content"
+        android:layout_height="52sp"
+        android:padding="10dp"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/aboutBuilderTime"
+        android:layout_width="wrap_content"
+        android:layout_height="52sp"
+        android:padding="10dp"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/dbPoisElementsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="52sp"
+        android:padding="10dp"
+        android:textSize="22sp" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/enableExperimentalFeature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/enable_experimental_feature" />
+
+</LinearLayout>
+
