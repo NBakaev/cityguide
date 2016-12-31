@@ -17,7 +17,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import ru.nbakaev.cityguide.App;
-import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.location.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 
@@ -33,17 +33,18 @@ public class BackgrounNotificationService extends Service {
     @Inject
     LocationProvider locationProvider;
 
-    NotificationService notificationService;
-
-    private static final String TAG = BackgrounNotificationService.class.getSimpleName();
-    private Location locationForPoi;
     @Inject
     PoiProvider poiProvider;
+
+    NotificationService notificationService;
+
+    private static final String TAG = "BackgrounNotificationSe";
+
+    private Location locationForPoi;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        //locationProvider = new AndroidLocationProvider(this, new AndroidBackgroundAware(this));
         App.getAppComponent().inject(this);
         notificationService = new NotificationService(this);
     }
@@ -67,7 +68,6 @@ public class BackgrounNotificationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.w("Service", "StartCommand");
-        //subscribeToLocationChange();
         subscribeToLocationChange();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -99,19 +99,19 @@ public class BackgrounNotificationService extends Service {
         locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(locationObserver);
     }
 
-    private void processNewLocation(final Location cameraCenter) {
-        if (cameraCenter == null) {
+    private void processNewLocation(final Location location) {
+        if (location == null) {
             return;
         }
 
         // if distance between downloaded POI and current location > 20 metres - download new POIs
-        if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
-            locationForPoi = cameraCenter;
+        if (locationForPoi == null || location.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
+            locationForPoi = location;
         } else {
             return;
         }
         // get POIs from server/offline with some distance from current location
-        poiProvider.getData(cameraCenter.getLatitude(), cameraCenter.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+        poiProvider.getData(location.getLatitude(), location.getLongitude(), DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<Poi>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -119,7 +119,7 @@ public class BackgrounNotificationService extends Service {
 
                     @Override
                     public void onNext(List<Poi> value) {
-                        notificationService.showNotification(value, cameraCenter);
+                        notificationService.showNotification(value, location);
                     }
 
                     @Override

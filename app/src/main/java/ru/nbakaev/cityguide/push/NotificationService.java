@@ -18,19 +18,16 @@ import com.squareup.picasso.Target;
 
 import java.util.List;
 
-import ru.nbakaev.cityguide.NearbyFragment;
-import ru.nbakaev.cityguide.MapsFragment;
+import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by ya on 11/22/2016.
  */
 
 public class NotificationService {
-
-    private static final String TAG = NotificationService.class.getSimpleName();
-    private static final String NOTIFICATION_KEY = "cityguide_notifications";
 
     private Context context;
     private NotificationManagerCompat notificationManager;
@@ -39,8 +36,7 @@ public class NotificationService {
     public NotificationService(Context context) {
         this.context = context;
         //notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager =
-                NotificationManagerCompat.from(context);
+        notificationManager = NotificationManagerCompat.from(context);
     }
 
     /**
@@ -90,7 +86,8 @@ public class NotificationService {
         inboxStyle.setSummaryText("Nearest POIs " + size);
         mBuilder.setStyle(inboxStyle);
         // Issue the notification here.
-        Intent notificationIntent = new Intent(context, NearbyFragment.class);
+        Intent notificationIntent = new Intent(context, MainActivity.class);
+        notificationIntent.putExtra("FRAGMENT_OPEN", "NEARBY");
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         mBuilder.setContentIntent(launchIntent)
@@ -100,7 +97,7 @@ public class NotificationService {
     }
 
     void singleNotification(final Poi poi, final Location prevLocation) {
-        if (poi.getImageUrl() != null && !poi.getImageUrl().trim().equals("")) {
+        if (!StringUtils.isEmpty(poi.getImageUrl())) {
             Picasso.with(context).load(poi.getImageUrl()).into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -158,7 +155,7 @@ public class NotificationService {
             mBuilder.setStyle(bigTextStyle);
 
         }
-        Intent notificationIntent = new Intent(context, MapsFragment.class);
+        Intent notificationIntent = new Intent(context, MainActivity.class);
         notificationIntent.setAction(Long.toString(System.currentTimeMillis()));
         notificationIntent.putExtra("MOVE_TO_POI_ID", poi.getId());
 //        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);

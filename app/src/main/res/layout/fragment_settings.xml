@@ -34,5 +34,13 @@
         android:layout_marginTop="5dp"
         android:text="@string/enable_experimental_feature" />
 
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/trackMeSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/track_me"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="5dp"/>
+
 </LinearLayout>
 

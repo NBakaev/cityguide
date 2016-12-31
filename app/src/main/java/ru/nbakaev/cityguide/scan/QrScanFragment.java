@@ -1,20 +1,17 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.scan;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -22,8 +19,14 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.BaseActivity;
+import ru.nbakaev.cityguide.BaseFragment;
+import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
+import ru.nbakaev.cityguide.util.FragmentsOrganizer;
+import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by user on 21.12.2016.
@@ -34,7 +37,10 @@ public class QrScanFragment extends BaseFragment {
     @Inject
     PoiProvider poiProvider;
 
-    BaseActivity baseActivity;
+    @Inject
+    QrCodeParser qrCodeParser;
+
+    private BaseActivity baseActivity;
 
     @Override
     public void onAttach(Context context) {
@@ -68,27 +74,16 @@ public class QrScanFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
+        if (result != null && !StringUtils.isEmpty(result.getContents())) {
             String lastScannedCode = result.getContents();
-            if (lastScannedCode != null) {
-                if (isOurQrCode(lastScannedCode)) {
-                    String poiId = getPoiFromUrl(lastScannedCode);
-                    getPoi(poiId);
-                }
+            if (qrCodeParser.isOurQrCode(lastScannedCode)) {
+                String poiId = qrCodeParser.getPoiFromUrl(lastScannedCode);
+                getPoi(poiId);
             }
+        } else {
+            Toast.makeText(baseActivity.getApplicationContext(), baseActivity.getResources().getString(R.string.wrong_qrcode), Toast.LENGTH_LONG).show();
+            FragmentsOrganizer.startQrReaderFragment(baseActivity.getSupportFragmentManager());
         }
-    }
-
-    protected boolean isOurQrCode(String lScannedCode) {
-        String teml = "(https://s2.nbakaev.ru/#/poi/).+";
-        Pattern pattern = Pattern.compile(teml);
-        Matcher matcher = pattern.matcher(lScannedCode);
-        return matcher.matches();
-    }
-
-    protected String getPoiFromUrl(String Url) {
-        String templ = "(https://s2.nbakaev.ru/#/poi/)";
-        return Url.split(templ)[1];
     }
 
     protected void getPoi(String poiId) {
@@ -118,14 +113,7 @@ public class QrScanFragment extends BaseFragment {
     }
 
     protected void fillPOiFields(Poi poi) {
-        FragmentTransaction fragmentTransaction = baseActivity.getSupportFragmentManager().beginTransaction();
-        MapsFragment mapsFragment = new MapsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("MOVE_TO_POI_ID", poi.getId());
-        mapsFragment.setArguments(bundle);
-
-        fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
-        fragmentTransaction.commit();
+        FragmentsOrganizer.startMapFragmentWithPoiOpen(baseActivity.getSupportFragmentManager(), poi.getId());
     }
 
 }

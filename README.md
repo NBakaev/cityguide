@@ -30,9 +30,7 @@ Implementation injects with Dagger2 in sturtup (depend get property offline of A
 
 ##### start map with some POI
 ```java
-Intent i = new Intent(context, MapsActivity.class);
-i.putExtra("MOVE_TO_POI_ID", poi.getId());
-context.startActivity(i);
+FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
 ```
 
 ##### pull db from device via adb

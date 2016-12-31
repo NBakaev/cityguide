@@ -1,7 +1,5 @@
 package ru.nbakaev.cityguide.poi.db;
 
-import android.support.annotation.Nullable;
-
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -27,6 +25,7 @@ public class PoiDb {
     private String name;
 
     private String description;
+    private String descriptionHtml;
 
     private double latitude = 0.0;
 
@@ -45,14 +44,16 @@ public class PoiDb {
     }
 
 
-    @Generated(hash = 97188934)
-    public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, double latitude,
-                 double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
+    @Generated(hash = 1301828231)
+    public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, String descriptionHtml,
+            double latitude, double longitude, String poiId, String imageUrl, List<String> imageUrls,
+            String videoUrl) {
         this.id = id;
         this.cityId = cityId;
         this.lastUpdate = lastUpdate;
         this.name = name;
         this.description = description;
+        this.descriptionHtml = descriptionHtml;
         this.latitude = latitude;
         this.longitude = longitude;
         this.poiId = poiId;
@@ -66,6 +67,7 @@ public class PoiDb {
         PoiDb poiDb = new PoiDb();
         poiDb.setId((long) poi.getId().hashCode());
         poiDb.setDescription(poi.getDescription());
+        poiDb.setDescriptionHtml(poi.getDescriptionHtml());
         poiDb.setName(poi.getName());
         poiDb.setImageUrl(poi.getImageUrl());
         poiDb.setLatitude(poi.getLocation().getLatitude());
@@ -91,6 +93,7 @@ public class PoiDb {
         poi.setId(poiDb.getPoiId());
         poi.setName(poiDb.getName());
         poi.setDescription(poiDb.getDescription());
+        poi.setDescriptionHtml(poiDb.getDescriptionHtml());
         poi.setLocation(new Poi.PoiLocation(poiDb.getLatitude(), poiDb.getLongitude()));
         poi.setImageUrl(poiDb.getImageUrl());
         poi.setVideoUrl(poiDb.getVideoUrl());
@@ -109,6 +112,13 @@ public class PoiDb {
         return poiDbs;
     }
 
+    public String getDescriptionHtml() {
+        return descriptionHtml;
+    }
+
+    public void setDescriptionHtml(String descriptionHtml) {
+        this.descriptionHtml = descriptionHtml;
+    }
 
     public Long getId() {
         return id;

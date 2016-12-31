@@ -1,14 +1,11 @@
 package ru.nbakaev.cityguide.city;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import ru.nbakaev.cityguide.poi.Poi;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class City {
     private String name;
     private String id;
@@ -20,7 +17,6 @@ public class City {
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
 
-    private double approximateRadius = 0;
     private Poi.PoiLocation location = new Poi.PoiLocation();
 
     public String getName() {
@@ -77,14 +73,6 @@ public class City {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
-    }
-
-    public double getApproximateRadius() {
-        return approximateRadius;
-    }
-
-    public void setApproximateRadius(double approximateRadius) {
-        this.approximateRadius = approximateRadius;
     }
 
     public Poi.PoiLocation getLocation() {

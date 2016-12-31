@@ -1,5 +1,6 @@
 package ru.nbakaev.cityguide.ui.navigationdrawer;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.R;
 
 
@@ -18,6 +20,14 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+    private BaseActivity baseActivity;
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.baseActivity = (BaseActivity) context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -27,7 +37,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void setUpRecyclerView(DrawerLayout mDrawerLayout) {
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.drawerList);
 
-        NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), NavigationDrawerItemsProvider.getData(), getFragmentManager(), mDrawerLayout);
+        NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), NavigationDrawerItemsProvider.getData(), baseActivity.getSupportFragmentManager(), mDrawerLayout);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }

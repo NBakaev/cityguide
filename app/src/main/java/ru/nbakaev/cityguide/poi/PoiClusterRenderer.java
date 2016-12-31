@@ -19,7 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import ru.nbakaev.cityguide.MapsFragment;
+import ru.nbakaev.cityguide.map.MapsFragment;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.util.CacheUtils;
 import ru.nbakaev.cityguide.util.StringUtils;

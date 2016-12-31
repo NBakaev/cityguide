@@ -1,6 +1,7 @@
 package ru.nbakaev.cityguide;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.SwitchCompat;
@@ -14,14 +15,16 @@ import javax.inject.Inject;
 
 import hu.supercluster.paperwork.Paperwork;
 import ru.nbakaev.cityguide.poi.db.DBService;
+import ru.nbakaev.cityguide.push.BackgrounNotificationService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
+import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 /**
  * Created by ya on 11/26/2016.
  */
 
-public class AboutFragment extends BaseFragment {
+public class SettingsFragment extends BaseFragment {
 
     @Inject
     DBService dbService;
@@ -42,7 +45,7 @@ public class AboutFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
-        View view = inflater.inflate(R.layout.fragment_about, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         Paperwork paperwork = new Paperwork(baseActivity.getApplicationContext());
         String gitSha = paperwork.get("gitSha");
@@ -65,6 +68,22 @@ public class AboutFragment extends BaseFragment {
                 AppSettings settings = settingsService.getSettings();
                 settings.setEnableExperimentalFeature(isChecked);
                 settingsService.saveSettingsAndRestart(settings);
+            }
+        });
+
+
+        SwitchCompat trackMeSwitch = (SwitchCompat) view.findViewById(R.id.trackMeSwitch);
+        trackMeSwitch.setChecked(new SharedPreferencesUtils(baseActivity.getApplicationContext()).getTrackMe());
+        trackMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                new SharedPreferencesUtils(baseActivity.getApplicationContext()).setTrackMe(isChecked);
+                Intent serviceIntent = new Intent(baseActivity.getApplicationContext(), BackgrounNotificationService.class);
+                if (isChecked) {
+                    baseActivity.startService(serviceIntent);
+                } else {
+                    baseActivity.stopService(serviceIntent);
+                }
             }
         });
 

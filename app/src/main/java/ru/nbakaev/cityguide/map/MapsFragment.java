@@ -1,17 +1,16 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.map;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,25 +34,26 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.BaseActivity;
+import ru.nbakaev.cityguide.BaseFragment;
+import ru.nbakaev.cityguide.R;
+import ru.nbakaev.cityguide.location.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiClusterRenderer;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.push.NotificationService;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.ui.CustomPagerAdapter;
 import ru.nbakaev.cityguide.util.CacheUtils;
+import ru.nbakaev.cityguide.util.StringUtils;
+import ru.nbakaev.cityguide.util.UiUtils;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
 
 public class MapsFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
-    private static final String TAG = MapsFragment.class.getSimpleName();
+    private static final String TAG = "MapsFragment";
 
     private GoogleMap mMap;
     private Location prevLocation;
@@ -85,7 +85,6 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private Set<String> renderedPois = new HashSet<>();
 
     private ClusterManager<Poi> clusterManager;
-    private NotificationService notificationService;
     private PoiClusterRenderer poiClusterRenderer;
 
     private BottomSheetBehavior mBottomSheetBehavior2;
@@ -95,6 +94,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private boolean googleMapsInit = false;
 
     private BaseActivity baseActivity;
+
+    private View view;
 
     @Override
     public void onAttach(Context context) {
@@ -124,7 +125,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
-        View inflate = inflater.inflate(R.layout.fragment_maps, container, false);
+        view = inflater.inflate(R.layout.fragment_maps, container, false);
 
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -134,7 +135,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
         App.getAppComponent().inject(this);
 
-        return inflate;
+        return view;
     }
 
     /**
@@ -153,27 +154,12 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
         subscribeToMapsChange();
 
-        // we have permissions
-        if (ActivityCompat.checkSelfPermission(baseActivity, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            firstRunOrNeedPermissions();
-            return;
-        }
-
-        // we have permissions
-        if (ActivityCompat.checkSelfPermission(baseActivity, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(baseActivity, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "Need location permission");
-//            firstRunOrNeedPermissions();
-            return;
-        } else {
-            mMap.setMyLocationEnabled(true);
-        }
+        // checked in MainActivity
+        //noinspection MissingPermission
+        mMap.setMyLocationEnabled(true);
         locationGrantedPermission();
 
         mMap.setOnMapLoadedCallback(this);
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -210,7 +196,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     }
 
     private void setupBottomSheet() {
-        bottomSheet = getView().findViewById(R.id.bottom_sheet1);
+        bottomSheet = view.findViewById(R.id.bottom_sheet1);
 
         mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
 //        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -226,7 +212,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     }
 
     private void showBottomViewOnLoad() {
-        int activityHeight = getView().findViewById(R.id.map).getHeight();
+        int activityHeight = view.findViewById(R.id.map).getHeight();
         if (activityHeight > 10) {
             mBottomSheetBehavior2.setPeekHeight(activityHeight / 3 + activityHeight / 10);
         }
@@ -430,23 +416,43 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         bottomSheet.setVisibility(View.VISIBLE);
 
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
+        final WebView webview = (WebView) bottomSheet.findViewById(R.id.poi_details_descriptionHtml);
         final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
 
-        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);
+        // show webview if have descriptionHtml in poi or else description as just text
+        if (!StringUtils.isEmpty(poi.getDescriptionHtml())) {
+            poiDescription.setVisibility(View.INVISIBLE);
+            poiDescription.setPadding(0, 0, 0, 0);
 
-        ViewPager mViewPager = (ViewPager) getView().findViewById(R.id.pager);
+            webview.setVisibility(View.VISIBLE);
+            webview.getSettings().setDefaultTextEncodingName("utf-8");
+            webview.setFocusable(false);
+//            webview.clearCache(true);
+            webview.clearFocus();
+
+            String descriptionHtml = poi.getDescriptionHtml();
+            // delete default padding in webview
+            descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:0px;margin-top:0px;}</style>");
+            webview.loadData(descriptionHtml, "text/html; charset=utf-8", "UTF-8");
+        } else {
+            webview.setVisibility(View.INVISIBLE);
+            poiDescription.setText(poi.getDescription());
+            poiDescription.setVisibility(View.VISIBLE);
+            int paddingInPx = UiUtils.dpToPixels(baseActivity.getApplicationContext(), 16);
+            poiDescription.setPadding(paddingInPx, paddingInPx, paddingInPx, paddingInPx);
+        }
+
+        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);
+        ViewPager mViewPager = (ViewPager) view.findViewById(R.id.pager);
         if (mCustomPagerAdapter.getCount() == 0) {
             mViewPager.getLayoutParams().height = 0;
             mViewPager.setVisibility(View.INVISIBLE);
         } else {
             mViewPager.setVisibility(View.VISIBLE);
-            final float scale = baseActivity.getBaseContext().getResources().getDisplayMetrics().density;
-            int pixels = (int) (150 * scale + 0.5f);
-            mViewPager.getLayoutParams().height = pixels;
+            mViewPager.getLayoutParams().height = UiUtils.dpToPixels(baseActivity.getApplicationContext(), 160);
         }
         mViewPager.setAdapter(mCustomPagerAdapter);
 
         poiName.setText(poi.getName());
-        poiDescription.setText(poi.getDescription());
     }
 }

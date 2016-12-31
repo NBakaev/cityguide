@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.city;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -27,15 +27,16 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import ru.nbakaev.cityguide.city.City;
-import ru.nbakaev.cityguide.city.CityFragment;
-import ru.nbakaev.cityguide.city.EmptyFragment;
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.BaseActivity;
+import ru.nbakaev.cityguide.BaseFragment;
+import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
-import ru.nbakaev.cityguide.ui.cityselector.OnItemSelectedListener;
+import ru.nbakaev.cityguide.city.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.city.cityselector.OnItemSelectedListener;
 import ru.nbakaev.cityguide.util.CacheUtils;
 
 

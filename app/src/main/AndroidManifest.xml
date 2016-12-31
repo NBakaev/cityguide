@@ -7,15 +7,14 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:name=".App"
         android:theme="@style/MaterialTheme">
 
         <meta-data
@@ -39,51 +38,33 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".push.BackgrounNotificationService"
-            android:enabled="true"
-            ></service>
+        <service
+            android:name=".push.BackgrounNotificationService"
+            android:enabled="true"></service>
+
         <activity
             android:name="ru.nbakaev.cityguide.MainActivity"
-            android:theme="@style/splashScreenTheme"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
             android:launchMode="singleTop"
+            android:theme="@style/splashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="s2.nbakaev.ru"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 
         <activity
             android:name="ru.nbakaev.cityguide.IntroActivity"
             android:label="@string/title_activity_maps"></activity>
-
-        <activity
-            android:name="ru.nbakaev.cityguide.NearbyFragment"
-            android:label="@string/title_activity_maps"></activity>
-        <activity
-            android:name="ru.nbakaev.cityguide.CitiesFragment"
-            android:label="@string/title_activity_maps"></activity>
-
-        <activity
-            android:name="ru.nbakaev.cityguide.AboutFragment"
-            android:label="@string/title_activity_build"></activity>
-
-        <activity
-            android:name="ru.nbakaev.cityguide.QrScanFragment"
-            android:parentActivityName=".MapsFragment"
-            android:label="@string/title_activity_maps">
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:scheme="https"
-                    android:host="s2.nbakaev.ru"
-                    />
-            </intent-filter>
-        </activity>
-
 
     </application>
 

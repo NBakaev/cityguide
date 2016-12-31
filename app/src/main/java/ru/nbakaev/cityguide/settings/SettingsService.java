@@ -71,6 +71,10 @@ public class SettingsService {
         AppUtils.doRestart(context); // restart app to reload dagger
     }
 
+    /**
+     *
+     * @return true if no internet connection and app is forced to work in offline mode
+     */
     public boolean isOfflineForced() {
         return isOfflineForced;
     }

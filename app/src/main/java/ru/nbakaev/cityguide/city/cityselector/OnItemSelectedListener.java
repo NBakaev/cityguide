@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.ui.cityselector;
+package ru.nbakaev.cityguide.city.cityselector;
 
 
 public interface OnItemSelectedListener<T> {

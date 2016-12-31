@@ -14,9 +14,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import ru.nbakaev.cityguide.App;
 
 /**
+ * Observable to get notification
+ * when app is in ApplicationBackgroundStatus.FOREGROUND or ApplicationBackgroundStatus.BACKGROUND
  * Created by ya on 12/17/2016.
  */
 
@@ -30,9 +31,9 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
 
     public AndroidBackgroundAware(Context context) {
         // process background / foreground app
-        if (context instanceof App) {
+        if (context instanceof Application) {
             context.registerComponentCallbacks(this);
-            ((App) context).registerActivityLifecycleCallbacks(new BackgroundActivityLifecycle());
+            ((Application) context).registerActivityLifecycleCallbacks(new BackgroundActivityLifecycle());
         }
         this.context = context;
 

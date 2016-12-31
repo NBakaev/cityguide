@@ -13,7 +13,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <android.support.v4.view.ViewPager
@@ -44,6 +44,16 @@
             android:id="@+id/poi_details_description"
             android:text="poi_details_description"
             android:padding="16dp"
+            android:textSize="16sp"/>
+
+        <WebView
+            android:background="#ffffff"
+            android:textColor="#000000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/poi_details_descriptionHtml"
+            android:text="poi_details_description"
+            android:padding="7dp"
             android:textSize="16sp"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

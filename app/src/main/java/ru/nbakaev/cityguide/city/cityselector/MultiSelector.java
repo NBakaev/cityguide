@@ -1,6 +1,4 @@
-package ru.nbakaev.cityguide.ui.cityselector;
-
-import android.os.Parcelable;
+package ru.nbakaev.cityguide.city.cityselector;
 
 import java.io.Serializable;
 import java.util.ArrayList;

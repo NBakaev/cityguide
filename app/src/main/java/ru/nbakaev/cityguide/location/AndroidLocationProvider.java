@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.locaton;
+package ru.nbakaev.cityguide.location;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -188,31 +188,26 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this, looper);
     }
 
-    private void onBackground() {
+    private void changeLocationUpdateIntervalMode(int interval, int fastestInterval){
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(BACKGROUND_APP_LOCATION_INTERVAL)
-                .setFastestInterval(BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
+                .setInterval(interval)
+                .setFastestInterval(fastestInterval);
 
         mGoogleApiClient.connect();
     }
 
+    private void onBackground() {
+        changeLocationUpdateIntervalMode(BACKGROUND_APP_LOCATION_INTERVAL, BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
+    }
+
     // called on main thread
     private void onForeground() {
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(ACTIVE_APP_LOCATION_INTERVAL)
-                .setFastestInterval(ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
-
-        mGoogleApiClient.connect();
+        changeLocationUpdateIntervalMode(ACTIVE_APP_LOCATION_INTERVAL, ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
     }
 
 }

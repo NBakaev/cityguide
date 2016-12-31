@@ -1,12 +1,10 @@
-package ru.nbakaev.cityguide.ui;
+package ru.nbakaev.cityguide.nearby;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,12 +21,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import ru.nbakaev.cityguide.MapsFragment;
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.location.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
+import ru.nbakaev.cityguide.util.FragmentsOrganizer;
 import ru.nbakaev.cityguide.util.StringUtils;
 
 import static ru.nbakaev.cityguide.util.MapUtils.printDistance;
@@ -192,15 +190,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             // hack to change active tab
             // 0 is index of MapsFragment
             NavigationDrawerAdapter.selectedPos = 0;
-
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            MapsFragment mapsFragment = new MapsFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("MOVE_TO_POI_ID", poi.getId());
-            mapsFragment.setArguments(bundle);
-
-            fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
-            fragmentTransaction.commit();
+            FragmentsOrganizer.startMapFragmentWithPoiOpen(fragmentManager, poi.getId());
         }
     }
 }

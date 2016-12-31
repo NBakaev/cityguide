@@ -1,6 +1,5 @@
 package ru.nbakaev.cityguide;
 
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.view.MenuItemCompat;
@@ -21,12 +20,9 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import ru.nbakaev.cityguide.poi.Poi;
-import ru.nbakaev.cityguide.push.BackgrounNotificationService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerFragment;
-
-import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 
 /**
@@ -35,7 +31,7 @@ import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected Toolbar toolbar;
+    public Toolbar toolbar;
     protected String DEFAULT_TITLE = "City Guide";
     private List<Poi> searchDataResult = new ArrayList<>();
 
@@ -77,7 +73,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected String setupNameHeader(double latitude, double longitude) {
+    public String setupNameHeader(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         String et_lugar;
 
@@ -128,21 +124,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                 AppSettings settings = settingsService.getSettings();
                 settings.setOffline(isChecked);
                 settingsService.saveSettingsAndRestart(settings);
-            }
-        });
-
-        SwitchCompat trackMeSwitch = (SwitchCompat) findViewById(R.id.trackMeSwitch);
-        trackMeSwitch.setChecked(new SharedPreferencesUtils(getApplicationContext()).getTrackMe());
-        trackMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                new SharedPreferencesUtils(getApplicationContext()).setTrackMe(isChecked);
-                Intent serviceIntent = new Intent(getApplicationContext(), BackgrounNotificationService.class);
-                if (isChecked) {
-                    startService(serviceIntent);
-                } else {
-                    stopService(serviceIntent);
-                }
             }
         });
     }

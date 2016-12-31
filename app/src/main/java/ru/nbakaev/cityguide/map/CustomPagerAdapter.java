@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.ui;
+package ru.nbakaev.cityguide.map;
 
 import android.content.Context;
 import android.content.Intent;
@@ -91,7 +91,6 @@ public class CustomPagerAdapter extends PagerAdapter {
         View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
 
         final ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
-
         // show first main POI icon
         if (position == 0 && !StringUtils.isEmpty(poi.getImageUrl())) {
             Observable<ResponseBody> icon = poiProvider.getIcon(poi);

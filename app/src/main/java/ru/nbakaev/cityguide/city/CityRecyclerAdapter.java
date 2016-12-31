@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide.ui;
+package ru.nbakaev.cityguide.city;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,9 +20,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.city.City;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.city.cityselector.MultiSelector;
 import ru.nbakaev.cityguide.util.CacheUtils;
 
 public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapter.CityHolder> {
@@ -33,7 +32,7 @@ public class CityRecyclerAdapter extends RecyclerView.Adapter<CityRecyclerAdapte
     PoiProvider poiProvider;
     CacheUtils cacheUtils;
 
-    ru.nbakaev.cityguide.ui.cityselector.MultiSelector<City> selector;
+    ru.nbakaev.cityguide.city.cityselector.MultiSelector<City> selector;
 
     public CityRecyclerAdapter(Context context, List<City> cities, MultiSelector<City> selector, PoiProvider poiProvider, CacheUtils cacheUtils) {
         this.cities = cities;

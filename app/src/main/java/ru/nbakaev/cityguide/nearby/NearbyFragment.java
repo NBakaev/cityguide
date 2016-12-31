@@ -1,4 +1,4 @@
-package ru.nbakaev.cityguide;
+package ru.nbakaev.cityguide.nearby;
 
 import android.content.Context;
 import android.location.Location;
@@ -21,11 +21,14 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import ru.nbakaev.cityguide.locaton.LocationProvider;
+import ru.nbakaev.cityguide.App;
+import ru.nbakaev.cityguide.BaseActivity;
+import ru.nbakaev.cityguide.BaseFragment;
+import ru.nbakaev.cityguide.R;
+import ru.nbakaev.cityguide.location.LocationProvider;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.ui.RecyclerAdapter;
 
 import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 
@@ -116,7 +119,7 @@ public class NearbyFragment extends BaseFragment {
                     public void onNext(List<Poi> value) {
                         dbService.cachePoiToDB(value);
                         // pass NearbyFragment context instead of applicationContext to have right borders in recycler view
-                        RecyclerAdapter adapter = new RecyclerAdapter(baseActivity, value, locationProvider, poiProvider, getFragmentManager());
+                        RecyclerAdapter adapter = new RecyclerAdapter(baseActivity, value, locationProvider, poiProvider, baseActivity.getSupportFragmentManager());
                         recyclerView.setAdapter(adapter);
                     }
 

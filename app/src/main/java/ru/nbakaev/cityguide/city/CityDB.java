@@ -21,15 +21,20 @@ import ru.nbakaev.cityguide.poi.db.GreenConverter;
 public class CityDB {
     @Id(autoincrement = false)
     private Long id;
+
     private String name;
     @Index(unique = true)
     private String cityId;
+
     @Convert(converter = DateGreenConverter.class, columnType = Long.class)
+
     private Date lastUpdate;
     private int pois = 0;
     private String imageUrl;
     private String description;
+
     @Convert(converter = GreenConverter.class, columnType = String.class)
+
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
     private double approximateRadius = 0;
@@ -59,7 +64,6 @@ public class CityDB {
     public static CityDB of(City city) {
         CityDB cityDB = new CityDB();
         cityDB.setId((long) city.getId().hashCode());
-        cityDB.setApproximateRadius(city.getApproximateRadius());
         cityDB.setPois(city.getPois());
         cityDB.setName(city.getName());
         cityDB.setCityId(city.getId());
@@ -83,7 +87,6 @@ public class CityDB {
 
     public static City toCity(CityDB cityDB) {
         City city = new City();
-        city.setApproximateRadius(cityDB.getApproximateRadius());
         city.setPois(cityDB.getPois());
         city.setName(cityDB.getName());
         city.setId(cityDB.getCityId());

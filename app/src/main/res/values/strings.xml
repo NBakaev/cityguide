@@ -2,14 +2,14 @@
     <string name="app_name">CityGuide</string>
     <string name="title_activity_maps">CityGuide</string>
     <string name="title_activity_main">Near me</string>
-    <string name="title_activity_build">About</string>
+    <string name="title_activity_build">Settings</string>
     <string name="title_activity_cities">Cities</string>
     <string name="title_qr_activity">QR reader</string>
 
 
     <string name="drawer_map">Map</string>
     <string name="drawer_near_me">Near me</string>
-    <string name="drawer_about">About</string>
+    <string name="drawer_about">Settings</string>
     <string name="drawer_cities">Cities</string>
     <string name="drawer_qr">QR Reader</string>
 

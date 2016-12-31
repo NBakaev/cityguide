@@ -7,7 +7,7 @@ import org.greenrobot.greendao.database.Database;
 import ru.nbakaev.cityguide.di.AppComponent;
 import ru.nbakaev.cityguide.di.AppModule;
 import ru.nbakaev.cityguide.di.DaggerAppComponent;
-import ru.nbakaev.cityguide.locaton.LocationProviderConfiguration;
+import ru.nbakaev.cityguide.location.LocationProviderConfiguration;
 import ru.nbakaev.cityguide.poi.PoiProviderConfiguration;
 import ru.nbakaev.cityguide.poi.db.DaoMaster;
 import ru.nbakaev.cityguide.poi.db.DaoSession;
@@ -44,23 +44,6 @@ public class App extends MultiDexApplication {
 
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
-
-
-//        Intent intent = new Intent(BackgrounNotificationService.class.getName());
-//        intent.setPackage(this.getPackageName());
-
-//        bindService(intent, new ServiceConnection() {
-//            @Override
-//            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-//
-//            }
-//
-//            @Override
-//            public void onServiceDisconnected(ComponentName componentName) {
-//
-//            }
-//        }, BIND_AUTO_CREATE);
-
     }
 
     public DaoSession getDaoSession() {

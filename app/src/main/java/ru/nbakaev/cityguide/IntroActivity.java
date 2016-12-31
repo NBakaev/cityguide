@@ -17,11 +17,13 @@ import java.lang.reflect.Field;
 
 import javax.inject.Inject;
 
+import ru.nbakaev.cityguide.map.MapsFragment;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.util.AppUtils;
 
 /**
+ * Show onboarding and request runtime permissions (also when user disable smth in settings) before run application
  * Created by ya on 12/17/2016.
  */
 

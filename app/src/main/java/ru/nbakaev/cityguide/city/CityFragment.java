@@ -16,8 +16,7 @@ import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.ui.CityRecyclerAdapter;
-import ru.nbakaev.cityguide.ui.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.city.cityselector.MultiSelector;
 import ru.nbakaev.cityguide.util.CacheUtils;
 
 /**

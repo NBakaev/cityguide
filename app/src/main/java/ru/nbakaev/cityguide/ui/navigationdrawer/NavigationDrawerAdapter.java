@@ -3,7 +3,6 @@ package ru.nbakaev.cityguide.ui.navigationdrawer;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -17,13 +16,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ru.nbakaev.cityguide.AboutFragment;
-import ru.nbakaev.cityguide.CitiesFragment;
-import ru.nbakaev.cityguide.MapsFragment;
-import ru.nbakaev.cityguide.NearbyFragment;
-import ru.nbakaev.cityguide.QrScanFragment;
 import ru.nbakaev.cityguide.R;
+import ru.nbakaev.cityguide.util.FragmentsOrganizer;
 
+/**
+ * Left menu
+ */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder> {
 
     private List<NavigationDrawerItem> mDataList = Collections.emptyList();
@@ -33,8 +31,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     // position of selected item; TODO: refactor - delete / make private
     public static int selectedPos = 0;
     private static final String SELECTED_ITEM_COLOR = "#EEEEEE";
-    FragmentManager fragmentManager;
-    DrawerLayout drawerLayout;
+    private FragmentManager fragmentManager;
+    private DrawerLayout drawerLayout;
 
     private List<MyViewHolder> allItems = new ArrayList<>();
 
@@ -57,7 +55,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         allItems.add(holder);
 
-        if (position == 0){
+        if (position == 0) {
             setActiveItem(position);
         }
 
@@ -69,63 +67,30 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             public void onClick(View v) {
                 setActiveItem(position);
                 switch (current.getId()) {
-                    case R.string.drawer_map: {
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.addToBackStack(null);
-                        MapsFragment mapsFragment = new MapsFragment();
-                        fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
+                    case R.string.drawer_map:
+                        FragmentsOrganizer.startMapFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        fragmentTransaction.commit();
                         break;
-                    }
 
-                    case R.string.drawer_cities: {
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.addToBackStack(null);
-                        CitiesFragment mapsFragment = new CitiesFragment();
-                        fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
+                    case R.string.drawer_cities:
+                        FragmentsOrganizer.startCitiesFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        fragmentTransaction.commit();
                         break;
-                    }
 
-                    case R.string.drawer_near_me: {
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.addToBackStack(null);
-                        NearbyFragment mapsActivity = new NearbyFragment();
-                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                    case R.string.drawer_near_me:
+                        FragmentsOrganizer.startNearbyFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        fragmentTransaction.commit();
                         break;
-                    }
 
-                    case R.string.drawer_about: {
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.addToBackStack(null);
-                        AboutFragment mapsActivity = new AboutFragment();
-                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                    case R.string.drawer_about:
+                        FragmentsOrganizer.startAboutFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        fragmentTransaction.commit();
                         break;
-                    }
 
-                    case R.string.drawer_qr: {
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                     fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        fragmentTransaction.addToBackStack(null);
-                        QrScanFragment mapsActivity = new QrScanFragment();
-                        fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+                    case R.string.drawer_qr:
+                        FragmentsOrganizer.startQrReaderFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        fragmentTransaction.commit();
                         break;
-                    }
                 }
             }
         });
