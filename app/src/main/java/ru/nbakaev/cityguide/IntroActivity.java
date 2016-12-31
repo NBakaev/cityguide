@@ -17,7 +17,6 @@ import java.lang.reflect.Field;
 
 import javax.inject.Inject;
 
-import ru.nbakaev.cityguide.map.MapsFragment;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
 import ru.nbakaev.cityguide.util.AppUtils;
@@ -76,7 +75,7 @@ public class IntroActivity extends AppIntro {
         if (Build.VERSION.SDK_INT >= 23) {
             AppUtils.doRestart(getApplicationContext());
         } else {
-            Intent intent = new Intent(this, MapsFragment.class);
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
         }
     }

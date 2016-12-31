@@ -14,24 +14,28 @@ public class AppSettings {
     @Id
     private Long id;
     private boolean offline;
-    private boolean tracked;
-    private boolean enableExperimentalFeature;
+    private boolean enableExperimentalFeature = false;
     private boolean firstRun = true;
+    private boolean trackMe = true;
 
-    @Generated(hash = 1109753121)
-    public AppSettings(Long id, boolean offline, boolean tracked,
-                       boolean enableExperimentalFeature, boolean firstRun) {
+
+    @Generated(hash = 1739082689)
+    public AppSettings(Long id, boolean offline, boolean enableExperimentalFeature,
+            boolean firstRun, boolean trackMe) {
         this.id = id;
         this.offline = offline;
-        this.tracked = tracked;
         this.enableExperimentalFeature = enableExperimentalFeature;
         this.firstRun = firstRun;
+        this.trackMe = trackMe;
     }
 
     @Generated(hash = 93977203)
     public AppSettings() {
     }
 
+    public void setTrackMe(boolean trackMe) {
+        this.trackMe = trackMe;
+    }
 
     public boolean isFirstRun() {
         return firstRun;
@@ -77,13 +81,8 @@ public class AppSettings {
         return this.firstRun;
     }
 
-    public boolean getTracked() {
-        return this.tracked;
+    public boolean getTrackMe() {
+        return this.trackMe;
     }
-
-    public void setTracked(boolean tracked) {
-        this.tracked = tracked;
-    }
-
 
 }

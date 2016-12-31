@@ -63,10 +63,15 @@ public class MainActivity extends BaseActivity {
         }
 
         String fragmentOpen = intent.getStringExtra("FRAGMENT_OPEN");
-        if (fragmentOpen != null){
-            if ("NEARBY".equals(fragmentOpen)){
+        if (fragmentOpen != null) {
+            if ("NEARBY".equals(fragmentOpen)) {
                 FragmentsOrganizer.startNearbyFragment(getSupportFragmentManager());
             }
+        }
+
+        String poiOpen = intent.getStringExtra("MOVE_TO_POI_ID");
+        if (poiOpen != null) {
+            FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiOpen);
         }
     }
 
@@ -76,7 +81,6 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     *
      * @return true if we need to ask user to grant runtime permissions
      */
     private boolean needPermissions() {

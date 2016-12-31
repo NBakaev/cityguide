@@ -13,7 +13,6 @@ public class Poi implements ClusterItem {
 
     private String name;
     private String description;
-    private String descriptionHtml;
     private PoiLocation location;
     private String id;
     private String cityId;
@@ -22,14 +21,6 @@ public class Poi implements ClusterItem {
 
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
-
-    public String getDescriptionHtml() {
-        return descriptionHtml;
-    }
-
-    public void setDescriptionHtml(String descriptionHtml) {
-        this.descriptionHtml = descriptionHtml;
-    }
 
     public String getCityId() {
         return cityId;

@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -22,10 +21,10 @@ import io.reactivex.schedulers.Schedulers;
 import ru.nbakaev.cityguide.App;
 import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.BaseFragment;
+import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.R;
 import ru.nbakaev.cityguide.poi.Poi;
 import ru.nbakaev.cityguide.poi.PoiProvider;
-import ru.nbakaev.cityguide.util.FragmentsOrganizer;
 import ru.nbakaev.cityguide.util.StringUtils;
 
 /**
@@ -55,20 +54,20 @@ public class QrScanFragment extends BaseFragment {
         App.getAppComponent().inject(this);
         View view = inflater.inflate(R.layout.qr_read_activity, container, false);
 
-        Button btnRetry = (Button) view.findViewById(R.id.btnRetry);
-        btnRetry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getQrCode();
-            }
-        });
+//        Button btnRetry = (Button) view.findViewById(R.id.btnRetry);
+//        btnRetry.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                getQrCode();
+//            }
+//        });
 
         getQrCode();
         return view;
     }
 
-    protected void getQrCode() {
-        IntentIntegrator.forSupportFragment(this).initiateScan();
+    private void getQrCode() {
+        IntentIntegrator.forSupportFragment(this).setBeepEnabled(false).initiateScan();
     }
 
     @Override
@@ -79,14 +78,20 @@ public class QrScanFragment extends BaseFragment {
             if (qrCodeParser.isOurQrCode(lastScannedCode)) {
                 String poiId = qrCodeParser.getPoiFromUrl(lastScannedCode);
                 getPoi(poiId);
+            }else{
+                Toast.makeText(getContext(), "Not our QR code :( Retry, or go back", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
+                baseActivity.finish();
+                startActivity(intent);
             }
         } else {
-            Toast.makeText(baseActivity.getApplicationContext(), baseActivity.getResources().getString(R.string.wrong_qrcode), Toast.LENGTH_LONG).show();
-            FragmentsOrganizer.startQrReaderFragment(baseActivity.getSupportFragmentManager());
+            Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
+            baseActivity.finish();
+            startActivity(intent);
         }
     }
 
-    protected void getPoi(String poiId) {
+    private void getPoi(String poiId) {
         poiProvider.getById(poiId).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
                 .subscribe(new Observer<Poi>() {
                     @Override
@@ -96,7 +101,7 @@ public class QrScanFragment extends BaseFragment {
 
                     @Override
                     public void onNext(Poi value) {
-                        fillPOiFields(value);
+                        goToPoi(value);
 
                     }
 
@@ -112,8 +117,11 @@ public class QrScanFragment extends BaseFragment {
                 });
     }
 
-    protected void fillPOiFields(Poi poi) {
-        FragmentsOrganizer.startMapFragmentWithPoiOpen(baseActivity.getSupportFragmentManager(), poi.getId());
+    private void goToPoi(Poi poi) {
+        Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
+        intent.putExtra("MOVE_TO_POI_ID", poi.getId());
+        baseActivity.finish();
+        startActivity(intent);
     }
 
 }

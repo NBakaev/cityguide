@@ -25,10 +25,8 @@ public class PoiDb {
     private String name;
 
     private String description;
-    private String descriptionHtml;
 
     private double latitude = 0.0;
-
     private double longitude = 0.0;
 
     @Index(unique = true)
@@ -44,7 +42,6 @@ public class PoiDb {
     }
 
 
-    @Generated(hash = 1301828231)
     public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, String descriptionHtml,
             double latitude, double longitude, String poiId, String imageUrl, List<String> imageUrls,
             String videoUrl) {
@@ -53,7 +50,23 @@ public class PoiDb {
         this.lastUpdate = lastUpdate;
         this.name = name;
         this.description = description;
-        this.descriptionHtml = descriptionHtml;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.poiId = poiId;
+        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls;
+        this.videoUrl = videoUrl;
+    }
+
+
+    @Generated(hash = 97188934)
+    public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, double latitude,
+            double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
+        this.id = id;
+        this.cityId = cityId;
+        this.lastUpdate = lastUpdate;
+        this.name = name;
+        this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.poiId = poiId;
@@ -67,7 +80,6 @@ public class PoiDb {
         PoiDb poiDb = new PoiDb();
         poiDb.setId((long) poi.getId().hashCode());
         poiDb.setDescription(poi.getDescription());
-        poiDb.setDescriptionHtml(poi.getDescriptionHtml());
         poiDb.setName(poi.getName());
         poiDb.setImageUrl(poi.getImageUrl());
         poiDb.setLatitude(poi.getLocation().getLatitude());
@@ -93,7 +105,6 @@ public class PoiDb {
         poi.setId(poiDb.getPoiId());
         poi.setName(poiDb.getName());
         poi.setDescription(poiDb.getDescription());
-        poi.setDescriptionHtml(poiDb.getDescriptionHtml());
         poi.setLocation(new Poi.PoiLocation(poiDb.getLatitude(), poiDb.getLongitude()));
         poi.setImageUrl(poiDb.getImageUrl());
         poi.setVideoUrl(poiDb.getVideoUrl());
@@ -112,13 +123,6 @@ public class PoiDb {
         return poiDbs;
     }
 
-    public String getDescriptionHtml() {
-        return descriptionHtml;
-    }
-
-    public void setDescriptionHtml(String descriptionHtml) {
-        this.descriptionHtml = descriptionHtml;
-    }
 
     public Long getId() {
         return id;

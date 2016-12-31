@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public class AppUtils {
 
-    private final static String TAG = AppUtils.class.getSimpleName();
+    private static final String TAG = "AppUtils";
 
     // restart application.
     // from http://stackoverflow.com/questions/6609414/how-to-programatically-restart-android-app

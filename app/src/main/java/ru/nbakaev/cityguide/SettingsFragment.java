@@ -15,10 +15,9 @@ import javax.inject.Inject;
 
 import hu.supercluster.paperwork.Paperwork;
 import ru.nbakaev.cityguide.poi.db.DBService;
-import ru.nbakaev.cityguide.push.BackgrounNotificationService;
+import ru.nbakaev.cityguide.push.BackgroundNotificationService;
 import ru.nbakaev.cityguide.settings.AppSettings;
 import ru.nbakaev.cityguide.settings.SettingsService;
-import ru.nbakaev.cityguide.util.SharedPreferencesUtils;
 
 /**
  * Created by ya on 11/26/2016.
@@ -73,12 +72,14 @@ public class SettingsFragment extends BaseFragment {
 
 
         SwitchCompat trackMeSwitch = (SwitchCompat) view.findViewById(R.id.trackMeSwitch);
-        trackMeSwitch.setChecked(new SharedPreferencesUtils(baseActivity.getApplicationContext()).getTrackMe());
+        trackMeSwitch.setChecked( settingsService.getSettings().getTrackMe() );
         trackMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                new SharedPreferencesUtils(baseActivity.getApplicationContext()).setTrackMe(isChecked);
-                Intent serviceIntent = new Intent(baseActivity.getApplicationContext(), BackgrounNotificationService.class);
+                AppSettings settings = settingsService.getSettings();
+                settings.setTrackMe(isChecked);
+                settingsService.saveSettings(settings);
+                Intent serviceIntent = new Intent(baseActivity.getApplicationContext(), BackgroundNotificationService.class);
                 if (isChecked) {
                     baseActivity.startService(serviceIntent);
                 } else {

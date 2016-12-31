@@ -12,11 +12,10 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import ru.nbakaev.cityguide.R;
-import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.city.cityselector.MultiSelector;
+import ru.nbakaev.cityguide.poi.PoiProvider;
 import ru.nbakaev.cityguide.util.CacheUtils;
 
 /**
@@ -27,7 +26,6 @@ public class CityFragment extends Fragment {
     private MultiSelector<City> selector;
     private RecyclerView reciclerView;
     private LinearLayout empty;
-    private Random random = new Random();
     private CityRecyclerAdapter adapter;
     private List<City> cities = new ArrayList<>();
     CacheUtils cacheUtils;

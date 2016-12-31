@@ -4,10 +4,13 @@
 
 HSE project
 
- - Android 4.4+. Testing on Android 4.4, 7.0
  - [Google Drive - all files and APKs](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
  - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
- 
+
+## Android requirements
+ - Android 4.4+. Testing on Android 4.4, 7.0
+ - WebView (such as chrome)
+
 ## Technical
  - https://s2.nbakaev.ru/#/main_page - admin UI
  - server https://github.com/NBakaev/cityguide-server

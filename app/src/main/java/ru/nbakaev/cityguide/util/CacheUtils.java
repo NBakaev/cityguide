@@ -20,7 +20,7 @@ import ru.nbakaev.cityguide.settings.SettingsService;
 
 public class CacheUtils {
 
-    private static final String TAG = CacheUtils.class.getSimpleName();
+    private static final String TAG = "CacheUtils";
 
     private SettingsService settingsService;
 

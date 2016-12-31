@@ -28,7 +28,7 @@ import static ru.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CA
  * Created by Наташа on 20.12.2016.
  */
 
-public class BackgrounNotificationService extends Service {
+public class BackgroundNotificationService extends Service {
 
     @Inject
     LocationProvider locationProvider;

@@ -417,29 +417,19 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
         final WebView webview = (WebView) bottomSheet.findViewById(R.id.poi_details_descriptionHtml);
-        final TextView poiDescription = (TextView) bottomSheet.findViewById(R.id.poi_details_description);
 
         // show webview if have descriptionHtml in poi or else description as just text
-        if (!StringUtils.isEmpty(poi.getDescriptionHtml())) {
-            poiDescription.setVisibility(View.INVISIBLE);
-            poiDescription.setPadding(0, 0, 0, 0);
+        if (!StringUtils.isEmpty(poi.getDescription())) {
 
             webview.setVisibility(View.VISIBLE);
             webview.getSettings().setDefaultTextEncodingName("utf-8");
             webview.setFocusable(false);
-//            webview.clearCache(true);
             webview.clearFocus();
 
-            String descriptionHtml = poi.getDescriptionHtml();
+            String descriptionHtml = poi.getDescription();
             // delete default padding in webview
-            descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:0px;margin-top:0px;}</style>");
+            descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:4px;margin-top:4px;}</style>");
             webview.loadData(descriptionHtml, "text/html; charset=utf-8", "UTF-8");
-        } else {
-            webview.setVisibility(View.INVISIBLE);
-            poiDescription.setText(poi.getDescription());
-            poiDescription.setVisibility(View.VISIBLE);
-            int paddingInPx = UiUtils.dpToPixels(baseActivity.getApplicationContext(), 16);
-            poiDescription.setPadding(paddingInPx, paddingInPx, paddingInPx, paddingInPx);
         }
 
         CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);

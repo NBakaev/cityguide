@@ -4,8 +4,9 @@ import dagger.Component;
 import ru.nbakaev.cityguide.SettingsFragment;
 import ru.nbakaev.cityguide.MainActivity;
 import ru.nbakaev.cityguide.nearby.NearbyFragment;
+import ru.nbakaev.cityguide.push.BackgroundNotificationService;
+import ru.nbakaev.cityguide.push.BroadcastReceiverOnBootComplete;
 import ru.nbakaev.cityguide.scan.QrScanFragment;
-import ru.nbakaev.cityguide.push.BackgrounNotificationService;
 import ru.nbakaev.cityguide.city.CitiesFragment;
 import ru.nbakaev.cityguide.BaseActivity;
 import ru.nbakaev.cityguide.IntroActivity;
@@ -37,6 +38,8 @@ public interface AppComponent {
 
     void inject(QrScanFragment qrScanFragment);
 
-    void inject(BackgrounNotificationService service);
+    void inject(BackgroundNotificationService service);
+
+    void inject(BroadcastReceiverOnBootComplete broadcastReceiverOnBootComplete);
 
 }
