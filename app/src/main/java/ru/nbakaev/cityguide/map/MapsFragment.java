@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,6 +114,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
             String value = extras.getString("MOVE_TO_POI_ID");
             if (value != null) {
                 moveToPoiId = value;
+
+                // if we already have initialized gmaps we will not have callback that will move us
                 if (googleMapsInit) {
                     moveToIntentPOI();
                 }
@@ -125,16 +128,20 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
-        view = inflater.inflate(R.layout.fragment_maps, container, false);
+
+        try {
+            view = inflater.inflate(R.layout.fragment_maps, container, false);
+        } catch (InflateException e) {
+            // here we have InflateException because we have nested fragment which can be already inflated if we press back button
+            // so, we can create container in xml and dynamically replace that container with created SupportMapFragment
+            // or can just ignore; see http://stackoverflow.com/questions/18206615/how-to-use-google-map-v2-inside-fragment
+        }
 
         // Obtain the SupportMapFragment and get notified when the mMap is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         prevLocation = null;
-
-        App.getAppComponent().inject(this);
-
         return view;
     }
 
@@ -199,7 +206,6 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         bottomSheet = view.findViewById(R.id.bottom_sheet1);
 
         mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
-//        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
         mBottomSheetBehavior2.setHideable(true);
 
         bottomSheet.setVisibility(View.INVISIBLE);
@@ -234,8 +240,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
                     @Override
                     public void onNext(Poi value) {
-                        if (value != null)
-                            processMoveToIntentPoi(value);
+                        processMoveToIntentPoi(value);
                     }
 
                     @Override

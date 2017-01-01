@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/poi_details_name"
-            android:text="poi_details_name"
+            android:text=""
             android:textSize="16sp"
             android:textAllCaps="true"
             android:padding="16dp"/>
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/poi_details_descriptionHtml"
-            android:text="poi_details_description"
+            android:text=""
             android:padding="7dp"
             android:textSize="16sp"/>
     </LinearLayout>

@@ -9,6 +9,9 @@ HSE project
 
 ## Android requirements
  - Android 4.4+. Testing on Android 4.4, 7.0
+
+### Standard telephone with
+ - Google Play
  - WebView (such as chrome)
 
 ## Technical
