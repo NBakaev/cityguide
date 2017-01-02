@@ -42,6 +42,14 @@ FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiI
 ##### pull db from device via adb
 `adb pull /data/data/com.nbakaev.cityguide/databases/poi-db.db .`
 
+##### test notification on boot
+
+ 1. set in _Developer options_ to _Select debug app_ debug com.nbakaev.cityguide
+ 2. check wait to debugger
+ 3. `adb shell su 0 am broadcast -a android.intent.action.BOOT_COMPLETED`
+ 4. On android you will see prompt to debug app
+ 4. in idea click `attach debugger to android process`
+
 Notes:
  - POIs in DB stored as com.nbakaev.cityguide.poi.db.PoiDb but all methods operate with com.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class
  - Android icons from https://material.io/icons

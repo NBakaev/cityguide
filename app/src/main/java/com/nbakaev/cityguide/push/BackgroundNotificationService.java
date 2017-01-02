@@ -8,6 +8,11 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.nbakaev.cityguide.App;
+import com.nbakaev.cityguide.location.LocationProvider;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -16,10 +21,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import com.nbakaev.cityguide.App;
-import com.nbakaev.cityguide.location.LocationProvider;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.PoiProvider;
 
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
@@ -104,7 +105,7 @@ public class BackgroundNotificationService extends Service {
             return;
         }
 
-        // if distance between downloaded POI and current location > 20 metres - download new POIs
+        // if distance between downloaded POI and current location > DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH metres - download new POIs
         if (locationForPoi == null || location.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
             locationForPoi = location;
         } else {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -15,6 +16,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.nbakaev.cityguide.background.AndroidBackgroundAware;
+import com.nbakaev.cityguide.background.ApplicationBackgroundStatus;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,8 +29,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import com.nbakaev.cityguide.background.AndroidBackgroundAware;
-import com.nbakaev.cityguide.background.ApplicationBackgroundStatus;
 
 
 /**
@@ -42,8 +43,10 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
     private static final int ACTIVE_APP_LOCATION_INTERVAL = 10 * 1000;   // 10 seconds, in milliseconds
     private static final int ACTIVE_APP_LOCATION_INTERVAL_FASTEST = 1 * 1000;   // 1 seconds, in milliseconds
 
-    private static final int BACKGROUND_APP_LOCATION_INTERVAL_FASTEST = 60 * 1000;   // 60 seconds, in milliseconds
     private static final int BACKGROUND_APP_LOCATION_INTERVAL = 100 * 1000;
+    private static final int BACKGROUND_APP_LOCATION_INTERVAL_FASTEST = 60 * 1000;   // 60 seconds, in milliseconds
+
+    private int THRESHOLD_FOR_DISCONNECT_BACKGROUND = 30 * 1000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -56,8 +59,40 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
     private Looper looper;
     private Observable<ApplicationBackgroundStatus> backgroundStatusObservable;
 
+    private int foregroundInterval;
+    private int foregroundFastestInterval;
+
+    private int backgroundInterval;
+    private int backgroundFastestInterval;
+
+    private int locationPriority;
+
+    private int sendedTimesAfterChangedMode = 0;
+
+    private volatile ApplicationBackgroundStatus backgroundStatus = null;
+
     public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware) {
+        this(context, androidBackgroundAware, ACTIVE_APP_LOCATION_INTERVAL, ACTIVE_APP_LOCATION_INTERVAL_FASTEST, BACKGROUND_APP_LOCATION_INTERVAL, BACKGROUND_APP_LOCATION_INTERVAL_FASTEST,
+                LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    /**
+     * @param context
+     * @param androidBackgroundAware
+     * @param foregroundInterval        milliseconds
+     * @param foregroundFastestInterval milliseconds
+     * @param backgroundInterval        milliseconds
+     * @param backgroundFastestInterval milliseconds
+     * @param locationPriority
+     */
+    public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware, int foregroundInterval, int foregroundFastestInterval,
+                                   int backgroundInterval, int backgroundFastestInterval, int locationPriority) {
         this.context = context;
+        this.foregroundInterval = foregroundInterval;
+        this.foregroundFastestInterval = foregroundFastestInterval;
+        this.backgroundInterval = backgroundInterval;
+        this.backgroundFastestInterval = backgroundFastestInterval;
+        this.locationPriority = locationPriority;
 
         HandlerThread handlerThread = new HandlerThread("AndroidLocationProviderLooper");
         handlerThread.start();
@@ -68,8 +103,6 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
-        onForeground();
 
         locationObservable = Observable.create(new ObservableOnSubscribe<Location>() {
             @Override
@@ -100,6 +133,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                         } else if (value.equals(ApplicationBackgroundStatus.FOREGROUND)) {
                             onForeground();
                         }
+                        backgroundStatus = value;
                     }
 
                     @Override
@@ -141,6 +175,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
      */
     @Override
     public void onLocationChanged(final Location location) {
+
         if (prevLocation != null && location.getLatitude() == prevLocation.getLatitude() && location.getLongitude() == prevLocation.getLongitude()) {
             return;
         }
@@ -172,6 +207,14 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 Log.e(TAG, e.toString());
             }
         }
+        disconnectOnFirstBackgroundHandledLocation();
+    }
+
+    private void disconnectOnFirstBackgroundHandledLocation() {
+        sendedTimesAfterChangedMode++;
+        if (sendedTimesAfterChangedMode == 1 && backgroundStatus.equals(ApplicationBackgroundStatus.BACKGROUND)) {
+            disconnect();
+        }
     }
 
     @Override
@@ -188,26 +231,54 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this, looper);
     }
 
-    private void changeLocationUpdateIntervalMode(int interval, int fastestInterval){
+    public synchronized void disconnect() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
+    }
+
+    private synchronized void watchInInterval(final int interval, final int fastestInterval) {
+        disconnect();
+
+        Handler handler = new Handler(looper);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (backgroundStatus.equals(ApplicationBackgroundStatus.BACKGROUND)) {
+                    watchInInterval(interval, fastestInterval);
+                    changeLocationUpdateIntervalMode(interval, fastestInterval);
+                }
+            }
+        }, fastestInterval);
+    }
+
+    public synchronized void changeLocationUpdateIntervalMode(int interval, int fastestInterval) {
+        disconnect();
+
         mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setPriority(locationPriority)
                 .setInterval(interval)
                 .setFastestInterval(fastestInterval);
 
+        sendedTimesAfterChangedMode = 0;
         mGoogleApiClient.connect();
     }
 
     private void onBackground() {
-        changeLocationUpdateIntervalMode(BACKGROUND_APP_LOCATION_INTERVAL, BACKGROUND_APP_LOCATION_INTERVAL_FASTEST);
+        if (backgroundInterval > THRESHOLD_FOR_DISCONNECT_BACKGROUND) {
+            watchInInterval(backgroundInterval, backgroundFastestInterval);
+        } else {
+            changeLocationUpdateIntervalMode(backgroundInterval, backgroundFastestInterval);
+        }
     }
 
-    // called on main thread
+    /**
+     * called when app(ui) is open
+     * called on main thread
+     */
     private void onForeground() {
-        changeLocationUpdateIntervalMode(ACTIVE_APP_LOCATION_INTERVAL, ACTIVE_APP_LOCATION_INTERVAL_FASTEST);
+        changeLocationUpdateIntervalMode(foregroundInterval, foregroundFastestInterval);
     }
 
 }

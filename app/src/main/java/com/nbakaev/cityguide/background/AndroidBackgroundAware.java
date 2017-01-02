@@ -34,6 +34,8 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
         if (context instanceof Application) {
             context.registerComponentCallbacks(this);
             ((Application) context).registerActivityLifecycleCallbacks(new BackgroundActivityLifecycle());
+        }else{
+            throw new IllegalArgumentException("Context should be Application context");
         }
         this.context = context;
 
