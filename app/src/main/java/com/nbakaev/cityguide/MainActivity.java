@@ -6,10 +6,10 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import javax.inject.Inject;
-
 import com.nbakaev.cityguide.scan.QrCodeParser;
-import com.nbakaev.cityguide.util.FragmentsOrganizer;
+import com.nbakaev.cityguide.util.FragmentsWalker;
+
+import javax.inject.Inject;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -65,19 +65,19 @@ public class MainActivity extends BaseActivity {
         String fragmentOpen = intent.getStringExtra("FRAGMENT_OPEN");
         if (fragmentOpen != null) {
             if ("NEARBY".equals(fragmentOpen)) {
-                FragmentsOrganizer.startNearbyFragment(getSupportFragmentManager());
+                FragmentsWalker.startNearbyFragment(getSupportFragmentManager());
             }
         }
 
         String poiOpen = intent.getStringExtra("MOVE_TO_POI_ID");
         if (poiOpen != null) {
-            FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiOpen);
+            FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiOpen);
         }
     }
 
     private void processPoiUrl(String sData) {
         String poiId = qrCodeParser.getPoiFromUrl(sData);
-        FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
+        FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
     }
 
     /**
@@ -102,7 +102,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupMainFragment() {
-        FragmentsOrganizer.startMapFragment(getSupportFragmentManager());
+        FragmentsWalker.startMapFragment(getSupportFragmentManager());
     }
 
 }

@@ -1,21 +1,24 @@
 package com.nbakaev.cityguide.util;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.nbakaev.cityguide.BaseActivity;
+import com.nbakaev.cityguide.MainActivity;
+import com.nbakaev.cityguide.R;
 import com.nbakaev.cityguide.SettingsFragment;
 import com.nbakaev.cityguide.city.CitiesFragment;
 import com.nbakaev.cityguide.map.MapsFragment;
 import com.nbakaev.cityguide.nearby.NearbyFragment;
 import com.nbakaev.cityguide.scan.QrScanFragment;
-import com.nbakaev.cityguide.R;
 
 /**
  * Created by ya on 12/27/2016.
  */
 
-public class FragmentsOrganizer {
+public class FragmentsWalker {
 
     // fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
 
@@ -76,6 +79,13 @@ public class FragmentsOrganizer {
 
         fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
         fragmentTransaction.commit();
+    }
+
+    public static void startMapFragmentFromScratchWithPoiOpen(BaseActivity baseActivity, android.support.v4.app.Fragment fragment, String id){
+        Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
+        intent.putExtra("MOVE_TO_POI_ID", id);
+        baseActivity.finish();
+        fragment.startActivity(intent);
     }
 
 }

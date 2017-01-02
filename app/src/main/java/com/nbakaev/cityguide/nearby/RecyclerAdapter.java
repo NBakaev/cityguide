@@ -26,7 +26,7 @@ import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.poi.Poi;
 import com.nbakaev.cityguide.poi.PoiProvider;
 import com.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
-import com.nbakaev.cityguide.util.FragmentsOrganizer;
+import com.nbakaev.cityguide.util.FragmentsWalker;
 import com.nbakaev.cityguide.util.StringUtils;
 
 import static com.nbakaev.cityguide.util.MapUtils.printDistance;
@@ -190,7 +190,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             // hack to change active tab
             // 0 is index of MapsFragment
             NavigationDrawerAdapter.selectedPos = 0;
-            FragmentsOrganizer.startMapFragmentWithPoiOpen(fragmentManager, poi.getId());
+            FragmentsWalker.startMapFragmentWithPoiOpen(fragmentManager, poi.getId());
         }
     }
 }

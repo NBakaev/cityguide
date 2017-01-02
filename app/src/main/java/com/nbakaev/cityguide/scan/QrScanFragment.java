@@ -11,13 +11,6 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import javax.inject.Inject;
-
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import com.nbakaev.cityguide.App;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.BaseFragment;
@@ -25,7 +18,15 @@ import com.nbakaev.cityguide.MainActivity;
 import com.nbakaev.cityguide.R;
 import com.nbakaev.cityguide.poi.Poi;
 import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.util.FragmentsWalker;
 import com.nbakaev.cityguide.util.StringUtils;
+
+import javax.inject.Inject;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by user on 21.12.2016.
@@ -80,15 +81,17 @@ public class QrScanFragment extends BaseFragment {
                 getPoi(poiId);
             }else{
                 Toast.makeText(getContext(), "Not our QR code :( Retry, or go back", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
-                baseActivity.finish();
-                startActivity(intent);
+                goToMainActivity();
             }
         } else {
-            Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
-            baseActivity.finish();
-            startActivity(intent);
+            goToMainActivity();
         }
+    }
+
+    private void goToMainActivity() {
+        Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
+        baseActivity.finish();
+        startActivity(intent);
     }
 
     private void getPoi(String poiId) {
@@ -118,10 +121,7 @@ public class QrScanFragment extends BaseFragment {
     }
 
     private void goToPoi(Poi poi) {
-        Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
-        intent.putExtra("MOVE_TO_POI_ID", poi.getId());
-        baseActivity.finish();
-        startActivity(intent);
+        FragmentsWalker.startMapFragmentFromScratchWithPoiOpen(baseActivity, this, poi.getId());
     }
 
 }

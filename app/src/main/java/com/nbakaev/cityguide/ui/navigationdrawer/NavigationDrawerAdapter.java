@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.util.FragmentsWalker;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.nbakaev.cityguide.R;
-import com.nbakaev.cityguide.util.FragmentsOrganizer;
 
 /**
  * Left menu
@@ -68,27 +68,27 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                 setActiveItem(position);
                 switch (current.getId()) {
                     case R.string.drawer_map:
-                        FragmentsOrganizer.startMapFragment(fragmentManager);
+                        FragmentsWalker.startMapFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
                         break;
 
                     case R.string.drawer_cities:
-                        FragmentsOrganizer.startCitiesFragment(fragmentManager);
+                        FragmentsWalker.startCitiesFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
                         break;
 
                     case R.string.drawer_near_me:
-                        FragmentsOrganizer.startNearbyFragment(fragmentManager);
+                        FragmentsWalker.startNearbyFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
                         break;
 
                     case R.string.drawer_about:
-                        FragmentsOrganizer.startAboutFragment(fragmentManager);
+                        FragmentsWalker.startAboutFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
                         break;
 
                     case R.string.drawer_qr:
-                        FragmentsOrganizer.startQrReaderFragment(fragmentManager);
+                        FragmentsWalker.startQrReaderFragment(fragmentManager);
                         drawerLayout.closeDrawer(Gravity.LEFT, false);
                         break;
                 }
