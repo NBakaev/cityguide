@@ -40,10 +40,10 @@ FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiI
 ```
 
 ##### pull db from device via adb
-`adb pull /data/data/ru.nbakaev.cityguide/databases/poi-db.db .`
+`adb pull /data/data/com.nbakaev.cityguide/databases/poi-db.db .`
 
 Notes:
- - POIs in DB stored as ru.nbakaev.cityguide.poi.db.PoiDb but all methods operate with ru.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class
+ - POIs in DB stored as com.nbakaev.cityguide.poi.db.PoiDb but all methods operate with com.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class
  - Android icons from https://material.io/icons
  - https://developers.google.com/maps/documentation/android-api/utility/marker-clustering
  - mockups from http://mockuphone.com/nexus6p

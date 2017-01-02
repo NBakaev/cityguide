@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.nbakaev.cityguide">
+    package="com.nbakaev.cityguide">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name=".App"
+        android:name="com.nbakaev.cityguide.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +23,7 @@
             android:value="@string/google_maps_key" />
 
         <receiver
-            android:name=".push.BroadcastReceiverOnBootComplete"
+            android:name="com.nbakaev.cityguide.push.BroadcastReceiverOnBootComplete"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -40,11 +40,11 @@
         </receiver>
 
         <service
-            android:name=".push.BackgroundNotificationService"
+            android:name="com.nbakaev.cityguide.push.BackgroundNotificationService"
             android:enabled="true"></service>
 
         <activity
-            android:name="ru.nbakaev.cityguide.MainActivity"
+            android:name="com.nbakaev.cityguide.MainActivity"
             android:label="@string/title_activity_maps"
             android:launchMode="singleTop"
             android:theme="@style/splashScreenTheme">
@@ -64,7 +64,7 @@
         </activity>
 
         <activity
-            android:name="ru.nbakaev.cityguide.IntroActivity"
+            android:name="com.nbakaev.cityguide.IntroActivity"
             android:label="@string/title_activity_maps"></activity>
 
     </application>
