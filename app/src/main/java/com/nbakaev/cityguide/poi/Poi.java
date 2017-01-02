@@ -18,9 +18,19 @@ public class Poi implements ClusterItem {
     private String cityId;
     private Date lastUpdate;
     private String imageUrl;
+    private float rating;
 
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
+
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
 
     public String getCityId() {
         return cityId;

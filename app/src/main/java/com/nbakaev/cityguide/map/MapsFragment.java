@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.InflateException;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,19 +24,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import com.nbakaev.cityguide.App;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.BaseFragment;
@@ -48,6 +37,19 @@ import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.CacheUtils;
 import com.nbakaev.cityguide.util.StringUtils;
 import com.nbakaev.cityguide.util.UiUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
@@ -79,7 +81,6 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
     // if we start activity with new Intent().putExtra("MOVE_TO_POI_ID", poi.getId());
     // this variable contains id of POI to which go
-
     private String moveToPoiId = null;
     private Poi moveToPoiObject = null;
 
@@ -88,7 +89,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private ClusterManager<Poi> clusterManager;
     private PoiClusterRenderer poiClusterRenderer;
 
-    private BottomSheetBehavior mBottomSheetBehavior2;
+    private BottomSheetBehavior mBottomSheetBehavior;
     private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
 
     private View bottomSheet;
@@ -170,8 +171,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (mBottomSheetBehavior2 != null) {
-                    mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_HIDDEN);
+                if (mBottomSheetBehavior != null) {
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 }
             }
         });
@@ -205,11 +206,11 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private void setupBottomSheet() {
         bottomSheet = view.findViewById(R.id.bottom_sheet1);
 
-        mBottomSheetBehavior2 = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior2.setHideable(true);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setHideable(true);
 
         bottomSheet.setVisibility(View.INVISIBLE);
-        mBottomSheetBehavior2.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
+        mBottomSheetBehavior.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
     }
 
     @Override
@@ -220,7 +221,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private void showBottomViewOnLoad() {
         int activityHeight = view.findViewById(R.id.map).getHeight();
         if (activityHeight > 10) {
-            mBottomSheetBehavior2.setPeekHeight(activityHeight / 3 + activityHeight / 10);
+            mBottomSheetBehavior.setPeekHeight(activityHeight / 3 + activityHeight / 10);
         }
 
         // we show dialog here, not in onMapReady(), because map layout is refreshed, and
@@ -417,11 +418,15 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     }
 
     private void showPoiDialog(Poi poi) {
-        mBottomSheetBehavior2.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheet.setVisibility(View.VISIBLE);
 
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
         final WebView webview = (WebView) bottomSheet.findViewById(R.id.poi_details_descriptionHtml);
+        final RatingBar ratingBar = (RatingBar) bottomSheet.findViewById(R.id.poi_details_rating);
+
+//        ratingBar.setRating(poi.getRating());
+        ratingBar.setRating(3.5f);
 
         // show webview if have descriptionHtml in poi or else description as just text
         if (!StringUtils.isEmpty(poi.getDescription())) {
@@ -439,6 +444,9 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
         CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);
         ViewPager mViewPager = (ViewPager) view.findViewById(R.id.pager);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tabDots);
+        tabLayout.setupWithViewPager(mViewPager, true);
+
         if (mCustomPagerAdapter.getCount() == 0) {
             mViewPager.getLayoutParams().height = 0;
             mViewPager.setVisibility(View.INVISIBLE);
@@ -449,5 +457,12 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         mViewPager.setAdapter(mCustomPagerAdapter);
 
         poiName.setText(poi.getName());
+
+        // if our screen is large enough, show not all bottomSheet(which can include and part of description)
+        // but include only name, image and rating. So, to see description, user should scroll
+        int bottomSheetMainElementsHeight = ratingBar.getHeight() + mViewPager.getHeight() + poiName.getHeight();
+        if (mBottomSheetBehavior.getPeekHeight() > bottomSheetMainElementsHeight) {
+            mBottomSheetBehavior.setPeekHeight(bottomSheetMainElementsHeight);
+        }
     }
 }

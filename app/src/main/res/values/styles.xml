@@ -1,36 +1,41 @@
 <resources>
 
-	<style name="splashScreenTheme" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
-		<item name="android:windowBackground">@drawable/splash_screen</item>
-	</style>
+    <style name="RatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="colorControlNormal">#000000</item>
+        <item name="colorControlActivated">@color/white</item>
+    </style>
 
-	<!-- Base application theme. -->
-	<style name="MaterialTheme" parent="ParentMaterialTheme">
-		<!-- Customize your theme here. -->
+    <style name="splashScreenTheme" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
 
-	</style>
+    <!-- Base application theme. -->
+    <style name="MaterialTheme" parent="ParentMaterialTheme">
+        <!-- Customize your theme here. -->
 
-	<style name="ParentMaterialTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
 
-		<!-- Parent theme For all Pre - lollipop and lollipop above versions i.e. For all devices -->
+    <style name="ParentMaterialTheme" parent="Theme.AppCompat.Light.NoActionBar">
 
-		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-		<item name="colorAccent">@color/colorAccent</item>
-	</style>
+        <!-- Parent theme For all Pre - lollipop and lollipop above versions i.e. For all devices -->
 
-	<style name="ToolBarTheme"  parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
-		<item name="android:textColorPrimary">#fff</item>    <!-- Text Color of Toolbar Title  -->
-		<item name="android:textColorSecondary">#fff</item>  <!-- Color of Overflow Menu ( 3 DOTS icon )
+    <style name="ToolBarTheme" parent="ThemeOverlay.AppCompat.Light">
+
+        <item name="android:textColorPrimary">#fff</item>    <!-- Text Color of Toolbar Title  -->
+        <item name="android:textColorSecondary">#fff</item>  <!-- Color of Overflow Menu ( 3 DOTS icon )
                                                                     and color of Navigation Drawer Icon-->
-	</style>
+    </style>
 
-	<style name="PopupTheme"  parent="ThemeOverlay.AppCompat.Light">
+    <style name="PopupTheme" parent="ThemeOverlay.AppCompat.Light">
 
-		<item name="android:textColorPrimary">@color/grey_500</item>  <!-- Text color of Overflow Menu -->
-		<item name="android:background">@color/overflowMenuBg</item>        <!-- Background of Overflow Menu -->
+        <item name="android:textColorPrimary">@color/grey_500</item>  <!-- Text color of Overflow Menu -->
+        <item name="android:background">@color/overflowMenuBg</item>        <!-- Background of Overflow Menu -->
 
-	</style>
+    </style>
 
 </resources>

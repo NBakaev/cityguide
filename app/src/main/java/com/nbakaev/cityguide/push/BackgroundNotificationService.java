@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import com.nbakaev.cityguide.App;
 import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.poi.Poi;
 import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.settings.SettingsService;
 
 import java.util.List;
 
@@ -37,9 +39,12 @@ public class BackgroundNotificationService extends Service {
     @Inject
     PoiProvider poiProvider;
 
+    @Inject
+    SettingsService settingsService;
+
     NotificationService notificationService;
 
-    private static final String TAG = "BackgrounNotificationSe";
+    private static final String TAG = "BackgroundNotificationSe";
 
     private Location locationForPoi;
 
@@ -47,7 +52,7 @@ public class BackgroundNotificationService extends Service {
     public void onCreate() {
         super.onCreate();
         App.getAppComponent().inject(this);
-        notificationService = new NotificationService(this);
+        this.notificationService = new NotificationService(this, settingsService, poiProvider);
     }
 
     @Nullable
@@ -100,10 +105,7 @@ public class BackgroundNotificationService extends Service {
         locationProvider.getCurrentUserLocation().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(locationObserver);
     }
 
-    private void processNewLocation(final Location location) {
-        if (location == null) {
-            return;
-        }
+    private void processNewLocation(@NonNull final Location location) {
 
         // if distance between downloaded POI and current location > DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH metres - download new POIs
         if (locationForPoi == null || location.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {

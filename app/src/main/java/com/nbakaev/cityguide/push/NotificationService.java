@@ -6,22 +6,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
-
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.util.List;
+import android.util.Log;
 
 import com.nbakaev.cityguide.MainActivity;
 import com.nbakaev.cityguide.R;
 import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.StringUtils;
+
+import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
 /**
  * Created by ya on 11/22/2016.
@@ -29,14 +35,20 @@ import com.nbakaev.cityguide.util.StringUtils;
 
 public class NotificationService {
 
+    private static final String TAG = "NotificationService";
     private Context context;
     private NotificationManagerCompat notificationManager;
     private final static int MAX_NOTIFICATION_IN_ONE_TIME = 6;
+    private final BitmapFactory.Options options = new BitmapFactory.Options();
+    private PoiProvider poiProvider;
 
-    public NotificationService(Context context) {
+    public NotificationService(Context context, SettingsService settingsService, PoiProvider poiProvider) {
         this.context = context;
-        //notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager = NotificationManagerCompat.from(context);
+        this.poiProvider = poiProvider;
+        this.notificationManager = NotificationManagerCompat.from(context);
+        if (!settingsService.isOffline()) {
+            options.inSampleSize = 7;
+        }
     }
 
     /**
@@ -98,22 +110,34 @@ public class NotificationService {
 
     void singleNotification(final Poi poi, final Location prevLocation) {
         if (!StringUtils.isEmpty(poi.getImageUrl())) {
-            Picasso.with(context).load(poi.getImageUrl()).into(new Target() {
+            Observable<ResponseBody> icon = poiProvider.getIcon(poi);
+            Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
                 @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    postSingleNotification(poi, prevLocation, bitmap, true);
+                public void onSubscribe(Disposable d) {
+                    Log.d(TAG, d.toString());
                 }
 
                 @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-
+                public void onNext(ResponseBody value) {
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
+                        postSingleNotification(poi, prevLocation, bitmap, true);
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                    }
                 }
 
                 @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
+                public void onError(Throwable e) {
+                    Log.d(TAG, e.toString());
                 }
-            });
+
+                @Override
+                public void onComplete() {
+                }
+            };
+
+            icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
         } else {
             Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),
                     R.drawable.onboarding_logo);

@@ -42,7 +42,6 @@ public class MainActivity extends BaseActivity {
 
         setUpToolbar();
         setUpDrawer();
-        toolbar.setTitle(getString(R.string.title_activity_main));
 
         setupMainFragment();
         processNewIntent(getIntent());
