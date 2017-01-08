@@ -2,9 +2,8 @@
 <resources>
 
 	<style name="MaterialTheme" parent="ParentMaterialTheme">
-
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
 		<!-- Customize for only Lollipop and above versions such as Marshmallow device features -->
-
 	</style>
 
 </resources>

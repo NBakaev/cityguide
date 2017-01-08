@@ -1,10 +1,12 @@
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bottom_sheet1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:clipToPadding="true"
+    android:fitsSystemWindows="false"
     android:visibility="invisible"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
@@ -18,11 +20,11 @@
             android:layout_height="wrap_content">
 
             <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/pager"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"></android.support.v4.view.ViewPager>
+                                               android:id="@+id/pager"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="150dp"
+                                               android:adjustViewBounds="true"
+                                               android:scaleType="fitCenter"></android.support.v4.view.ViewPager>
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabDots"
@@ -31,7 +33,7 @@
                 android:layout_alignParentBottom="true"
                 app:tabBackground="@drawable/tab_selector"
                 app:tabGravity="center"
-                app:tabIndicatorHeight="0dp" />
+                app:tabIndicatorHeight="0dp"/>
         </RelativeLayout>
 
 
@@ -49,7 +51,7 @@
                 android:text=""
                 android:textAllCaps="true"
                 android:textColor="#ffffff"
-                android:textSize="16sp" />
+                android:textSize="16sp"/>
 
             <RatingBar
                 android:id="@+id/poi_details_rating"
@@ -64,7 +66,7 @@
                 android:stepSize="0.4"
                 android:theme="@style/RatingBar"
                 android:transformPivotX="0dp"
-                android:transformPivotY="0dp" />
+                android:transformPivotY="0dp"/>
         </LinearLayout>
 
         <WebView
@@ -75,6 +77,6 @@
             android:padding="7dp"
             android:text=""
             android:textColor="#000000"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

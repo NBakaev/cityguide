@@ -1,7 +1,9 @@
 package com.nbakaev.cityguide.map;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -54,8 +56,6 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
-import static com.nbakaev.cityguide.ui.AnimationUtils.collapse;
-import static com.nbakaev.cityguide.ui.AnimationUtils.expand;
 
 public class MapsFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
@@ -214,31 +214,50 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
         bottomSheet.setVisibility(View.INVISIBLE);
         mBottomSheetBehavior.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            }
 
-        if (settingsService.getSettings().isEnableExperimentalFeature()) {
-            mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                @Override
-                public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                    switch (newState) {
-                        case BottomSheetBehavior.STATE_HIDDEN:
-                            expand(baseActivity.toolbar);
-                            break;
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                baseActivity.toolbar.setAlpha(1 - slideOffset);
 
-                        case BottomSheetBehavior.STATE_COLLAPSED:
-                            expand(baseActivity.toolbar);
-                            break;
-
-                        case BottomSheetBehavior.STATE_EXPANDED:
-                            collapse(baseActivity.toolbar);
-                            break;
-                    }
+                if (slideOffset > 0.9) {
+                    hideSystemStatusBar();
                 }
 
-                @Override
-                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
+                if (slideOffset > 0.7) {
+                    baseActivity.toolbar.setVisibility(View.GONE);
                 }
-            });
+
+                if (slideOffset < 0.5) {
+                    showSystemStatusBar();
+                }
+            }
+        });
+    }
+
+    private void showSystemStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            baseActivity.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+            baseActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        baseActivity.toolbar.setVisibility(View.VISIBLE);
+    }
+
+
+    @Override
+    public void onPause() {
+        showSystemStatusBar();
+        baseActivity.toolbar.setAlpha(1);
+        super.onPause();
+    }
+
+    private void hideSystemStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            baseActivity.getWindow().setStatusBarColor(Color.TRANSPARENT);
+            baseActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
     }
 
