@@ -39,7 +39,7 @@ public class SettingsService {
     }
 
     public static String getServerUrl() {
-        return "https://s2.nbakaev.ru/api/v1/";
+        return "https://cityguide.nbakaev.com/api/v1/";
     }
 
     public boolean isFirstRun() {

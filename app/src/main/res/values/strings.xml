@@ -26,6 +26,9 @@
     <string name="onboarding_4_title">We need some permissions</string>
     <string name="onboarding_4_description">To show nearest POIs and find by QR code. Please click allow on the next slide</string>
 
+    <string name="onboarding_5_title">Work in offline</string>
+    <string name="onboarding_5_description">App is work in offline. However if you want to fully disable internet, you should download map in Google Maps</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="name">Title</string>

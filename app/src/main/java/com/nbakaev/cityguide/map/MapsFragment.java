@@ -240,7 +240,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
     private void showSystemStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            baseActivity.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+            baseActivity.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
             baseActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
         baseActivity.toolbar.setVisibility(View.VISIBLE);
@@ -510,8 +510,6 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         // if our screen is large enough, show not all bottomSheet(which can include and part of description)
         // but include only name, image and rating. So, to see description, user should scroll
         int bottomSheetMainElementsHeight = ratingBar.getHeight() + mViewPager.getHeight() + poiName.getHeight();
-        if (mBottomSheetBehavior.getPeekHeight() > bottomSheetMainElementsHeight) {
-            mBottomSheetBehavior.setPeekHeight(bottomSheetMainElementsHeight);
-        }
+        mBottomSheetBehavior.setPeekHeight(bottomSheetMainElementsHeight);
     }
 }

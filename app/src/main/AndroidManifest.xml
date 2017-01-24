@@ -4,11 +4,12 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.LOCATION_HARDWARE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.nbakaev.cityguide.App"
@@ -17,6 +18,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MaterialTheme">
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="acab5474aa226af15544a6ee86ae538865d276b0"
+            />
+
+        <meta-data
+            android:name="logentries.token.ApiKey"
+            android:value="e74e54a6-8976-420d-bc37-67de3ae0153a"
+            />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -59,7 +70,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
-                    android:host="s2.nbakaev.ru"
+                    android:host="cityguide.nbakaev.com"
                     android:scheme="https" />
             </intent-filter>
         </activity>

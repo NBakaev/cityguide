@@ -1,18 +1,17 @@
 package com.nbakaev.cityguide.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.util.Log;
 
 import com.google.common.io.Files;
+import com.nbakaev.cityguide.city.City;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.settings.SettingsService;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import com.nbakaev.cityguide.city.City;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.settings.SettingsService;
 
 /**
  * Created by ya on 11/18/2016.
@@ -24,34 +23,32 @@ public class CacheUtils {
 
     private SettingsService settingsService;
 
-    public CacheUtils(SettingsService settingsService) {
+    private Context context;
+    private File cacheDir;
+
+    public CacheUtils(SettingsService settingsService, Context context) {
         this.settingsService = settingsService;
+        this.context = context;
+        cacheDir = context.getCacheDir();
     }
 
-    private static String cachePath;
-
-    static {
-        File sdCardDirectory = Environment.getExternalStorageDirectory();
-        cachePath = sdCardDirectory + "/cityguide/";
+    private String getCacheImagePath() {
+        return cacheDir.getAbsolutePath();
     }
 
-    public static String getCacheImagePath() {
-        return cachePath;
-    }
-
-    public static String getImageCachePathForPoi(Poi poi) {
+    public String getImageCachePathForPoi(Poi poi) {
         return poi.getId() + "." + Files.getFileExtension(poi.getImageUrl());
     }
 
-    public static String getImageCachePathForCity(City city) {
+    public String getImageCachePathForCity(City city) {
         return city.getId() + "." + Files.getFileExtension(city.getImageUrl());
     }
 
-    public static File getImageCacheFile(Poi poi) {
+    public  File getImageCacheFile(Poi poi) {
         return new File(getCacheImagePath(), getImageCachePathForPoi(poi));
     }
 
-    public static File getImageCacheFile(City city) {
+    public File getImageCacheFile(City city) {
         return new File(getCacheImagePath(), getImageCachePathForCity(city));
     }
 

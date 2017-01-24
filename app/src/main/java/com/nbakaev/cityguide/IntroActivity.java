@@ -12,14 +12,13 @@ import android.support.v4.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
+import com.nbakaev.cityguide.settings.AppSettings;
+import com.nbakaev.cityguide.settings.SettingsService;
+import com.nbakaev.cityguide.util.AppUtils;
 
 import java.lang.reflect.Field;
 
 import javax.inject.Inject;
-
-import com.nbakaev.cityguide.settings.AppSettings;
-import com.nbakaev.cityguide.settings.SettingsService;
-import com.nbakaev.cityguide.util.AppUtils;
 
 /**
  * Show onboarding and request runtime permissions (also when user disable smth in settings) before run application
@@ -32,10 +31,9 @@ public class IntroActivity extends AppIntro {
     SettingsService settingsService;
 
     private final int PERMISSION_LOCATION_CODE = 2;
-    private final int PERMISSION_READ_WRITE_EXTERNAL = 3;
 
     private final int PERMISSION_ALL = 1; // used also in AppIntroBase.class
-    private static final String[] ALL_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private static final String[] ALL_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +47,7 @@ public class IntroActivity extends AppIntro {
         addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_2_title), getString(R.string.onboarding_2_description), R.drawable.onboarding_logo, bottomColor));
         addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_3_title), getString(R.string.onboarding_3_description), R.drawable.onboarding_logo, bottomColor));
         addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_4_title), getString(R.string.onboarding_4_description), R.drawable.onboarding_logo, bottomColor));
+        addSlide(AppIntroFragment.newInstance(getString(R.string.onboarding_5_title), getString(R.string.onboarding_5_description), R.drawable.onboarding_logo, bottomColor));
 
         showSkipButton(false);
         setProgressButtonEnabled(true);
@@ -113,7 +112,7 @@ public class IntroActivity extends AppIntro {
         }
 
         if (requestCode == PERMISSION_ALL) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pager.setCurrentItem(pager.getCurrentItem() + 1);
                 return;
             } else {
@@ -133,16 +132,6 @@ public class IntroActivity extends AppIntro {
             return;
         }
 
-        if (requestCode == PERMISSION_READ_WRITE_EXTERNAL) {
-            switch (grantResults[0]) {
-                case PackageManager.PERMISSION_DENIED:
-                    requestPermissionStorage();
-                    break;
-                case PackageManager.PERMISSION_GRANTED:
-                    pager.setCurrentItem(pager.getCurrentItem() + 1);
-                    break;
-            }
-        }
     }
 
     /**
@@ -159,10 +148,4 @@ public class IntroActivity extends AppIntro {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_LOCATION_CODE);
     }
 
-    /**
-     * request read/write storage permission
-     */
-    private void requestPermissionStorage() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_READ_WRITE_EXTERNAL);
-    }
 }

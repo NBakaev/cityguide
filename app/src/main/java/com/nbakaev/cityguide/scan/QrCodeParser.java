@@ -10,14 +10,14 @@ import java.util.regex.Pattern;
 public class QrCodeParser {
 
     public boolean isOurQrCode(String lScannedCode) {
-        String teml = "(https://s2.nbakaev.ru/#/poi/).+";
+        String teml = "(https://cityguide.nbakaev.com/#/poi/).+";
         Pattern pattern = Pattern.compile(teml);
         Matcher matcher = pattern.matcher(lScannedCode);
         return matcher.matches();
     }
 
     public String getPoiFromUrl(String Url) {
-        String templ = "(https://s2.nbakaev.ru/#/poi/)";
+        String templ = "(https://cityguide.nbakaev.com/#/poi/)";
         return Url.split(templ)[1];
     }
 

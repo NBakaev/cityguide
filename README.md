@@ -15,7 +15,7 @@ HSE project
  - WebView (such as chrome)
 
 ## Technical
- - https://s2.nbakaev.ru/#/main_page - admin UI
+ - https://cityguide.nbakaev.com/#/main_page - admin UI
  - server https://github.com/NBakaev/cityguide-server
  
 ### Architecture overview
@@ -49,6 +49,10 @@ FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiI
  3. `adb shell su 0 am broadcast -a android.intent.action.BOOT_COMPLETED`
  4. On android you will see prompt to debug app
  4. in idea click `attach debugger to android process`
+
+## Logs & reports
+ - [Crashlytics](https://fabric.io) - crash reports (in release mode)
+ - [logentries](https://logentries.com) - logs (in release mode)
 
 Notes:
  - POIs in DB stored as com.nbakaev.cityguide.poi.db.PoiDb but all methods operate with com.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class

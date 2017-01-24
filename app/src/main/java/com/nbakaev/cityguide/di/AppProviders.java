@@ -2,13 +2,14 @@ package com.nbakaev.cityguide.di;
 
 import android.content.Context;
 
-import dagger.Module;
-import dagger.Provides;
 import com.nbakaev.cityguide.background.AndroidBackgroundAware;
 import com.nbakaev.cityguide.poi.db.DBService;
 import com.nbakaev.cityguide.scan.QrCodeParser;
 import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.CacheUtils;
+
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * Created by Nikita on 10/11/2016.
@@ -31,8 +32,8 @@ public class AppProviders {
 
     @ApplicationScope
     @Provides
-    public CacheUtils cacheUtils(SettingsService settingsService) {
-        return new CacheUtils(settingsService);
+    public CacheUtils cacheUtils(SettingsService settingsService, Context context) {
+        return new CacheUtils(settingsService, context);
     }
 
     @ApplicationScope

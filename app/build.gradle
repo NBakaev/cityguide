@@ -14,8 +14,16 @@ android {
         multiDexEnabled true
     }
     buildTypes {
-        release {
+        debug {
+            debuggable true
             minifyEnabled false
+            buildConfigField 'boolean', 'ENABLE_CRASHLYTICS', 'false'
+        }
+
+        release {
+            debuggable false
+            minifyEnabled false
+            buildConfigField 'boolean', 'ENABLE_CRASHLYTICS', 'false'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -26,16 +34,29 @@ android {
     }
 }
 
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
 // Add plugin https://bitbucket.org/hvisser/android-apt
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'hu.supercluster:paperwork-plugin:1.2.7'
     }
 }
+apply plugin: 'io.fabric'
+
 
 apply plugin: 'hu.supercluster.paperwork'
 paperwork {
@@ -72,8 +93,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
     compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
 
-//    compile 'com.squareup.picasso:picasso:2.5.2'
-
     compile 'com.github.paolorotolo:appintro:4.1.0'
 
     compile 'com.google.guava:guava:20.0'
@@ -84,6 +103,14 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.4.0'
 
     compile 'com.google.dagger:dagger:2.7'
+
+    compile 'com.github.LogentriesCommunity:le_android:4.1.0'
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
+        transitive = true;
+    }
+    compile 'com.jakewharton.timber:timber:4.5.1'
+
     apt 'com.google.dagger:dagger-compiler:2.7'
 }
 

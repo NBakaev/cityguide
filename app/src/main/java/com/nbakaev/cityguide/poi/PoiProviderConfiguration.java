@@ -6,14 +6,15 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import com.nbakaev.cityguide.di.ApplicationScope;
+import com.nbakaev.cityguide.poi.server.ServerPoiProvider;
+import com.nbakaev.cityguide.settings.SettingsService;
+import com.nbakaev.cityguide.util.CacheUtils;
 
 import dagger.Module;
 import dagger.Provides;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import com.nbakaev.cityguide.di.ApplicationScope;
-import com.nbakaev.cityguide.poi.server.ServerPoiProvider;
-import com.nbakaev.cityguide.settings.SettingsService;
 
 import static com.nbakaev.cityguide.settings.SettingsService.getServerUrl;
 
@@ -24,24 +25,24 @@ import static com.nbakaev.cityguide.settings.SettingsService.getServerUrl;
 @Module
 public class PoiProviderConfiguration {
 
-    private final static String TAG = PoiProviderConfiguration.class.getSimpleName();
+    private static final String TAG = "PoiProviderConfiguratio";
 
     @ApplicationScope
     @Provides
-    public PoiProvider poiProvider(Context context, SettingsService settingsService) {
+    public PoiProvider poiProvider(Context context, SettingsService settingsService, CacheUtils cacheUtils) {
         boolean offlineMode = settingsService.isOffline();
 
         Log.d(TAG, Boolean.toString(offlineMode));
 
         // TODO: optional; THIS IS NOT DI !!!. move to separate module ???
         if (offlineMode) {
-            return new OfflinePoiProvider(context);
+            return new OfflinePoiProvider(context, cacheUtils);
         } else {
             return new ServerPoiProvider(context, defaultRetrofit());
         }
     }
 
-//    @ApplicationScope
+    //    @ApplicationScope
 //    @Provides
     public Retrofit defaultRetrofit() {
 

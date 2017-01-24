@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import timber.log.Timber;
 
 /**
  * Observable to get notification
@@ -27,7 +28,10 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
     private Context context;
     private List<ObservableEmitter<ApplicationBackgroundStatus>> observableEmitter = new CopyOnWriteArrayList<>();
     private Observable<ApplicationBackgroundStatus> statusObservable;
-    private ApplicationBackgroundStatus status = ApplicationBackgroundStatus.FOREGROUND;
+    private ApplicationBackgroundStatus status = ApplicationBackgroundStatus.UNKNOWN;
+
+    // app will be in foreground once
+    private boolean appEverBeenForeground = false;
 
     public AndroidBackgroundAware(Context context) {
         // process background / foreground app
@@ -43,6 +47,10 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
             @Override
             public void subscribe(ObservableEmitter<ApplicationBackgroundStatus> e) throws Exception {
                 observableEmitter.add(e);
+                if (ApplicationBackgroundStatus.UNKNOWN == status && !appEverBeenForeground){
+                    status = ApplicationBackgroundStatus.BACKGROUND;
+                }
+
                 if (status != null) {
                     e.onNext(status);
                 }
@@ -54,7 +62,8 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
     @Override
     public void onTrimMemory(int level) {
         if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-            Log.d(TAG, "APP in BACKGROUND");
+//            Log.d(TAG, "APP in BACKGROUND");
+            Timber.i("APP in BACKGROUND");
             status = ApplicationBackgroundStatus.BACKGROUND;
             sendNewStatus();
         }
@@ -92,7 +101,7 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
         @Override
         public void onActivityStarted(Activity activity) {
             if (status.equals(ApplicationBackgroundStatus.BACKGROUND)) {
-                Log.d(TAG, "APP in FOREGROUND");
+                Timber.i("APP in FOREGROUND");
                 status = ApplicationBackgroundStatus.FOREGROUND;
                 sendNewStatus();
             }
@@ -100,8 +109,10 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
 
         @Override
         public void onActivityResumed(Activity activity) {
+            appEverBeenForeground = true;
+
             if (status.equals(ApplicationBackgroundStatus.BACKGROUND)) {
-                Log.d(TAG, "APP in FOREGROUND");
+                Timber.i("APP in FOREGROUND");
                 status = ApplicationBackgroundStatus.FOREGROUND;
                 sendNewStatus();
             }

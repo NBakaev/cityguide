@@ -6,5 +6,6 @@ package com.nbakaev.cityguide.background;
 
 public enum ApplicationBackgroundStatus {
     BACKGROUND,
-    FOREGROUND
+    FOREGROUND,
+    UNKNOWN
 }

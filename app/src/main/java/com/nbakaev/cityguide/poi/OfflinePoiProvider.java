@@ -10,6 +10,7 @@ import com.nbakaev.cityguide.city.CityDB;
 import com.nbakaev.cityguide.city.DaoSession;
 import com.nbakaev.cityguide.poi.db.PoiDb;
 import com.nbakaev.cityguide.poi.db.PoiDbDao;
+import com.nbakaev.cityguide.util.CacheUtils;
 
 import org.greenrobot.greendao.query.CloseableListIterator;
 
@@ -26,8 +27,6 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 
-import static com.nbakaev.cityguide.util.CacheUtils.getImageCacheFile;
-
 /**
  * Created by Nikita on 10/14/2016.
  */
@@ -37,9 +36,11 @@ public class OfflinePoiProvider implements PoiProvider {
     private final Context context;
     public final static int OFFLINE_CHUNK_SIZE = 3_000;
     public final static int MAXIMUM_SQL_QUERY_LIMIT_RETURN = 3_000;
+    private CacheUtils cacheUtils;
 
-    public OfflinePoiProvider(Context context) {
+    public OfflinePoiProvider(Context context, CacheUtils cacheUtils) {
         this.context = context;
+        this.cacheUtils = cacheUtils;
         Toast.makeText(context, "Used offline mode. Disable to load all actual data", Toast.LENGTH_LONG).show();
     }
 
@@ -122,7 +123,7 @@ public class OfflinePoiProvider implements PoiProvider {
      */
     @Override
     public Observable<ResponseBody> getIcon(Poi poi) {
-        File image = getImageCacheFile(poi);
+        File image = cacheUtils.getImageCacheFile(poi);
         if (image.exists()) {
             try {
                 byte[] bytes = Files.toByteArray(image);
@@ -137,7 +138,7 @@ public class OfflinePoiProvider implements PoiProvider {
 
     @Override
     public Observable<ResponseBody> getIcon(City city) {
-        File image = getImageCacheFile(city);
+        File image = cacheUtils.getImageCacheFile(city);
         if (image.exists()) {
             try {
                 byte[] bytes = Files.toByteArray(image);
