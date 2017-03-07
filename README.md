@@ -2,7 +2,7 @@
 
  ![](https://github.com/NBakaev/binary/raw/master/cityguide/all.png)
 
-HSE project
+Related resources
 
  - [Google Drive - all files and APKs](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
  - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
