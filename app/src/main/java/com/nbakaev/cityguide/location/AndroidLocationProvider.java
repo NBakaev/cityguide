@@ -155,7 +155,9 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.w(TAG, connectionResult.getErrorMessage());
+        if (connectionResult.getErrorMessage() != null){
+            Log.w(TAG, connectionResult.getErrorMessage());
+        }
 //        if (connectionResult.hasResolution()) {
 //            try {
 //                // Start an Activity that tries to resolve the error
