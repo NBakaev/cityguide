@@ -36,7 +36,7 @@ Implementation injects with Dagger2 in sturtup (depend get property offline of A
 
 ##### start map with some POI
 ```java
-FragmentsOrganizer.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
+FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
 ```
 
 ##### pull db from device via adb
