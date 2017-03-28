@@ -6,6 +6,8 @@ Related resources
 
  - [Google Drive - all files and APKs](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
  - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
+ - [edit POIs UI](https://cityguide.nbakaev.com)
+ - [server repo](https://github.com/NBakaev/cityguide-server)
 
 ## Android requirements
  - Android 4.4+. Testing on Android 4.4, 7.0
@@ -13,18 +15,14 @@ Related resources
 ### Standard telephone with
  - Google Play
  - WebView (such as chrome)
-
-## Technical
- - https://cityguide.nbakaev.com/#/main_page - admin UI
- - server https://github.com/NBakaev/cityguide-server
  
-### Architecture overview
+## Architecture overview
 
 #### POIs
 
 2 implementations:
 
- - OfflinePoiProvider.java - saved to SQLite with [greendao ORM](http://greenrobot.org/greendao/documentation/). Images saved to /sdcard/cityguide
+ - OfflinePoiProvider.java - saved to SQLite with [greendao ORM](http://greenrobot.org/greendao/documentation/). Images saved to app internal storage (which does not require permission)
  - ServerPoiProvider.java - REST requests with retrofit2
 
 Implementation injects with Dagger2 in sturtup (depend get property offline of AppSettings.java object from SQLite with SettingsService.java helper)
