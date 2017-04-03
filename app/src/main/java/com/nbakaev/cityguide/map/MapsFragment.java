@@ -1,23 +1,14 @@
 package com.nbakaev.cityguide.map;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,12 +25,11 @@ import com.nbakaev.cityguide.R;
 import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.poi.Poi;
 import com.nbakaev.cityguide.poi.PoiClusterRenderer;
+import com.nbakaev.cityguide.poi.PoiDetails;
 import com.nbakaev.cityguide.poi.PoiProvider;
 import com.nbakaev.cityguide.poi.db.DBService;
 import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.CacheUtils;
-import com.nbakaev.cityguide.util.StringUtils;
-import com.nbakaev.cityguide.util.UiUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,6 +46,8 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH;
+import static com.nbakaev.cityguide.util.FragmentsWalker.MOVE_TO_POI_ID;
+import static com.nbakaev.cityguide.util.MapUtils.setupNameHeader;
 
 public class MapsFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
 
@@ -90,17 +82,13 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     private Set<String> renderedPois = new HashSet<>();
 
     private ClusterManager<Poi> clusterManager;
-    private PoiClusterRenderer poiClusterRenderer;
 
-    private BottomSheetBehavior mBottomSheetBehavior;
-    private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
-
-    private View bottomSheet;
     private boolean googleMapsInit = false;
 
     private BaseActivity baseActivity;
 
-    private View view;
+    private View googleMapsFragment;
+    private PoiDetails poiDetails;
 
     @Override
     public void onAttach(Context context) {
@@ -115,7 +103,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 //         if activity started with "go to poi"
         Bundle extras = this.getArguments();
         if (extras != null) {
-            String value = extras.getString("MOVE_TO_POI_ID");
+            String value = extras.getString(MOVE_TO_POI_ID);
             if (value != null) {
                 moveToPoiId = value;
 
@@ -134,7 +122,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         App.getAppComponent().inject(this);
 
         try {
-            view = inflater.inflate(R.layout.fragment_maps, container, false);
+            googleMapsFragment = inflater.inflate(R.layout.fragment_maps, container, false);
         } catch (InflateException e) {
             // here we have InflateException because we have nested fragment which can be already inflated if we press back button
             // so, we can create container in xml and dynamically replace that container with created SupportMapFragment
@@ -145,8 +133,10 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        poiDetails = new PoiDetails(baseActivity, googleMapsFragment, poiProvider, settingsService);
+
         prevLocation = null;
-        return view;
+        return googleMapsFragment;
     }
 
     /**
@@ -160,7 +150,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     public void onMapReady(GoogleMap googleMap) {
         this.mMap = googleMap;
         clusterManager = new ClusterManager<>(baseActivity, googleMap);
-        poiClusterRenderer = new PoiClusterRenderer(baseActivity, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
+        PoiClusterRenderer poiClusterRenderer = new PoiClusterRenderer(baseActivity, mMap, clusterManager, poiProvider, settingsService, cacheUtils);
         clusterManager.setRenderer(poiClusterRenderer);
 
         subscribeToMapsChange();
@@ -174,8 +164,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (mBottomSheetBehavior != null) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                if (poiDetails != null) {
+                    poiDetails.hide();
                 }
             }
         });
@@ -191,7 +181,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
                 }
 
                 Poi poi = (Poi) marker.getTag();
-                showPoiDialog(poi);
+                poiDetails.showPoiDialog(poi);
                 return false;
             }
         });
@@ -200,83 +190,25 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
             moveToIntentPOI();
         }
 
-        if (bottomSheet == null) {
-            setupBottomSheet();
-        }
         googleMapsInit = true;
     }
 
-    private void setupBottomSheet() {
-        bottomSheet = view.findViewById(R.id.bottom_sheet1);
-
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setHideable(true);
-
-        bottomSheet.setVisibility(View.INVISIBLE);
-        mBottomSheetBehavior.setPeekHeight(DEFAULT_BOTTOM_SHEET_HEIGHT);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                baseActivity.toolbar.setAlpha(1 - slideOffset);
-
-                if (slideOffset > 0.9) {
-                    hideSystemStatusBar();
-                }
-
-                if (slideOffset > 0.7) {
-                    baseActivity.toolbar.setVisibility(View.GONE);
-                }
-
-                if (slideOffset < 0.5) {
-                    showSystemStatusBar();
-                }
-            }
-        });
-    }
-
-    private void showSystemStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            baseActivity.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-            baseActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        baseActivity.toolbar.setVisibility(View.VISIBLE);
-    }
-
-
     @Override
     public void onPause() {
-        showSystemStatusBar();
-        baseActivity.toolbar.setAlpha(1);
         super.onPause();
     }
 
-    private void hideSystemStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            baseActivity.getWindow().setStatusBarColor(Color.TRANSPARENT);
-            baseActivity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-    }
-
-
     @Override
     public void onMapLoaded() {
+        poiDetails.init();
         showBottomViewOnLoad();
     }
 
     private void showBottomViewOnLoad() {
-        int activityHeight = view.findViewById(R.id.map).getHeight();
-        if (activityHeight > 10) {
-            mBottomSheetBehavior.setPeekHeight(activityHeight / 3 + activityHeight / 10);
-        }
-
         // we show dialog here, not in onMapReady(), because map layout is refreshed, and
         // our dialog is hide
         if (moveToPoiId != null && moveToPoiObject != null) {
-            showPoiDialog(moveToPoiObject);
+            poiDetails.showPoiDialog(moveToPoiObject);
         }
     }
 
@@ -345,7 +277,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         // if distance between downloaded POI and current location > 20 metres - download new POIs
         if (locationForPoi == null || cameraCenter.distanceTo(locationForPoi) >= DISTANCE_POI_DOWNLOAD_MOVE_CAMERA_REFRESH) {
             locationForPoi = cameraCenter;
-            baseActivity.toolbar.setTitle(baseActivity.setupNameHeader(locationForPoi.getLatitude(), locationForPoi.getLongitude()));
+            toolbar.setTitle(setupNameHeader(baseActivity.getApplicationContext(), locationForPoi.getLatitude(), locationForPoi.getLongitude()));
         } else {
             return;
         }
@@ -466,50 +398,4 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
-    private void showPoiDialog(Poi poi) {
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        bottomSheet.setVisibility(View.VISIBLE);
-
-        final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
-        final WebView webview = (WebView) bottomSheet.findViewById(R.id.poi_details_descriptionHtml);
-        final RatingBar ratingBar = (RatingBar) bottomSheet.findViewById(R.id.poi_details_rating);
-
-//        ratingBar.setRating(poi.getRating());
-        ratingBar.setRating(3.5f);
-
-        // show webview if have descriptionHtml in poi or else description as just text
-        if (!StringUtils.isEmpty(poi.getDescription())) {
-
-            webview.setVisibility(View.VISIBLE);
-            webview.getSettings().setDefaultTextEncodingName("utf-8");
-            webview.setFocusable(false);
-            webview.clearFocus();
-
-            String descriptionHtml = poi.getDescription();
-            // delete default padding in webview
-            descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:4px;margin-top:4px;}</style>");
-            webview.loadData(descriptionHtml, "text/html; charset=utf-8", "UTF-8");
-        }
-
-        CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(baseActivity, poiProvider, poi, settingsService);
-        ViewPager mViewPager = (ViewPager) view.findViewById(R.id.pager);
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tabDots);
-        tabLayout.setupWithViewPager(mViewPager, true);
-
-        if (mCustomPagerAdapter.getCount() == 0) {
-            mViewPager.getLayoutParams().height = 0;
-            mViewPager.setVisibility(View.INVISIBLE);
-        } else {
-            mViewPager.setVisibility(View.VISIBLE);
-            mViewPager.getLayoutParams().height = UiUtils.dpToPixels(baseActivity.getApplicationContext(), 160);
-        }
-        mViewPager.setAdapter(mCustomPagerAdapter);
-
-        poiName.setText(poi.getName());
-
-        // if our screen is large enough, show not all bottomSheet(which can include and part of description)
-        // but include only name, image and rating. So, to see description, user should scroll
-        int bottomSheetMainElementsHeight = ratingBar.getHeight() + mViewPager.getHeight() + poiName.getHeight();
-        mBottomSheetBehavior.setPeekHeight(bottomSheetMainElementsHeight);
-    }
 }

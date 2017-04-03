@@ -1,9 +1,9 @@
 package com.nbakaev.cityguide.nearby;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,6 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nbakaev.cityguide.BaseActivity;
+import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.location.LocationProvider;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.util.FragmentsWalker;
+import com.nbakaev.cityguide.util.StringUtils;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -21,59 +31,88 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import com.nbakaev.cityguide.R;
-import com.nbakaev.cityguide.location.LocationProvider;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.PoiProvider;
-import com.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
-import com.nbakaev.cityguide.util.FragmentsWalker;
-import com.nbakaev.cityguide.util.StringUtils;
 
+import static com.nbakaev.cityguide.poi.PoiProvider.DISTANCE_POI_DOWNLOAD;
 import static com.nbakaev.cityguide.util.MapUtils.printDistance;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
-    private List<Poi> mData;
+    private List<Poi> mData = new ArrayList<>();
     private LayoutInflater inflater;
     private final LocationProvider locationProvider;
     private Location lastLocation;
-    private Context context;
     private PoiProvider poiProvider;
     private final BitmapFactory.Options options = new BitmapFactory.Options();
 
-    private static final String TAG = RecyclerAdapter.class.getSimpleName();
+    private static final String TAG = "RecyclerAdapter";
     private FragmentManager fragmentManager;
 
-    public RecyclerAdapter(Context context, List<Poi> data, LocationProvider locationProvider, PoiProvider poiProvider, FragmentManager fragmentManager) {
-        inflater = LayoutInflater.from(context);
-        this.mData = data;
+    private WeakReference<BaseActivity> baseActivity;
+
+    public RecyclerAdapter(BaseActivity baseActivityRef, LocationProvider locationProvider, PoiProvider poiProvider, FragmentManager fragmentManager) {
+        inflater = LayoutInflater.from(baseActivityRef.getApplicationContext());
+        baseActivity = new WeakReference<>(baseActivityRef);
         this.locationProvider = locationProvider;
-        this.context = context;
         this.poiProvider = poiProvider;
         this.fragmentManager = fragmentManager;
 
+        subscribeToLocationChanges(locationProvider);
+    }
+
+    private void subscribeToLocationChanges(LocationProvider locationProvider) {
         Observer<Location> locationObserver = new Observer<Location>() {
             @Override
             public void onSubscribe(Disposable d) {
-
+                Log.d(TAG, d.toString());
             }
 
             @Override
             public void onNext(Location value) {
-                lastLocation = value;
+                handleNewLocation(value);
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Log.d(TAG, e.toString());
             }
 
             @Override
             public void onComplete() {
-
             }
         };
-
         locationProvider.getCurrentUserLocation().subscribe(locationObserver);
+    }
+
+    private void handleNewLocation(@NonNull Location currentLocation) {
+        final double x = currentLocation.getLatitude();
+        final double y = currentLocation.getLongitude();
+
+        poiProvider.getData(x, y, DISTANCE_POI_DOWNLOAD).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Poi>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Poi> value) {
+                        mData = value;
+
+                        // TODO: create DiffUtils and handle deletes/new object instead of this
+                        notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+        lastLocation = currentLocation;
     }
 
     @Override
@@ -127,12 +166,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             itemView.setOnClickListener(this);
         }
 
+        private String stripHtmlFromHtmlString(String htmlWithTags) {
+            return android.text.Html.fromHtml(htmlWithTags).toString().replace("\n", "");
+        }
+
         public void setData(Poi current, int position) {
             this.title.setText(current.getName());
             this.position = position;
             this.current = current;
 
-            String visibleDescription = current.getDescription() == null ? "" : current.getDescription().substring(0, Math.min(MAX_DESCRIPTION_LENGTH, current.getDescription().length())).concat("...");
+            String descriptionWithDeletedHtmlTags = stripHtmlFromHtmlString(current.getDescription());
+            String visibleDescription = descriptionWithDeletedHtmlTags == null ? "" : descriptionWithDeletedHtmlTags.substring(0, Math.min(MAX_DESCRIPTION_LENGTH, descriptionWithDeletedHtmlTags.length())).concat("...");
             this.description.setText(visibleDescription);
 
             if (!StringUtils.isEmpty(current.getImageUrl())) {
@@ -189,7 +233,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             // hack to change active tab
             // 0 is index of MapsFragment
-            NavigationDrawerAdapter.selectedPos = 0;
+            if (baseActivity.get() != null) {
+                baseActivity.get().getNavigationDrawerAdapter().setActiveItem(0);
+            }
             FragmentsWalker.startMapFragmentWithPoiOpen(fragmentManager, poi.getId());
         }
     }

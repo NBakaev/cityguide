@@ -1,4 +1,4 @@
-package com.nbakaev.cityguide;
+package com.nbakaev.cityguide.settings;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.nbakaev.cityguide.App;
+import com.nbakaev.cityguide.BaseActivity;
+import com.nbakaev.cityguide.BaseFragment;
+import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.poi.db.DBService;
+import com.nbakaev.cityguide.push.BackgroundNotificationService;
+
 import javax.inject.Inject;
 
 import hu.supercluster.paperwork.Paperwork;
-import com.nbakaev.cityguide.poi.db.DBService;
-import com.nbakaev.cityguide.push.BackgroundNotificationService;
-import com.nbakaev.cityguide.settings.AppSettings;
-import com.nbakaev.cityguide.settings.SettingsService;
 
 /**
  * Created by ya on 11/26/2016.

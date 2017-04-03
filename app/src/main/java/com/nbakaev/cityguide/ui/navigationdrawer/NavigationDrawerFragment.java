@@ -22,7 +22,6 @@ public class NavigationDrawerFragment extends Fragment {
     private DrawerLayout mDrawerLayout;
     private BaseActivity baseActivity;
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -40,6 +39,7 @@ public class NavigationDrawerFragment extends Fragment {
         NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), NavigationDrawerItemsProvider.getData(), baseActivity.getSupportFragmentManager(), mDrawerLayout);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        baseActivity.setNavigationDrawerAdapter(adapter);
     }
 
     public void setUpDrawer(int fragmentId, DrawerLayout drawerLayout, Toolbar toolbar) {
@@ -64,8 +64,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerLayout.post(new Runnable() {
             @Override
             public void run() {

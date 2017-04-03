@@ -13,6 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.settings.SettingsService;
+import com.nbakaev.cityguide.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,11 +30,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import com.nbakaev.cityguide.R;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.PoiProvider;
-import com.nbakaev.cityguide.settings.SettingsService;
-import com.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by ya on 12/10/2016.
@@ -45,8 +46,10 @@ public class CustomPagerAdapter extends PagerAdapter {
 
     private List<String> links = new ArrayList<>();
 
-    private String youtubePattern = "https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube\\.com\\S*[^\\w\\-\\s])([\\w\\-]{11})(?=[^\\w\\-]|$)(?![?=&+%\\w]*(?:['\"][^<>]*>|<\\/a>))[?=&+%\\w]*";
-    private Pattern youtubeCompiledPattern = Pattern.compile(youtubePattern, Pattern.CASE_INSENSITIVE);
+    private final String youtubePattern = "https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube\\.com\\S*[^\\w\\-\\s])([\\w\\-]{11})(?=[^\\w\\-]|$)(?![?=&+%\\w]*(?:['\"][^<>]*>|<\\/a>))[?=&+%\\w]*";
+    private final Pattern youtubeCompiledPattern = Pattern.compile(youtubePattern, Pattern.CASE_INSENSITIVE);
+
+    private LinearLayout header;
 
     public CustomPagerAdapter(Context context, PoiProvider poiProvider, Poi poi, SettingsService settingsService) {
         this.poiProvider = poiProvider;
@@ -93,8 +96,67 @@ public class CustomPagerAdapter extends PagerAdapter {
         final ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
         // show first main POI icon
         if (position == 0 && !StringUtils.isEmpty(poi.getImageUrl())) {
-            Observable<ResponseBody> icon = poiProvider.getIcon(poi);
-            Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
+            loadImageForPoi(imageView);
+        }
+
+        final String currentImageLink = links.get(position);
+
+        // show youtube video and youtube image preview
+        if (isYoutubeLink(currentImageLink)) {
+            processYoutubeThumbnail(imageView, currentImageLink);
+        }
+
+        container.addView(itemView);
+        return itemView;
+    }
+
+    private void loadImageForPoi(final ImageView imageView) {
+        Observable<ResponseBody> icon = poiProvider.getIcon(poi);
+        Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, d.toString());
+            }
+
+            @Override
+            public void onNext(ResponseBody value) {
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
+                    imageView.setImageBitmap(bitmap);
+                    imageView.setAlpha(0.9f);
+                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, e.toString());
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        };
+        icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
+    }
+
+    private void processYoutubeThumbnail(final ImageView imageView, final String currentImageLink) {
+        imageView.setImageResource(R.drawable.youtube);
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentImageLink)));
+            }
+        });
+
+        String youtubeVideoId = getYoutubeVideoId(currentImageLink);
+        if (youtubeVideoId != null) {
+            String url = "https://img.youtube.com/vi/" + youtubeVideoId + "/0.jpg";
+            Observer<ResponseBody> youtubePreviewResult = new Observer<ResponseBody>() {
                 @Override
                 public void onSubscribe(Disposable d) {
                     Log.d(TAG, d.toString());
@@ -120,63 +182,8 @@ public class CustomPagerAdapter extends PagerAdapter {
                 public void onComplete() {
                 }
             };
-            icon.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(iconResult);
+            poiProvider.downloadData(url).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(youtubePreviewResult);
         }
-
-        final String currentImageLink = links.get(position);
-
-        // show youtube video and youtube image preview
-        if (isYoutubeLink(currentImageLink)) {
-            imageView.setImageResource(R.drawable.youtube);
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-            String youtubeVideoId = getYoutubeVideoId(currentImageLink);
-            if (youtubeVideoId != null) {
-                String url = "https://img.youtube.com/vi/" + youtubeVideoId + "/0.jpg";
-
-                Observable<ResponseBody> youtubePreview = poiProvider.downloadData(url);
-                Observer<ResponseBody> youtubePreviewResult = new Observer<ResponseBody>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, d.toString());
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody value) {
-                        try {
-                            Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
-                            imageView.setImageBitmap(bitmap);
-                            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, e.toString());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                };
-                youtubePreview.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(youtubePreviewResult);
-            }
-
-        }
-
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isYoutubeLink(currentImageLink)) {
-                    context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentImageLink)));
-                }
-            }
-        });
-
-        container.addView(itemView);
-        return itemView;
     }
 
     private boolean isYoutubeLink(String s) {

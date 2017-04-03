@@ -28,8 +28,6 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     private LayoutInflater inflater;
     private Context context;
 
-    // position of selected item; TODO: refactor - delete / make private
-    public static int selectedPos = 0;
     private static final String SELECTED_ITEM_COLOR = "#EEEEEE";
     private FragmentManager fragmentManager;
     private DrawerLayout drawerLayout;
@@ -96,7 +94,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         });
     }
 
-    private void setActiveItem(int index) {
+    public void setActiveItem(int index) {
         MyViewHolder holder = allItems.get(index);
         for (MyViewHolder allItem : allItems) {
             allItem.itemView.setBackgroundColor(Color.parseColor("white"));

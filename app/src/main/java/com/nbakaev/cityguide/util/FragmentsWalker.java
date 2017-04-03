@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.MainActivity;
 import com.nbakaev.cityguide.R;
-import com.nbakaev.cityguide.SettingsFragment;
+import com.nbakaev.cityguide.settings.SettingsFragment;
 import com.nbakaev.cityguide.city.CitiesFragment;
 import com.nbakaev.cityguide.map.MapsFragment;
 import com.nbakaev.cityguide.nearby.NearbyFragment;
@@ -19,6 +19,9 @@ import com.nbakaev.cityguide.scan.QrScanFragment;
  */
 
 public class FragmentsWalker {
+    public static final String MOVE_TO_POI_ID = "MOVE_TO_POI_ID";
+    public static final String FRAGMENT_OPEN = "FRAGMENT_OPEN";
+    public static final String NEARBY = "NEARBY";
 
     // fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
 
@@ -74,7 +77,7 @@ public class FragmentsWalker {
         MapsFragment mapsFragment = new MapsFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putString("MOVE_TO_POI_ID", id);
+        bundle.putString(MOVE_TO_POI_ID, id);
         mapsFragment.setArguments(bundle);
 
         fragmentTransaction.replace(R.id.main_fragment_content, mapsFragment);
@@ -83,7 +86,7 @@ public class FragmentsWalker {
 
     public static void startMapFragmentFromScratchWithPoiOpen(BaseActivity baseActivity, android.support.v4.app.Fragment fragment, String id){
         Intent intent = new Intent(baseActivity.getApplicationContext(), MainActivity.class);
-        intent.putExtra("MOVE_TO_POI_ID", id);
+        intent.putExtra(MOVE_TO_POI_ID, id);
         baseActivity.finish();
         fragment.startActivity(intent);
     }

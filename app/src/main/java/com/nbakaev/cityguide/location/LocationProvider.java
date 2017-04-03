@@ -9,4 +9,6 @@ import io.reactivex.Observable;
  */
 public interface LocationProvider {
     Observable<Location> getCurrentUserLocation();
+
+    Location getLastKnownLocation();
 }

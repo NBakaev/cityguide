@@ -29,6 +29,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
+import static com.nbakaev.cityguide.util.FragmentsWalker.FRAGMENT_OPEN;
+import static com.nbakaev.cityguide.util.FragmentsWalker.MOVE_TO_POI_ID;
+import static com.nbakaev.cityguide.util.FragmentsWalker.NEARBY;
+
 /**
  * Created by ya on 11/22/2016.
  */
@@ -99,7 +103,7 @@ public class NotificationService {
         mBuilder.setStyle(inboxStyle);
         // Issue the notification here.
         Intent notificationIntent = new Intent(context, MainActivity.class);
-        notificationIntent.putExtra("FRAGMENT_OPEN", "NEARBY");
+        notificationIntent.putExtra(FRAGMENT_OPEN, NEARBY);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         mBuilder.setContentIntent(launchIntent)
@@ -181,7 +185,7 @@ public class NotificationService {
         }
         Intent notificationIntent = new Intent(context, MainActivity.class);
         notificationIntent.setAction(Long.toString(System.currentTimeMillis()));
-        notificationIntent.putExtra("MOVE_TO_POI_ID", poi.getId());
+        notificationIntent.putExtra(MOVE_TO_POI_ID, poi.getId());
 //        PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         PendingIntent launchIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(launchIntent)

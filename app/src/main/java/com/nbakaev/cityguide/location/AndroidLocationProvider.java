@@ -1,5 +1,6 @@
 package com.nbakaev.cityguide.location;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -71,6 +72,13 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     private volatile ApplicationBackgroundStatus backgroundStatus = null;
 
+    private Location lastKnownLocation;
+
+    @Override
+    public Location getLastKnownLocation() {
+        return lastKnownLocation;
+    }
+
     public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware) {
         this(context, androidBackgroundAware, ACTIVE_APP_LOCATION_INTERVAL, ACTIVE_APP_LOCATION_INTERVAL_FASTEST, BACKGROUND_APP_LOCATION_INTERVAL, BACKGROUND_APP_LOCATION_INTERVAL_FASTEST,
                 LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -87,6 +95,12 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
      */
     public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware, int foregroundInterval, int foregroundFastestInterval,
                                    int backgroundInterval, int backgroundFastestInterval, int locationPriority) {
+
+        // check that user is pass applciation context, not eg activity
+        if (!(context instanceof Application)){
+            throw new IllegalArgumentException("Context must be applciation context to avoid memory leaks");
+        }
+
         this.context = context;
         this.foregroundInterval = foregroundInterval;
         this.foregroundFastestInterval = foregroundFastestInterval;
@@ -202,6 +216,8 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
         Log.d(TAG, location.toString());
 
+        lastKnownLocation = location;
+
         for (ObservableEmitter<Location> emitter : observableEmitter) {
             try {
                 emitter.onNext(location);
@@ -226,7 +242,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "Need location permission");
             return;
         }

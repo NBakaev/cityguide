@@ -200,8 +200,8 @@ public class CitiesFragment extends BaseFragment {
     }
 
 //    @Override
-//    protected void setUpToolbar() {
-//        super.setUpToolbar();
+//    protected void setupToolbar() {
+//        super.setupToolbar();
 //        setSupportActionBar(toolbar);
 //        getSupportActionBar().setTitle(R.string.title_activity_cities);
 //    }
