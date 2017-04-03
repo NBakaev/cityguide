@@ -34,6 +34,12 @@ public class NearbyFragment extends BaseFragment {
     private View view;
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        toolbar.setTitle(R.string.drawer_near_me);
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         baseActivity = (BaseActivity) context;

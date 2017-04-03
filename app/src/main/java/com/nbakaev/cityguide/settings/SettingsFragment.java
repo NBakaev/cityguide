@@ -42,6 +42,12 @@ public class SettingsFragment extends BaseFragment {
         baseActivity = (BaseActivity) context;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        toolbar.setTitle(R.string.settings);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
