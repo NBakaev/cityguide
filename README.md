@@ -48,9 +48,12 @@ FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
  4. On android you will see prompt to debug app
  4. in idea click `attach debugger to android process`
 
-## Logs & reports
- - [Crashlytics](https://fabric.io) - crash reports (in release mode)
- - [logentries](https://logentries.com) - logs (in release mode)
+## debug / release builds
+
+| feature                                           | debug                                           | release | notes                                                                                                                                                                                             |
+| ------------------------------------------------- | ----------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------- |
+| logs                 |   to standard logs output (logcat)                                |    send to [logentries](https://logentries.com)     |
+| crashes                 |   to standard logs output (logcat)                                |    send to [Crashlytics](https://fabric.io)    |
 
 Notes:
  - POIs in DB stored as com.nbakaev.cityguide.poi.db.PoiDb but all methods operate with com.nbakaev.cityguide.poi.Poi. You can transform between tho methods with static methods of PoiDb.class
