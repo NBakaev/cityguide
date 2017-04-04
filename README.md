@@ -4,9 +4,8 @@
 
 Related resources
 
- - [Google Drive - all files and APKs](https://drive.google.com/open?id=0BzCXhxh5Y3--WlVnV2JOZDdpVzg)
  - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
- - [edit POIs UI](https://cityguide.nbakaev.com)
+ - [Admin web UI](https://cityguide.nbakaev.com)
  - [server repo](https://github.com/NBakaev/cityguide-server)
 
 ## Android requirements
