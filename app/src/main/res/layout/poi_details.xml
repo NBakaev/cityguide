@@ -34,49 +34,44 @@
                 app:tabBackground="@drawable/tab_selector"
                 app:tabGravity="center"
                 app:tabIndicatorHeight="0dp"/>
-
-            <LinearLayout
-                android:id="@+id/poiDetailsHeader"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal|start"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/poi_details_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="16dp"
-                    android:text=""
-
-                    android:textAllCaps="true"
-                    android:textColor="#ffffff"
-                    android:textSize="24sp"/>
-
-                <RatingBar
-                    android:id="@+id/poi_details_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="45dp"
-                    android:layout_marginStart="14dp"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:paddingBottom="0px"
-                    android:scaleX="0.5"
-                    android:scaleY="0.5"
-                    android:stepSize="0.4"
-                    android:theme="@style/RatingBar"
-                    android:transformPivotX="0dp"
-                    android:transformPivotY="0dp"/>
-
-                </LinearLayout>
         </RelativeLayout>
 
         <LinearLayout
+            android:layout_marginTop="-72dp"
+            android:alpha="0.9"
+            android:id="@+id/poiDetailsHeader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/poi_details_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="5dp"
+                android:paddingStart="16dp"
+                android:text=""
+
+                android:textAllCaps="true"
+                android:textColor="#ffffff"
+                android:textSize="20sp"/>
+
+            <RatingBar
+                android:id="@+id/poi_details_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="14dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:paddingBottom="0px"
+                android:layout_marginBottom="0px"
+                android:scaleX="0.5"
+                android:scaleY="0.5"
+                android:stepSize="0.4"
+                android:theme="@style/RatingBar"
+                android:transformPivotX="0dp"
+                android:transformPivotY="-5dp"/>
         </LinearLayout>
 
         <WebView
