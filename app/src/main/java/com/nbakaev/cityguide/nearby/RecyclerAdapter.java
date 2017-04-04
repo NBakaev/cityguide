@@ -167,6 +167,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         }
 
         private String stripHtmlFromHtmlString(String htmlWithTags) {
+            if (htmlWithTags == null){
+                return null;
+            }
             return android.text.Html.fromHtml(htmlWithTags).toString().replace("\n", "");
         }
 
