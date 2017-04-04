@@ -19,6 +19,8 @@ import com.nbakaev.cityguide.poi.PoiProvider;
 
 import javax.inject.Inject;
 
+import static com.nbakaev.cityguide.util.FragmentsWalker.OPEN_FRAGMENT;
+
 public class NearbyFragment extends BaseFragment {
 
     private static final String TAG = "NearbyFragment";
@@ -32,6 +34,12 @@ public class NearbyFragment extends BaseFragment {
     private RecyclerView recyclerView;
     private BaseActivity baseActivity;
     private View view;
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(OPEN_FRAGMENT, TAG);
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

@@ -56,6 +56,12 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         setupDrawer();
+
+        if (savedInstanceState != null){
+            // prevent creating another new main fragment(map)
+            return;
+        }
+
         setupMainFragment();
         processNewIntent(getIntent());
 

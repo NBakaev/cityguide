@@ -14,9 +14,12 @@ import android.widget.TextView;
 
 import com.nbakaev.cityguide.R;
 import com.nbakaev.cityguide.map.CustomPagerAdapter;
+import com.nbakaev.cityguide.map.MapsFragment;
 import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.StringUtils;
 import com.nbakaev.cityguide.util.UiUtils;
+
+import java.lang.ref.WeakReference;
 
 import static com.nbakaev.cityguide.util.UiUtils.hideSystemStatusBar;
 import static com.nbakaev.cityguide.util.UiUtils.showSystemStatusBar;
@@ -37,14 +40,16 @@ public class PoiDetails {
     private final int DEFAULT_BOTTOM_SHEET_HEIGHT = 400;
 
     private final View bottomSheet;
+    private final WeakReference<MapsFragment> mapsFragmentWeakReference;
 
-    public PoiDetails(Activity activity, View googleMapsFragment, PoiProvider poiProvider, SettingsService settingsService) {
+    public PoiDetails(Activity activity, View googleMapsFragment, PoiProvider poiProvider, SettingsService settingsService, MapsFragment mapsFragment) {
         this.activity = activity;
         this.settingsService = settingsService;
         this.poiProvider = poiProvider;
         this.googleMapsFragment = googleMapsFragment;
         this.toolbar = (Toolbar) googleMapsFragment.findViewById(R.id.toolbar);
         this.bottomSheet = googleMapsFragment.findViewById(R.id.bottom_sheet1);
+        mapsFragmentWeakReference = new WeakReference<>(mapsFragment);
     }
 
     public void showPoiDialog(Poi poi) {
@@ -134,6 +139,13 @@ public class PoiDetails {
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                // pass map fragment that poi details dialog is hidden
+                if (newState == BottomSheetBehavior.STATE_HIDDEN){
+                    if (mapsFragmentWeakReference.get() != null){
+                        mapsFragmentWeakReference.get().onPoiDetailsHide();
+                    }
+                }
             }
 
             @Override

@@ -30,6 +30,7 @@ import com.nbakaev.cityguide.poi.PoiProvider;
 import com.nbakaev.cityguide.poi.db.DBService;
 import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.util.CacheUtils;
+import com.nbakaev.cityguide.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -78,6 +79,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     // this variable contains id of POI to which go
     private String moveToPoiId = null;
     private Poi moveToPoiObject = null;
+    private Poi openPoi = null;
 
     private Set<String> renderedPois = new HashSet<>();
 
@@ -97,22 +99,43 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (openPoi != null) {
+            outState.putString(MOVE_TO_POI_ID, openPoi.getId());
+        }
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//         if activity started with "go to poi"
-        Bundle extras = this.getArguments();
-        if (extras != null) {
-            String value = extras.getString(MOVE_TO_POI_ID);
-            if (value != null) {
-                moveToPoiId = value;
-
-                // if we already have initialized gmaps we will not have callback that will move us
+        if (savedInstanceState != null) {
+            String o = savedInstanceState.getString(MOVE_TO_POI_ID);
+            if (!StringUtils.isEmpty(o)) {
+                moveToPoiId = o;
                 if (googleMapsInit) {
                     moveToIntentPOI();
                 }
             }
         }
+
+        if (moveToPoiId == null) {
+//         if activity started with "go to poi"
+            Bundle extras = this.getArguments();
+            if (extras != null) {
+                String value = extras.getString(MOVE_TO_POI_ID);
+                if (value != null) {
+                    moveToPoiId = value;
+
+                    // if we already have initialized gmaps we will not have callback that will move us
+                    if (googleMapsInit) {
+                        moveToIntentPOI();
+                    }
+                }
+            }
+        }
+
     }
 
     @Nullable
@@ -133,10 +156,14 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        poiDetails = new PoiDetails(baseActivity, googleMapsFragment, poiProvider, settingsService);
+        poiDetails = new PoiDetails(baseActivity, googleMapsFragment, poiProvider, settingsService, this);
 
         prevLocation = null;
         return googleMapsFragment;
+    }
+
+    public void onPoiDetailsHide(){
+        openPoi = null;
     }
 
     /**
@@ -166,6 +193,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
             public void onMapClick(LatLng latLng) {
                 if (poiDetails != null) {
                     poiDetails.hide();
+                    openPoi = null;
                 }
             }
         });
@@ -182,6 +210,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
 
                 Poi poi = (Poi) marker.getTag();
                 poiDetails.showPoiDialog(poi);
+                openPoi = poi;
                 return false;
             }
         });
@@ -209,6 +238,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         // our dialog is hide
         if (moveToPoiId != null && moveToPoiObject != null) {
             poiDetails.showPoiDialog(moveToPoiObject);
+            openPoi = moveToPoiObject;
         }
     }
 

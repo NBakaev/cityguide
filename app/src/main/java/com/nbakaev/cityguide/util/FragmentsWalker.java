@@ -22,6 +22,7 @@ public class FragmentsWalker {
     public static final String MOVE_TO_POI_ID = "MOVE_TO_POI_ID";
     public static final String FRAGMENT_OPEN = "FRAGMENT_OPEN";
     public static final String NEARBY = "NEARBY";
+    public static final String OPEN_FRAGMENT = "OPEN_FRAGMENT";
 
     // fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
 
