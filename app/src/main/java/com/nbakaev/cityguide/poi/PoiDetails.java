@@ -78,6 +78,8 @@ public class PoiDetails {
             // delete default padding in webview
             descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:4px;margin-top:4px;} a{color: #42A5F5 }</style>");
             webview.loadData(descriptionHtml, "text/html; charset=utf-8", "UTF-8");
+        }else{
+            webview.setVisibility(View.INVISIBLE);
         }
 
         CustomPagerAdapter mCustomPagerAdapter = new CustomPagerAdapter(activity, poiProvider, poi, settingsService);
