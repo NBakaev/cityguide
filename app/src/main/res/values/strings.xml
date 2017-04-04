@@ -37,6 +37,12 @@
     <string name="delete_image">deleteImage</string>
     <string name="thumbnail">thumbnail</string>
 
+    <string name="settings_fragment_build_header">Build</string>
+    <string name="settings_fragment_features_header">Features</string>
+    <string name="settings_fragment_stats_header">Stats</string>
+    <string name="settings_fragment_time">Time: </string>
+    <string name="settings_fragment_poi_offline">Poi offline: </string>
+
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 
@@ -59,7 +65,7 @@
 
     <string name="track_me">Track me</string>
     <string name="downloaded_only">Downloaded only</string>
-    <string name="enable_experimental_feature">enable experimental feature</string>
+    <string name="enable_experimental_feature">Enable experimental feature</string>
 
     <string name="on_map">On map</string>
     <string name="wrong_qrcode">This URL is uncorrect.\nPlease retry.</string>

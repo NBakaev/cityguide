@@ -1,50 +1,92 @@
 <!-- Full Height Navigation Drawer -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar"/>
 
     <TextView
+        android:id="@+id/settingsFragmentBuildHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="32sp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:text="@string/settings_fragment_build_header"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        />
+
+    <TextView
         android:id="@+id/aboutBuilderGit"
         android:layout_width="wrap_content"
-        android:layout_height="52sp"
-        android:padding="10dp"
-        android:textSize="22sp" />
+        android:layout_height="32sp"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp"
+        android:textSize="17sp"
+        />
 
     <TextView
         android:id="@+id/aboutBuilderTime"
         android:layout_width="wrap_content"
-        android:layout_height="52sp"
-        android:padding="10dp"
-        android:textSize="22sp" />
+        android:layout_height="32sp"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp"
+        android:textSize="17sp"
+        />
 
     <TextView
-        android:id="@+id/dbPoisElementsCount"
+        android:id="@+id/settingsFragmentFeatureHeader"
         android:layout_width="wrap_content"
-        android:layout_height="52sp"
-        android:padding="10dp"
-        android:textSize="22sp" />
+        android:layout_height="32sp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:text="@string/settings_fragment_features_header"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        />
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/enableExperimentalFeature"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="32sp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="5dp"
-        android:text="@string/enable_experimental_feature" />
+        android:textSize="19sp"
+        android:text="@string/enable_experimental_feature"/>
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/trackMeSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/track_me"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp"
+        android:textSize="17sp"
+        android:contentDescription='"sdfa"'
+        android:text="@string/track_me"/>
+
+    <TextView
+        android:id="@+id/settingsFragmentStatsHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="32sp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:text="@string/settings_fragment_stats_header"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/dbPoisElementsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="32sp"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp"
+        android:textSize="17sp"
+        />
 
 </LinearLayout>
 

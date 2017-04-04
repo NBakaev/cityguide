@@ -63,9 +63,9 @@ public class SettingsFragment extends BaseFragment {
         TextView buildTimeView = (TextView) view.findViewById(R.id.aboutBuilderTime);
         TextView dbPoisElementsCount = (TextView) view.findViewById(R.id.dbPoisElementsCount);
 
-        buildGitView.setText("git: " + gitSha);
-        buildTimeView.setText("build time: " + buildTime);
-        dbPoisElementsCount.setText("POIs downloaded: " + Long.toString(dbService.getPoisInDB()));
+        buildGitView.setText("Git: " + gitSha);
+        buildTimeView.setText(getString(R.string.settings_fragment_time) + buildTime);
+        dbPoisElementsCount.setText(getString(R.string.settings_fragment_poi_offline) + Long.toString(dbService.getPoisInDB()));
 
 
         SwitchCompat offlineModeSwitch = (SwitchCompat) view.findViewById(R.id.enableExperimentalFeature);
