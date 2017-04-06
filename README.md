@@ -25,7 +25,9 @@ PoiProvider interface with 2 implementations:
  - ServerPoiProvider.java - REST requests with retrofit2
 
 Internally, then(at app startup) created WrappedPoiProvider object which delegate calls to necessary implementation (which is determined by SettingsService#isOffline)
+
 And every object just inject via Dagger2
+
 WrappedPoiProvider is used to allow change implementation at runtime without change dagger graph
 
 ### Event bus
