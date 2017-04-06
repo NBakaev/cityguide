@@ -32,6 +32,10 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/rxjava.properties'
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 allprojects {
@@ -53,6 +57,7 @@ buildscript {
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'hu.supercluster:paperwork-plugin:1.2.7'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
     }
 }
 apply plugin: 'io.fabric'
@@ -65,6 +70,8 @@ paperwork {
             gitSha:     gitSha(),
     ]
 }
+
+apply plugin: 'me.tatarka.retrolambda'
 
 // Apply plugin
 apply plugin: 'com.neenbedankt.android-apt'

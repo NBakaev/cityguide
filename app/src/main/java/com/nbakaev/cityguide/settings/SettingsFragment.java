@@ -8,7 +8,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.nbakaev.cityguide.App;
@@ -48,11 +47,16 @@ public class SettingsFragment extends BaseFragment {
         toolbar.setTitle(R.string.settings);
     }
 
+    @Override
+    protected void inject() {
+        App.getAppComponent().inject(this);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
+        inject();
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         Paperwork paperwork = new Paperwork(baseActivity.getApplicationContext());
@@ -70,30 +74,25 @@ public class SettingsFragment extends BaseFragment {
 
         SwitchCompat offlineModeSwitch = (SwitchCompat) view.findViewById(R.id.enableExperimentalFeature);
         offlineModeSwitch.setChecked(settingsService.getSettings().isEnableExperimentalFeature());
-        offlineModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AppSettings settings = settingsService.getSettings();
-                settings.setEnableExperimentalFeature(isChecked);
-                settingsService.saveSettingsAndRestart(settings);
-            }
+        offlineModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AppSettings settings = settingsService.getSettings();
+            settings.setEnableExperimentalFeature(isChecked);
+            settingsService.saveSettings(settings);
+            settingsService.saveSettingsAndRestart(settings);
         });
 
 
         SwitchCompat trackMeSwitch = (SwitchCompat) view.findViewById(R.id.trackMeSwitch);
         trackMeSwitch.setChecked( settingsService.getSettings().getTrackMe() );
-        trackMeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AppSettings settings = settingsService.getSettings();
-                settings.setTrackMe(isChecked);
-                settingsService.saveSettings(settings);
-                Intent serviceIntent = new Intent(baseActivity.getApplicationContext(), BackgroundNotificationService.class);
-                if (isChecked) {
-                    baseActivity.startService(serviceIntent);
-                } else {
-                    baseActivity.stopService(serviceIntent);
-                }
+        trackMeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AppSettings settings = settingsService.getSettings();
+            settings.setTrackMe(isChecked);
+            settingsService.saveSettings(settings);
+            Intent serviceIntent = new Intent(baseActivity.getApplicationContext(), BackgroundNotificationService.class);
+            if (isChecked) {
+                baseActivity.startService(serviceIntent);
+            } else {
+                baseActivity.stopService(serviceIntent);
             }
         });
 

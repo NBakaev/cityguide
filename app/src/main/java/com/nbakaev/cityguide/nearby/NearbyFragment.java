@@ -14,10 +14,16 @@ import com.nbakaev.cityguide.App;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.BaseFragment;
 import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.eventbus.events.ReInjectPoiProvider;
 import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.poi.PoiProvider;
 
 import javax.inject.Inject;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.nbakaev.cityguide.util.FragmentsWalker.OPEN_FRAGMENT;
 
@@ -48,6 +54,11 @@ public class NearbyFragment extends BaseFragment {
     }
 
     @Override
+    protected void inject() {
+        App.getAppComponent().inject(this);
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         baseActivity = (BaseActivity) context;
@@ -57,13 +68,14 @@ public class NearbyFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
+        inject();
         view = inflater.inflate(R.layout.fragment_nearby, container, false);
         setUpRecyclerView();
 
-        if (toolbar != null){
+        if (toolbar != null) {
             toolbar.setTitle(getString(R.string.title_activity_main));
         }
+        subscribeToReInjectPoiProvider();
         return view;
     }
 
@@ -77,6 +89,31 @@ public class NearbyFragment extends BaseFragment {
         mLinearLayoutManagerVertical.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLinearLayoutManagerVertical);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    private void subscribeToReInjectPoiProvider() {
+        eventBus.observable(ReInjectPoiProvider.class).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(new Observer<ReInjectPoiProvider>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(ReInjectPoiProvider value) {
+                inject();
+                setUpRecyclerView();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
 }

@@ -16,7 +16,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.ClusterManager;
 import com.nbakaev.cityguide.App;
 import com.nbakaev.cityguide.BaseActivity;
@@ -142,7 +141,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
+        inject();
 
         try {
             googleMapsFragment = inflater.inflate(R.layout.fragment_maps, container, false);
@@ -188,31 +187,25 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         locationGrantedPermission();
 
         mMap.setOnMapLoadedCallback(this);
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if (poiDetails != null) {
-                    poiDetails.hide();
-                    openPoi = null;
-                }
+        mMap.setOnMapClickListener(latLng -> {
+            if (poiDetails != null) {
+                poiDetails.hide();
+                openPoi = null;
             }
         });
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
+        mMap.setOnMarkerClickListener(marker -> {
 
-                // do not show dialog on clustered marker
-                // hack clustered marker has  null tag
-                if (marker.getTag() == null || !(marker.getTag() instanceof Poi)) {
-                    return false;
-                }
-
-                Poi poi = (Poi) marker.getTag();
-                poiDetails.showPoiDialog(poi);
-                openPoi = poi;
+            // do not show dialog on clustered marker
+            // hack clustered marker has  null tag
+            if (marker.getTag() == null || !(marker.getTag() instanceof Poi)) {
                 return false;
             }
+
+            Poi poi = (Poi) marker.getTag();
+            poiDetails.showPoiDialog(poi);
+            openPoi = poi;
+            return false;
         });
 
         if (moveToPoiId != null) {
@@ -283,19 +276,16 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         mMap.getUiSettings().setTiltGesturesEnabled(false);
 
         // TODO: deprecated API usage
-        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                clusterManager.onCameraChange(cameraPosition);
-                Log.d(TAG, cameraPosition.toString());
-                Location location = new Location("Camera");
-                location.setLatitude(cameraPosition.target.latitude);
-                location.setLongitude(cameraPosition.target.longitude);
+        mMap.setOnCameraChangeListener(cameraPosition -> {
+            clusterManager.onCameraChange(cameraPosition);
+            Log.d(TAG, cameraPosition.toString());
+            Location location = new Location("Camera");
+            location.setLatitude(cameraPosition.target.latitude);
+            location.setLongitude(cameraPosition.target.longitude);
 
-                lastDateUserMovingCamera = new Date();
+            lastDateUserMovingCamera = new Date();
 
-                processNewLocation(location);
-            }
+            processNewLocation(location);
         });
     }
 
@@ -428,4 +418,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, Go
         return (lastDateUserMovingCamera == null || (lastDateUserMovingCamera.getTime() - new Date().getTime()) / -1000 < 15);
     }
 
+    @Override
+    protected void inject() {
+        App.getAppComponent().inject(this);
+    }
 }

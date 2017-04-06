@@ -10,8 +10,9 @@ import com.nbakaev.cityguide.city.DaoSession;
 import com.nbakaev.cityguide.di.AppComponent;
 import com.nbakaev.cityguide.di.AppModule;
 import com.nbakaev.cityguide.di.DaggerAppComponent;
-import com.nbakaev.cityguide.location.LocationProviderConfiguration;
-import com.nbakaev.cityguide.poi.PoiProviderConfiguration;
+import com.nbakaev.cityguide.di.EventBusProviders;
+import com.nbakaev.cityguide.di.LocationProviderConfiguration;
+import com.nbakaev.cityguide.di.PoiProviderConfiguration;
 import com.nbakaev.cityguide.util.logger.LogentriesLogger;
 
 import org.greenrobot.greendao.database.Database;
@@ -35,11 +36,11 @@ public class App extends MultiDexApplication {
 
     // create with dagger DI
     protected AppComponent buildComponent() {
-
         return DaggerAppComponent.builder()
                 .poiProviderConfiguration(new PoiProviderConfiguration())
                 .appModule(new AppModule(this))
                 .locationProviderConfiguration(new LocationProviderConfiguration())
+                .eventBusProviders(new EventBusProviders())
                 .build();
     }
 
@@ -52,7 +53,6 @@ public class App extends MultiDexApplication {
         }
 
         if (BuildConfig.DEBUG) {
-//        if (false) {
             Timber.plant(new Timber.DebugTree());
         } else {
             instance = LogentriesLogger.instance(this);

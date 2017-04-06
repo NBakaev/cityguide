@@ -13,7 +13,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import timber.log.Timber;
 
 /**
@@ -43,17 +42,14 @@ public class AndroidBackgroundAware implements ComponentCallbacks2 {
         }
         this.context = context;
 
-        statusObservable = Observable.create(new ObservableOnSubscribe<ApplicationBackgroundStatus>() {
-            @Override
-            public void subscribe(ObservableEmitter<ApplicationBackgroundStatus> e) throws Exception {
-                observableEmitter.add(e);
-                if (ApplicationBackgroundStatus.UNKNOWN == status && !appEverBeenForeground){
-                    status = ApplicationBackgroundStatus.BACKGROUND;
-                }
+        statusObservable = Observable.create(e -> {
+            observableEmitter.add(e);
+            if (ApplicationBackgroundStatus.UNKNOWN == status && !appEverBeenForeground){
+                status = ApplicationBackgroundStatus.BACKGROUND;
+            }
 
-                if (status != null) {
-                    e.onNext(status);
-                }
+            if (status != null) {
+                e.onNext(status);
             }
         });
     }

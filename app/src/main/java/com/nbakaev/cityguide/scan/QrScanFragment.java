@@ -52,17 +52,8 @@ public class QrScanFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
+        inject();
         View view = inflater.inflate(R.layout.qr_read_activity, container, false);
-
-//        Button btnRetry = (Button) view.findViewById(R.id.btnRetry);
-//        btnRetry.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                getQrCode();
-//            }
-//        });
-
         getQrCode();
         return view;
     }
@@ -124,6 +115,10 @@ public class QrScanFragment extends BaseFragment {
         FragmentsWalker.startMapFragmentFromScratchWithPoiOpen(baseActivity, this, poi.getId());
     }
 
+    @Override
+    protected void inject() {
+        App.getAppComponent().inject(this);
+    }
 }
 
 

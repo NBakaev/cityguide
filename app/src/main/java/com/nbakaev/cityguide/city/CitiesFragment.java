@@ -17,6 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.nbakaev.cityguide.App;
+import com.nbakaev.cityguide.BaseActivity;
+import com.nbakaev.cityguide.BaseFragment;
+import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.city.cityselector.MultiSelector;
+import com.nbakaev.cityguide.city.cityselector.OnItemSelectedListener;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+import com.nbakaev.cityguide.poi.db.DBService;
+import com.nbakaev.cityguide.settings.SettingsService;
+import com.nbakaev.cityguide.util.CacheUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -27,17 +39,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import com.nbakaev.cityguide.App;
-import com.nbakaev.cityguide.BaseActivity;
-import com.nbakaev.cityguide.BaseFragment;
-import com.nbakaev.cityguide.R;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.PoiProvider;
-import com.nbakaev.cityguide.poi.db.DBService;
-import com.nbakaev.cityguide.settings.SettingsService;
-import com.nbakaev.cityguide.city.cityselector.MultiSelector;
-import com.nbakaev.cityguide.city.cityselector.OnItemSelectedListener;
-import com.nbakaev.cityguide.util.CacheUtils;
 
 
 public class CitiesFragment extends BaseFragment {
@@ -90,7 +91,7 @@ public class CitiesFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.getAppComponent().inject(this);
+        inject();
         View view = inflater.inflate(R.layout.fragment_cities_main, container, false);
 
         offline = settingsService.isOffline();
@@ -236,13 +237,13 @@ public class CitiesFragment extends BaseFragment {
         });
         for (int i = 0; i < 3; i++) {
             final int finalI = i;
-            pages[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    pager.setCurrentItem(finalI, true);
-                }
-            });
+            pages[i].setOnClickListener(view -> pager.setCurrentItem(finalI, true));
         }
+    }
+
+    @Override
+    protected void inject() {
+        App.getAppComponent().inject(this);
     }
 
 //    @Override

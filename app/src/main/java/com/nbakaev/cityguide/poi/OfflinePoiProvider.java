@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -48,43 +46,35 @@ public class OfflinePoiProvider implements PoiProvider {
     public Observable<List<Poi>> getData(final double x0, final double y0, final int radius) {
         // if we have large collection, it's better for performance to return some iterator, not read whole list from database
         // so, we can chunk some objects to lists and return
-        return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
-            @Override
-            public void subscribe(ObservableEmitter<List<PoiDb>> e) throws Exception {
-                DaoSession daoSession = ((App) context).getDaoSession();
+        return Observable.create((ObservableOnSubscribe<List<PoiDb>>) e -> {
+            DaoSession daoSession = ((App) context).getDaoSession();
 
 //                daoSession.getPoiDbDao().getDatabase().rawQuery("SELECT * FROM POI_DB ORDER BY abs(LATITUDE - (?)) + abs( LONGITUDE - (?)) LIMIT 5000", new String[]{Double.toString(x0), Double.toString(y0)})
-                CloseableListIterator<PoiDb> all = daoSession.getPoiDbDao().queryRawCreate(
-                        "ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT " + MAXIMUM_SQL_QUERY_LIMIT_RETURN,
-                        Double.toString(x0), Double.toString(y0)
-                ).listIterator();
+            CloseableListIterator<PoiDb> all = daoSession.getPoiDbDao().queryRawCreate(
+                    "ORDER BY abs(latitude - (?)) + abs( longitude - (?)) LIMIT " + MAXIMUM_SQL_QUERY_LIMIT_RETURN,
+                    Double.toString(x0), Double.toString(y0)
+            ).listIterator();
 
-                List<PoiDb> buffer = new ArrayList<>();
-                while (all.hasNext()) {
-                    PoiDb next = all.next();
+            List<PoiDb> buffer = new ArrayList<>();
+            while (all.hasNext()) {
+                PoiDb next = all.next();
 
-                    if (meterDistanceBetweenPoints(x0, y0, next.getLatitude(), next.getLongitude()) > radius) {
-                        break;
-                    }
-
-                    buffer.add(next);
-                    if (buffer.size() == OFFLINE_CHUNK_SIZE) {
-                        e.onNext(buffer);
-                        buffer = new ArrayList<>();
-                    }
+                if (meterDistanceBetweenPoints(x0, y0, next.getLatitude(), next.getLongitude()) > radius) {
+                    break;
                 }
-                if (buffer.size() > 0) {
+
+                buffer.add(next);
+                if (buffer.size() == OFFLINE_CHUNK_SIZE) {
                     e.onNext(buffer);
+                    buffer = new ArrayList<>();
                 }
+            }
+            if (buffer.size() > 0) {
+                e.onNext(buffer);
+            }
 
-                all.close();
-            }
-        }).subscribeOn(Schedulers.computation()).map(new Function<List<PoiDb>, List<Poi>>() {
-            @Override
-            public List<Poi> apply(List<PoiDb> poiDbs) throws Exception {
-                return PoiDb.toPoiList(poiDbs);
-            }
-        });
+            all.close();
+        }).subscribeOn(Schedulers.computation()).map(PoiDb::toPoiList);
     }
 
     private double meterDistanceBetweenPoints(double lat_a, double lng_a, double lat_b, double lng_b) {
@@ -160,44 +150,28 @@ public class OfflinePoiProvider implements PoiProvider {
 
     @Override
     public Observable<List<City>> getCities() {
-        return Observable.create(new ObservableOnSubscribe<List<CityDB>>() {
-            @Override
-            public void subscribe(ObservableEmitter<List<CityDB>> e) throws Exception {
-                DaoSession daoSession = ((App) context).getDaoSession();
+        return Observable.create((ObservableOnSubscribe<List<CityDB>>) e -> {
+            DaoSession daoSession = ((App) context).getDaoSession();
 
-                List<CityDB> loaded = daoSession.getCityDBDao().loadAll();
-                if (loaded.size() > 0) {
-                    e.onNext(loaded);
-                }
+            List<CityDB> loaded = daoSession.getCityDBDao().loadAll();
+            if (loaded.size() > 0) {
+                e.onNext(loaded);
+            }
 
-            }
-        }).subscribeOn(Schedulers.computation()).map(new Function<List<CityDB>, List<City>>() {
-            @Override
-            public List<City> apply(List<CityDB> cityDBs) throws Exception {
-                return CityDB.toCityList(cityDBs);
-            }
-        });
+        }).subscribeOn(Schedulers.computation()).map(CityDB::toCityList);
     }
 
     @Override
     public Observable<List<Poi>> getPoiFromCity(final String cityId) {
-        return Observable.create(new ObservableOnSubscribe<List<PoiDb>>() {
-            @Override
-            public void subscribe(ObservableEmitter<List<PoiDb>> e) throws Exception {
-                DaoSession daoSession = ((App) context).getDaoSession();
+        return Observable.create((ObservableOnSubscribe<List<PoiDb>>) e -> {
+            DaoSession daoSession = ((App) context).getDaoSession();
 
-                List<PoiDb> loaded = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.CityId.eq(cityId)).list();
-                if (loaded.size() > 0) {
-                    e.onNext(loaded);
-                }
+            List<PoiDb> loaded = daoSession.getPoiDbDao().queryBuilder().where(PoiDbDao.Properties.CityId.eq(cityId)).list();
+            if (loaded.size() > 0) {
+                e.onNext(loaded);
+            }
 
-            }
-        }).subscribeOn(Schedulers.computation()).map(new Function<List<PoiDb>, List<Poi>>() {
-            @Override
-            public List<Poi> apply(List<PoiDb> poiDbs) throws Exception {
-                return PoiDb.toPoiList(poiDbs);
-            }
-        });
+        }).subscribeOn(Schedulers.computation()).map(PoiDb::toPoiList);
     }
 
 }

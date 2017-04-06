@@ -12,9 +12,10 @@ import android.support.v4.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
+import com.nbakaev.cityguide.eventbus.EventBus;
+import com.nbakaev.cityguide.eventbus.events.ReloadLocationProvider;
 import com.nbakaev.cityguide.settings.AppSettings;
 import com.nbakaev.cityguide.settings.SettingsService;
-import com.nbakaev.cityguide.util.AppUtils;
 
 import java.lang.reflect.Field;
 
@@ -29,6 +30,9 @@ public class IntroActivity extends AppIntro {
 
     @Inject
     SettingsService settingsService;
+
+    @Inject
+    EventBus eventBus;
 
     private final int PERMISSION_LOCATION_CODE = 2;
 
@@ -69,14 +73,8 @@ public class IntroActivity extends AppIntro {
         settings.setFirstRun(false);
         settingsService.saveSettings(settings);
 
-        // Check if we're running on Android 6.0 or higher
-        // and restart dagger components if we need runtime permissions
-        if (Build.VERSION.SDK_INT >= 23) {
-            AppUtils.doRestart(getApplicationContext());
-        } else {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -114,6 +112,7 @@ public class IntroActivity extends AppIntro {
         if (requestCode == PERMISSION_ALL) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pager.setCurrentItem(pager.getCurrentItem() + 1);
+                sendReloadLocationEvent();
                 return;
             } else {
                 requestPermissionAll();
@@ -127,11 +126,21 @@ public class IntroActivity extends AppIntro {
                     break;
                 case PackageManager.PERMISSION_GRANTED:
                     pager.setCurrentItem(pager.getCurrentItem() + 1);
+                    sendReloadLocationEvent();
                     break;
             }
-            return;
         }
 
+    }
+
+    /**
+     * Check if we're running on Android 6.0 or higher
+     * and restart dagger components if we need runtime permissions
+     */
+    private void sendReloadLocationEvent() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            eventBus.post(new ReloadLocationProvider());
+        }
     }
 
     /**

@@ -86,7 +86,7 @@ public class CustomPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view == ((LinearLayout) object);
+        return view == object;
     }
 
     @Override
@@ -145,13 +145,7 @@ public class CustomPagerAdapter extends PagerAdapter {
     private void processYoutubeThumbnail(final ImageView imageView, final String currentImageLink) {
         imageView.setImageResource(R.drawable.youtube);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentImageLink)));
-            }
-        });
+        imageView.setOnClickListener(v -> context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(currentImageLink))));
 
         String youtubeVideoId = getYoutubeVideoId(currentImageLink);
         if (youtubeVideoId != null) {

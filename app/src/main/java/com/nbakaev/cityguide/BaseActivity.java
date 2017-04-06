@@ -4,8 +4,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
-import android.widget.CompoundButton;
 
+import com.nbakaev.cityguide.eventbus.EventBus;
+import com.nbakaev.cityguide.eventbus.events.ReInjectPoiProvider;
 import com.nbakaev.cityguide.settings.AppSettings;
 import com.nbakaev.cityguide.settings.SettingsService;
 import com.nbakaev.cityguide.ui.navigationdrawer.NavigationDrawerAdapter;
@@ -24,6 +25,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private DrawerLayout drawer;
     private NavigationDrawerAdapter navigationDrawerAdapter;
+
+    @Inject
+    EventBus eventBus;
 
     public NavigationDrawerAdapter getNavigationDrawerAdapter() {
         return navigationDrawerAdapter;
@@ -61,13 +65,11 @@ public abstract class BaseActivity extends AppCompatActivity {
             offlineModeSwitch.setClickable(false);
         }
 
-        offlineModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                AppSettings settings = settingsService.getSettings();
-                settings.setOffline(isChecked);
-                settingsService.saveSettingsAndRestart(settings);
-            }
+        offlineModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AppSettings settings = settingsService.getSettings();
+            settings.setOffline(isChecked);
+            settingsService.saveSettings(settings);
+            eventBus.post(new ReInjectPoiProvider());
         });
     }
 

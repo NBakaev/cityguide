@@ -45,8 +45,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.nav_drawer_list_item, parent, false);
-        MyViewHolder holder = new MyViewHolder(view);
-        return holder;
+        return new MyViewHolder(view);
     }
 
     @Override
@@ -60,36 +59,33 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         final NavigationDrawerItem current = mDataList.get(position);
         holder.imgIcon.setImageResource(current.getImageId());
         holder.title.setText(context.getString(current.getId()));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setActiveItem(position);
-                switch (current.getId()) {
-                    case R.string.drawer_map:
-                        FragmentsWalker.startMapFragment(fragmentManager);
-                        drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        break;
+        holder.itemView.setOnClickListener(v -> {
+            setActiveItem(position);
+            switch (current.getId()) {
+                case R.string.drawer_map:
+                    FragmentsWalker.startMapFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
 
-                    case R.string.drawer_cities:
-                        FragmentsWalker.startCitiesFragment(fragmentManager);
-                        drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        break;
+                case R.string.drawer_cities:
+                    FragmentsWalker.startCitiesFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
 
-                    case R.string.drawer_near_me:
-                        FragmentsWalker.startNearbyFragment(fragmentManager);
-                        drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        break;
+                case R.string.drawer_near_me:
+                    FragmentsWalker.startNearbyFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
 
-                    case R.string.drawer_about:
-                        FragmentsWalker.startAboutFragment(fragmentManager);
-                        drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        break;
+                case R.string.drawer_about:
+                    FragmentsWalker.startAboutFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
 
-                    case R.string.drawer_qr:
-                        FragmentsWalker.startQrReaderFragment(fragmentManager);
-                        drawerLayout.closeDrawer(Gravity.LEFT, false);
-                        break;
-                }
+                case R.string.drawer_qr:
+                    FragmentsWalker.startQrReaderFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
             }
         });
     }

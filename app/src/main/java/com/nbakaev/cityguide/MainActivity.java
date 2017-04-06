@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.View;
 
 import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.scan.QrCodeParser;
@@ -54,7 +53,6 @@ public class MainActivity extends BaseActivity {
         }
 
         setContentView(R.layout.activity_main);
-
         setupDrawer();
 
         if (savedInstanceState != null){
@@ -64,7 +62,6 @@ public class MainActivity extends BaseActivity {
 
         setupMainFragment();
         processNewIntent(getIntent());
-
         showThatWeDoNotUserLocation();
     }
 
@@ -74,11 +71,7 @@ public class MainActivity extends BaseActivity {
             showLocationRequest.show();
 
             if (isNeedPermissions()) {
-                Snackbar.make(findViewById(R.id.drawer_layout), "We need location permission", Snackbar.LENGTH_INDEFINITE).setAction("Grant", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
+                Snackbar.make(findViewById(R.id.drawer_layout), "We need location permission", Snackbar.LENGTH_INDEFINITE).setAction("Grant", v -> {
                 }).show();
             }
 

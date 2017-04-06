@@ -3,15 +3,13 @@ package com.nbakaev.cityguide.di;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.IntroActivity;
 import com.nbakaev.cityguide.MainActivity;
-import com.nbakaev.cityguide.settings.SettingsFragment;
 import com.nbakaev.cityguide.city.CitiesFragment;
-import com.nbakaev.cityguide.location.LocationProviderConfiguration;
 import com.nbakaev.cityguide.map.MapsFragment;
 import com.nbakaev.cityguide.nearby.NearbyFragment;
-import com.nbakaev.cityguide.poi.PoiProviderConfiguration;
 import com.nbakaev.cityguide.push.BackgroundNotificationService;
 import com.nbakaev.cityguide.push.BroadcastReceiverOnBootComplete;
 import com.nbakaev.cityguide.scan.QrScanFragment;
+import com.nbakaev.cityguide.settings.SettingsFragment;
 
 import dagger.Component;
 
@@ -20,7 +18,7 @@ import dagger.Component;
  */
 
 @ApplicationScope
-@Component(modules = {PoiProviderConfiguration.class, AppModule.class, LocationProviderConfiguration.class, AppProviders.class})
+@Component(modules = {AppModule.class, LocationProviderConfiguration.class, AppProviders.class, EventBusProviders.class, PoiProviderConfiguration.class})
 public interface AppComponent {
 
     void inject(NearbyFragment nearbyFragment);

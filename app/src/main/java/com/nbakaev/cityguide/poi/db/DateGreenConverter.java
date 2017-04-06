@@ -11,13 +11,11 @@ import java.util.Date;
 public class DateGreenConverter implements PropertyConverter<Date, Long> {
     @Override
     public Date convertToEntityProperty(Long databaseValue) {
-        Date date = new Date(databaseValue);
-        return date;
+        return new Date(databaseValue);
     }
 
     @Override
     public Long convertToDatabaseValue(Date entityProperty) {
-
         return entityProperty.getTime();
     }
 }

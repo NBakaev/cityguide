@@ -1,5 +1,6 @@
 package com.nbakaev.cityguide.location;
 
+import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -19,13 +20,14 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.nbakaev.cityguide.background.AndroidBackgroundAware;
 import com.nbakaev.cityguide.background.ApplicationBackgroundStatus;
+import com.nbakaev.cityguide.eventbus.EventBus;
+import com.nbakaev.cityguide.eventbus.events.ReloadLocationProvider;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -73,15 +75,16 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
     private volatile ApplicationBackgroundStatus backgroundStatus = null;
 
     private Location lastKnownLocation;
+    private EventBus eventBus;
 
     @Override
     public Location getLastKnownLocation() {
         return lastKnownLocation;
     }
 
-    public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware) {
+    public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware, EventBus eventBus) {
         this(context, androidBackgroundAware, ACTIVE_APP_LOCATION_INTERVAL, ACTIVE_APP_LOCATION_INTERVAL_FASTEST, BACKGROUND_APP_LOCATION_INTERVAL, BACKGROUND_APP_LOCATION_INTERVAL_FASTEST,
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
+                LocationRequest.PRIORITY_HIGH_ACCURACY, eventBus);
     }
 
     /**
@@ -94,10 +97,10 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
      * @param locationPriority
      */
     public AndroidLocationProvider(Context context, AndroidBackgroundAware androidBackgroundAware, int foregroundInterval, int foregroundFastestInterval,
-                                   int backgroundInterval, int backgroundFastestInterval, int locationPriority) {
+                                   int backgroundInterval, int backgroundFastestInterval, int locationPriority, EventBus eventBus) {
 
         // check that user is pass applciation context, not eg activity
-        if (!(context instanceof Application)){
+        if (!(context instanceof Application)) {
             throw new IllegalArgumentException("Context must be applciation context to avoid memory leaks");
         }
 
@@ -107,6 +110,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         this.backgroundInterval = backgroundInterval;
         this.backgroundFastestInterval = backgroundFastestInterval;
         this.locationPriority = locationPriority;
+        this.eventBus = eventBus;
 
         HandlerThread handlerThread = new HandlerThread("AndroidLocationProviderLooper");
         handlerThread.start();
@@ -118,18 +122,46 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
                 .addApi(LocationServices.API)
                 .build();
 
-        locationObservable = Observable.create(new ObservableOnSubscribe<Location>() {
-            @Override
-            public void subscribe(ObservableEmitter<Location> e) throws Exception {
-                observableEmitter.add(e);
-                if (prevLocation != null) {
-                    e.onNext(prevLocation);
-                }
+        locationObservable = Observable.create(e -> {
+            observableEmitter.add(e);
+            if (prevLocation != null) {
+                e.onNext(prevLocation);
             }
         });
 
         backgroundStatusObservable = androidBackgroundAware.getStatusObservable();
         subscribeToBackgroundStatus();
+        subscribeToReloadLocation();
+    }
+
+    private void subscribeToReloadLocation() {
+        eventBus.observable(ReloadLocationProvider.class).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(new Observer<ReloadLocationProvider>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(ReloadLocationProvider value) {
+                Log.w(TAG, "Reload android location");
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "failed to reload android location - no permission");
+                    return;
+                }
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, AndroidLocationProvider.this, looper);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void subscribeToBackgroundStatus() {
@@ -169,7 +201,7 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if (connectionResult.getErrorMessage() != null){
+        if (connectionResult.getErrorMessage() != null) {
             Log.w(TAG, connectionResult.getErrorMessage());
         }
 //        if (connectionResult.hasResolution()) {
@@ -260,13 +292,10 @@ public class AndroidLocationProvider implements LocationProvider, GoogleApiClien
         disconnect();
 
         Handler handler = new Handler(looper);
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (backgroundStatus.equals(ApplicationBackgroundStatus.BACKGROUND)) {
-                    watchInInterval(interval, fastestInterval);
-                    changeLocationUpdateIntervalMode(interval, fastestInterval);
-                }
+        handler.postDelayed(() -> {
+            if (backgroundStatus.equals(ApplicationBackgroundStatus.BACKGROUND)) {
+                watchInInterval(interval, fastestInterval);
+                changeLocationUpdateIntervalMode(interval, fastestInterval);
             }
         }, fastestInterval);
     }

@@ -65,11 +65,6 @@ public class NavigationDrawerFragment extends Fragment {
         };
 
         mDrawerLayout.addDrawerListener(mDrawerToggle);
-        mDrawerLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerToggle.syncState();
-            }
-        });
+        mDrawerLayout.post(() -> mDrawerToggle.syncState());
     }
 }
