@@ -17,29 +17,67 @@ Related resources
  
 ## Architecture overview
 
-#### POIs
+### POIs
 
-2 implementations:
+PoiProvider interface with 2 implementations:
 
- - OfflinePoiProvider.java - saved to SQLite with [greendao ORM](http://greenrobot.org/greendao/documentation/). Images saved to app internal storage (which does not require permission)
+ - OfflinePoiProvider.java - saved to SQLite via [greendao ORM](http://greenrobot.org/greendao/documentation/). Images saved to app cache storage (which does not require permission)
  - ServerPoiProvider.java - REST requests with retrofit2
 
-Implementation injects with Dagger2 in sturtup (depend get property offline of AppSettings.java object from SQLite with SettingsService.java helper)
+Internally, then(at app startup) created WrappedPoiProvider object which delegate calls to necessary implementation (which is determined by SettingsService#isOffline)
+And every object just inject via Dagger2
+WrappedPoiProvider is used to allow change implementation at runtime without change dagger graph
 
- - results -> Observable (rxjava2)
- 
+### Event bus
 
-#### code snippets
+Main implementation is `RxEventBus` which use rxjava.
+You can inject `EventBus` as dagger component(injected to `BaseFragment` and `BaseActivity`, by default)
 
-##### start map with some POI
+You can send event :
+```java
+eventBus.post(new ReloadLocationProvider());
+```
+
+And subscribe e.g:
+```java
+ private void subscribeToReInjectPoiProvider() {
+        eventBus.observable(ReInjectPoiProvider.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<ReInjectPoiProvider>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(ReInjectPoiProvider value) {
+                // doSomethingOnNewIvent();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+    }
+```
+
+### code snippets
+
+FragmentsWalker can be used to walk(replace) fragment to each other
+
+#### start map with some POI open
 ```java
 FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
 ```
 
-##### pull db from device via adb
+#### pull db from device via adb
 `adb pull /data/data/com.nbakaev.cityguide/databases/poi-db.db .`
 
-##### test notification on boot
+#### test notification on boot
 
  1. set in _Developer options_ to _Select debug app_ debug com.nbakaev.cityguide
  2. check wait to debugger
@@ -48,6 +86,7 @@ FragmentsWalker.startMapFragmentWithPoiOpen(getSupportFragmentManager(), poiId);
  4. in idea click `attach debugger to android process`
 
 ## debug / release builds
+Timber is used to log
 
 | feature                                           | debug                                           | release | notes                                                                                                                                                                                             |
 | ------------------------------------------------- | ----------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------- |
@@ -60,7 +99,7 @@ Notes:
  - https://developers.google.com/maps/documentation/android-api/utility/marker-clustering
  - mockups from http://mockuphone.com/nexus6p
 
-### Offline distance
- - http://goodenoughpractices.blogspot.ru/2011/08/query-by-proximity-in-android.html
+### Offline distance algorithms
+ - http://goodenoughpractices.blogspot.ru/2011/08/query-by-proximity-in-android.html - currently used
  - http://stackoverflow.com/questions/15372705/calculating-a-radius-with-longitude-and-lattitude
  - https://github.com/sozialhelden/wheelmap-android/wiki/Sqlite,-Distance-calculations
