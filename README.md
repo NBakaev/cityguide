@@ -1,6 +1,6 @@
 # CityGuide
 
- ![](https://github.com/NBakaev/binary/raw/master/cityguide/all.png)
+ ![](https://github.com/NBakaev/binary/raw/master/cityguide/all2.png)
 
 Related resources
 
