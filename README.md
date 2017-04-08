@@ -2,11 +2,15 @@
 
  ![](https://github.com/NBakaev/binary/raw/master/cityguide/all2.png)
 
-Related resources
+## Related resources
 
  - [Trello](https://trello.com/b/CvkJB18L/hse-cityguide)
  - [Admin web UI](https://cityguide.nbakaev.com)
- - [server repo](https://github.com/NBakaev/cityguide-server)
+
+### repos
+ - [server](https://github.com/NBakaev/cityguide-server)
+ - [frontend](https://github.com/NBakaev/cityguide-frontend)
+ - [android app - this repo](https://github.com/NBakaev/cityguide)
 
 ## Android requirements
  - Android 4.4+. Testing on Android 4.4, 7.0
