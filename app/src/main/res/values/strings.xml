@@ -13,6 +13,11 @@
     <string name="drawer_cities">Cities</string>
     <string name="drawer_qr">QR Reader</string>
 
+    <string name="action_refresh">Settings</string>
+    <string name="action_new">Settings</string>
+    <string name="logo_desc">App logo</string>
+    <string name="country_name">Nigeria</string>
+
 
     <string name="onboarding_1_title">Hello</string>
     <string name="onboarding_1_description">CityGuide helps you to find interest objects near you</string>

@@ -1,6 +1,7 @@
 package com.nbakaev.cityguide.settings;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -18,6 +19,8 @@ public class SettingsService {
     private DaoSession daoSession;
     private AppSettings appSettings;
     private boolean isOfflineForced = false;
+
+    private BitmapFactory.Options options;
 
     public SettingsService(Context context) {
         this.context = context;
@@ -77,5 +80,15 @@ public class SettingsService {
      */
     public boolean isOfflineForced() {
         return isOfflineForced;
+    }
+
+    public BitmapFactory.Options getDefaultBitmapOptions() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        // in offline cache if already have image with inSampleSize = 7
+        if (!this.isOffline()) {
+            options.inSampleSize = 6;
+        }
+
+        return options;
     }
 }

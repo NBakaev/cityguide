@@ -113,7 +113,7 @@ public class NotificationService {
     }
 
     void singleNotification(final Poi poi, final Location prevLocation) {
-        if (!StringUtils.isEmpty(poi.getImageUrl())) {
+        if (!StringUtils.isEmpty(poi.getContent().getImageUrl())) {
             Observable<ResponseBody> icon = poiProvider.getIcon(poi);
             Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
                 @Override

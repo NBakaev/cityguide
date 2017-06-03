@@ -1,23 +1,27 @@
 package com.nbakaev.cityguide.city;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.nbakaev.cityguide.poi.Poi;
+
+import java.util.Date;
 
 public class City {
     private String name;
     private String id;
     private Date lastUpdate;
     private int pois = 0;
-    private String imageUrl;
     private String description;
 
-    private List<String> imageUrls = new ArrayList<>();
-    private String videoUrl;
+    private Poi.PoiContent content = new Poi.PoiContent();
 
     private Poi.PoiLocation location = new Poi.PoiLocation();
+
+    public Poi.PoiContent getContent() {
+        return content;
+    }
+
+    public void setContent(Poi.PoiContent content) {
+        this.content = content;
+    }
 
     public String getName() {
         return name;
@@ -51,29 +55,6 @@ public class City {
         this.pois = pois;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
-
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
 
     public Poi.PoiLocation getLocation() {
         return location;

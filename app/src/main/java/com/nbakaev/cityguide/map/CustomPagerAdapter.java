@@ -66,19 +66,19 @@ public class CustomPagerAdapter extends PagerAdapter {
     @Override
     public int getCount() {
         int num = 0;
-        if (!StringUtils.isEmpty(poi.getImageUrl())) {
+        if (!StringUtils.isEmpty(poi.getContent().getImageUrl())) {
             num++;
-            links.add(poi.getImageUrl());
+            links.add(poi.getContent().getImageUrl());
         }
 
-        if (!StringUtils.isEmpty(poi.getVideoUrl())) {
+        if (!StringUtils.isEmpty(poi.getContent().getVideoUrl())) {
             num++;
-            links.add(poi.getVideoUrl());
+            links.add(poi.getContent().getVideoUrl());
         }
 
-        if (poi.getImageUrls() != null && poi.getImageUrls().size() > 0) {
-            num += poi.getImageUrls().size();
-            links.addAll(poi.getImageUrls());
+        if (poi.getContent().getImageUrls() != null && poi.getContent().getImageUrls().size() > 0) {
+            num += poi.getContent().getImageUrls().size();
+            links.addAll(poi.getContent().getImageUrls());
         }
 
         return num;
@@ -95,7 +95,7 @@ public class CustomPagerAdapter extends PagerAdapter {
 
         final ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
         // show first main POI icon
-        if (position == 0 && !StringUtils.isEmpty(poi.getImageUrl())) {
+        if (position == 0 && !StringUtils.isEmpty(poi.getContent().getImageUrl())) {
             loadImageForPoi(imageView);
         }
 

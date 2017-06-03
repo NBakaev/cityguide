@@ -71,10 +71,6 @@ public class NearbyFragment extends BaseFragment {
         inject();
         view = inflater.inflate(R.layout.fragment_nearby, container, false);
         setUpRecyclerView();
-
-        if (toolbar != null) {
-            toolbar.setTitle(getString(R.string.title_activity_main));
-        }
         subscribeToReInjectPoiProvider();
         return view;
     }

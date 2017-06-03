@@ -2,14 +2,15 @@ package com.nbakaev.cityguide.poi.server;
 
 import android.content.Context;
 
+import com.nbakaev.cityguide.city.City;
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.PoiProvider;
+
 import java.util.List;
 
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
-import com.nbakaev.cityguide.city.City;
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.PoiProvider;
 
 /**
  * Created by Nikita on 10/14/2016.
@@ -41,12 +42,12 @@ public class ServerPoiProvider implements PoiProvider {
 
     @Override
     public Observable<ResponseBody> getIcon(Poi poi) {
-        return poiProvider.downloadContent(poi.getImageUrl());
+        return poiProvider.downloadContent(poi.getContent().getImageUrl());
     }
 
     @Override
     public Observable<ResponseBody> getIcon(City city) {
-        return poiProvider.downloadContent(city.getImageUrl());
+        return poiProvider.downloadContent(city.getContent().getImageUrl());
     }
 
     @Override

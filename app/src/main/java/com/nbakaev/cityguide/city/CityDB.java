@@ -1,5 +1,9 @@
 package com.nbakaev.cityguide.city;
 
+import com.nbakaev.cityguide.poi.Poi;
+import com.nbakaev.cityguide.poi.db.DateGreenConverter;
+import com.nbakaev.cityguide.poi.db.GreenConverter;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -9,10 +13,6 @@ import org.greenrobot.greendao.annotation.Index;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.nbakaev.cityguide.poi.Poi;
-import com.nbakaev.cityguide.poi.db.DateGreenConverter;
-import com.nbakaev.cityguide.poi.db.GreenConverter;
 
 /**
  * Created by Наташа on 22.12.2016.
@@ -68,12 +68,12 @@ public class CityDB {
         cityDB.setName(city.getName());
         cityDB.setCityId(city.getId());
         cityDB.setDescription(city.getDescription());
-        cityDB.setImageUrl(city.getImageUrl());
+        cityDB.setImageUrl(city.getContent().getImageUrl());
         cityDB.setLastUpdate(city.getLastUpdate());
         cityDB.setLatitude(city.getLocation().getLatitude());
         cityDB.setLongitude(city.getLocation().getLongitude());
-        cityDB.setVideoUrl(city.getVideoUrl());
-        cityDB.setImageUrls(city.getImageUrls());
+        cityDB.setVideoUrl(city.getContent().getVideoUrl());
+        cityDB.setImageUrls(city.getContent().getImageUrls());
         return cityDB;
     }
 
@@ -91,11 +91,11 @@ public class CityDB {
         city.setName(cityDB.getName());
         city.setId(cityDB.getCityId());
         city.setDescription(cityDB.getDescription());
-        city.setImageUrl(cityDB.getImageUrl());
+        city.getContent().setImageUrl(cityDB.getImageUrl());
         city.setLastUpdate(cityDB.getLastUpdate());
         city.setLocation(new Poi.PoiLocation(cityDB.getLatitude(), cityDB.getLongitude()));
-        city.setVideoUrl(cityDB.getVideoUrl());
-        city.setImageUrls(cityDB.getImageUrls());
+        city.getContent().setVideoUrl(cityDB.getVideoUrl());
+        city.getContent().setImageUrls(cityDB.getImageUrls());
         return city;
     }
 

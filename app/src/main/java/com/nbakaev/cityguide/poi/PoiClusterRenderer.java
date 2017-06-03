@@ -12,6 +12,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.nbakaev.cityguide.settings.SettingsService;
+import com.nbakaev.cityguide.util.CacheUtils;
+import com.nbakaev.cityguide.util.StringUtils;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -19,10 +22,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import com.nbakaev.cityguide.map.MapsFragment;
-import com.nbakaev.cityguide.settings.SettingsService;
-import com.nbakaev.cityguide.util.CacheUtils;
-import com.nbakaev.cityguide.util.StringUtils;
 
 /**
  * Created by ya on 11/19/2016.
@@ -30,9 +29,8 @@ import com.nbakaev.cityguide.util.StringUtils;
 
 public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
 
-    private static final String TAG = MapsFragment.class.getSimpleName();
+    private static final String TAG = "PoiClusterRenderer";
     private PoiProvider poiProvider;
-    private final BitmapFactory.Options options = new BitmapFactory.Options();
     private SettingsService settingsService;
     private CacheUtils cacheUtils;
 
@@ -41,11 +39,6 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
         this.poiProvider = poiProvider;
         this.settingsService = settingsService;
         this.cacheUtils = cacheUtils;
-
-        // in offline cache if already have image with inSampleSize = 7
-        if (!settingsService.isOffline()) {
-            options.inSampleSize = 7;
-        }
     }
 
     @Override
@@ -60,7 +53,7 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
 
         marker.setTag(poi);
 
-        if (!StringUtils.isEmpty(poi.getImageUrl())) {
+        if (!StringUtils.isEmpty(poi.getContent().getImageUrl())) {
             Observable<ResponseBody> icon = poiProvider.getIcon(poi);
             Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
                 @Override
@@ -71,7 +64,7 @@ public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
                 @Override
                 public void onNext(ResponseBody value) {
                     try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, options);
+                        Bitmap bitmap = BitmapFactory.decodeStream(value.byteStream(), null, settingsService.getDefaultBitmapOptions());
                         cacheUtils.cachePoiImage(bitmap, poi);
                         marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
                     } catch (Exception e) {

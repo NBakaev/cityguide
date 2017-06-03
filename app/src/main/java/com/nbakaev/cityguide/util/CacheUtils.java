@@ -37,11 +37,11 @@ public class CacheUtils {
     }
 
     public String getImageCachePathForPoi(Poi poi) {
-        return poi.getId() + "." + Files.getFileExtension(poi.getImageUrl());
+        return poi.getId() + "." + Files.getFileExtension(poi.getContent().getImageUrl());
     }
 
     public String getImageCachePathForCity(City city) {
-        return city.getId() + "." + Files.getFileExtension(city.getImageUrl());
+        return city.getId() + "." + Files.getFileExtension(city.getContent().getImageUrl());
     }
 
     public  File getImageCacheFile(Poi poi) {
@@ -68,7 +68,7 @@ public class CacheUtils {
                 }
             }
 
-            String fileExtension = Files.getFileExtension(poi.getImageUrl());
+            String fileExtension = Files.getFileExtension(poi.getContent().getImageUrl());
             File image = getImageCacheFile(poi);
             FileOutputStream outStream;
             outStream = new FileOutputStream(image);
@@ -101,7 +101,7 @@ public class CacheUtils {
                 }
             }
 
-            String fileExtension = Files.getFileExtension(city.getImageUrl());
+            String fileExtension = Files.getFileExtension(city.getContent().getImageUrl());
             File image = getImageCacheFile(city);
             FileOutputStream outStream;
             outStream = new FileOutputStream(image);

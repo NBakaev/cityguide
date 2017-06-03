@@ -1,5 +1,7 @@
 package com.nbakaev.cityguide.poi.db;
 
+import com.nbakaev.cityguide.poi.Poi;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -9,8 +11,6 @@ import org.greenrobot.greendao.annotation.Index;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.nbakaev.cityguide.poi.Poi;
 
 @Entity
 public class PoiDb {
@@ -38,13 +38,15 @@ public class PoiDb {
     private List<String> imageUrls = new ArrayList<>();
     private String videoUrl;
 
+    private float rating;
+
     public PoiDb() {
     }
 
 
     public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, String descriptionHtml,
             double latitude, double longitude, String poiId, String imageUrl, List<String> imageUrls,
-            String videoUrl) {
+            String videoUrl, float rating) {
         this.id = id;
         this.cityId = cityId;
         this.lastUpdate = lastUpdate;
@@ -56,12 +58,14 @@ public class PoiDb {
         this.imageUrl = imageUrl;
         this.imageUrls = imageUrls;
         this.videoUrl = videoUrl;
+        this.rating = rating;
     }
 
 
-    @Generated(hash = 97188934)
+    @Generated(hash = 614923651)
     public PoiDb(Long id, String cityId, Date lastUpdate, String name, String description, double latitude,
-            double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl) {
+            double longitude, String poiId, String imageUrl, List<String> imageUrls, String videoUrl,
+            float rating) {
         this.id = id;
         this.cityId = cityId;
         this.lastUpdate = lastUpdate;
@@ -73,6 +77,7 @@ public class PoiDb {
         this.imageUrl = imageUrl;
         this.imageUrls = imageUrls;
         this.videoUrl = videoUrl;
+        this.rating = rating;
     }
 
 
@@ -81,14 +86,15 @@ public class PoiDb {
         poiDb.setId((long) poi.getId().hashCode());
         poiDb.setDescription(poi.getDescription());
         poiDb.setName(poi.getName());
-        poiDb.setImageUrl(poi.getImageUrl());
+        poiDb.setImageUrl(poi.getContent().getImageUrl());
         poiDb.setLatitude(poi.getLocation().getLatitude());
         poiDb.setLongitude(poi.getLocation().getLongitude());
-        poiDb.setVideoUrl(poi.getVideoUrl());
-        poiDb.setImageUrls(poi.getImageUrls());
+        poiDb.setVideoUrl(poi.getContent().getVideoUrl());
+        poiDb.setImageUrls(poi.getContent().getImageUrls());
         poiDb.setCityId(poi.getCityId());
         poiDb.setLastUpdate(poi.getLastUpdate());
         poiDb.setPoiId(poi.getId());
+        poiDb.setRating(poi.getRating());
         return poiDb;
     }
 
@@ -106,11 +112,12 @@ public class PoiDb {
         poi.setName(poiDb.getName());
         poi.setDescription(poiDb.getDescription());
         poi.setLocation(new Poi.PoiLocation(poiDb.getLatitude(), poiDb.getLongitude()));
-        poi.setImageUrl(poiDb.getImageUrl());
-        poi.setVideoUrl(poiDb.getVideoUrl());
-        poi.setImageUrls(poiDb.getImageUrls());
+        poi.getContent().setImageUrl(poiDb.getImageUrl());
+        poi.getContent().setVideoUrl(poiDb.getVideoUrl());
+        poi.getContent().setImageUrls(poiDb.getImageUrls());
         poi.setLastUpdate(poiDb.getLastUpdate());
         poi.setCityId(poiDb.getCityId());
+        poi.setRating(poiDb.getRating());
 
         return poi;
     }
@@ -123,6 +130,13 @@ public class PoiDb {
         return poiDbs;
     }
 
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
 
     public Long getId() {
         return id;

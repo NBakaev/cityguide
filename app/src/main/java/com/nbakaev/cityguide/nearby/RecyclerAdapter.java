@@ -182,7 +182,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             String visibleDescription = descriptionWithDeletedHtmlTags == null ? "" : descriptionWithDeletedHtmlTags.substring(0, Math.min(MAX_DESCRIPTION_LENGTH, descriptionWithDeletedHtmlTags.length())).concat("...");
             this.description.setText(visibleDescription);
 
-            if (!StringUtils.isEmpty(current.getImageUrl())) {
+            if (!StringUtils.isEmpty(current.getContent().getImageUrl())) {
                 Observable<ResponseBody> icon = poiProvider.getIcon(current);
                 Observer<ResponseBody> iconResult = new Observer<ResponseBody>() {
                     @Override

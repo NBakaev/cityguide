@@ -17,12 +17,17 @@ public class Poi implements ClusterItem {
     private String id;
     private String cityId;
     private Date lastUpdate;
-    private String imageUrl;
     private float rating;
 
-    private List<String> imageUrls = new ArrayList<>();
-    private String videoUrl;
+    private PoiContent content = new PoiContent();
 
+    public PoiContent getContent() {
+        return content;
+    }
+
+    public void setContent(PoiContent content) {
+        this.content = content;
+    }
 
     public float getRating() {
         return rating;
@@ -46,30 +51,6 @@ public class Poi implements ClusterItem {
 
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
-    }
-
-    public List<String> getImageUrls() {
-        return imageUrls;
-    }
-
-    public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getId() {
@@ -109,6 +90,46 @@ public class Poi implements ClusterItem {
         return new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
     }
 
+    static public class PoiContent {
+        private String imageUrl;
+
+        private List<String> imageUrls = new ArrayList<>();
+        private String videoUrl;
+
+        private String audioUrl;
+
+        public String getImageUrl() {
+            return imageUrl;
+        }
+
+        public void setImageUrl(String imageUrl) {
+            this.imageUrl = imageUrl;
+        }
+
+        public List<String> getImageUrls() {
+            return imageUrls;
+        }
+
+        public void setImageUrls(List<String> imageUrls) {
+            this.imageUrls = imageUrls;
+        }
+
+        public String getVideoUrl() {
+            return videoUrl;
+        }
+
+        public void setVideoUrl(String videoUrl) {
+            this.videoUrl = videoUrl;
+        }
+
+        public String getAudioUrl() {
+            return audioUrl;
+        }
+
+        public void setAudioUrl(String audioUrl) {
+            this.audioUrl = audioUrl;
+        }
+    }
 
     static public class PoiLocation {
 
@@ -178,19 +199,14 @@ public class Poi implements ClusterItem {
 
         Poi poi = (Poi) o;
 
+        if (Float.compare(poi.rating, rating) != 0) return false;
         if (name != null ? !name.equals(poi.name) : poi.name != null) return false;
-        if (description != null ? !description.equals(poi.description) : poi.description != null)
-            return false;
+        if (description != null ? !description.equals(poi.description) : poi.description != null) return false;
         if (location != null ? !location.equals(poi.location) : poi.location != null) return false;
         if (id != null ? !id.equals(poi.id) : poi.id != null) return false;
-        if (imageUrl != null ? !imageUrl.equals(poi.imageUrl) : poi.imageUrl != null) return false;
-        if (imageUrls != null ? !imageUrls.equals(poi.imageUrls) : poi.imageUrls != null)
-            return false;
-        if (cityId != null ? !cityId.equals(poi.cityId) : poi.cityId != null)
-            return false;
-        if (lastUpdate != null ? !lastUpdate.equals(poi.lastUpdate) : poi.lastUpdate != null)
-            return false;
-        return videoUrl != null ? videoUrl.equals(poi.videoUrl) : poi.videoUrl == null;
+        if (cityId != null ? !cityId.equals(poi.cityId) : poi.cityId != null) return false;
+        if (lastUpdate != null ? !lastUpdate.equals(poi.lastUpdate) : poi.lastUpdate != null) return false;
+        return content != null ? content.equals(poi.content) : poi.content == null;
 
     }
 
@@ -200,9 +216,10 @@ public class Poi implements ClusterItem {
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + (imageUrl != null ? imageUrl.hashCode() : 0);
-        result = 31 * result + (imageUrls != null ? imageUrls.hashCode() : 0);
-        result = 31 * result + (videoUrl != null ? videoUrl.hashCode() : 0);
+        result = 31 * result + (cityId != null ? cityId.hashCode() : 0);
+        result = 31 * result + (lastUpdate != null ? lastUpdate.hashCode() : 0);
+        result = 31 * result + (rating != +0.0f ? Float.floatToIntBits(rating) : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
         return result;
     }
 }

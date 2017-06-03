@@ -10,6 +10,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nbakaev.cityguide.R;
@@ -53,7 +54,7 @@ public class PoiDetails {
     }
 
     public void showPoiDialog(Poi poi) {
-        if (mBottomSheetBehavior == null){
+        if (mBottomSheetBehavior == null) {
             init();
         }
 
@@ -63,8 +64,7 @@ public class PoiDetails {
         final TextView poiName = (TextView) bottomSheet.findViewById(R.id.poi_details_name);
         final WebView webview = (WebView) bottomSheet.findViewById(R.id.poi_details_descriptionHtml);
         final RatingBar ratingBar = (RatingBar) bottomSheet.findViewById(R.id.poi_details_rating);
-//        ratingBar.setRating(poi.getRating());
-        ratingBar.setRating(3.5f);
+        ratingBar.setRating(poi.getRating());
 
         // show webview if have descriptionHtml in poi or else description as just text
         if (!StringUtils.isEmpty(poi.getDescription())) {
@@ -78,7 +78,7 @@ public class PoiDetails {
             // delete default padding in webview
             descriptionHtml = descriptionHtml.concat("<style>body,html{padding-top:4px;margin-top:4px;} a{color: #42A5F5 }</style>");
             webview.loadData(descriptionHtml, "text/html; charset=utf-8", "UTF-8");
-        }else{
+        } else {
             webview.setVisibility(View.INVISIBLE);
         }
 
@@ -110,11 +110,15 @@ public class PoiDetails {
             }
         });
 
+        RelativeLayout pagerLayout = (RelativeLayout) googleMapsFragment.findViewById(R.id.pagerLayout);
+
         if (mCustomPagerAdapter.getCount() == 0) {
             mViewPager.getLayoutParams().height = 0;
-            mViewPager.setVisibility(View.INVISIBLE);
+            mViewPager.setVisibility(View.GONE);
+            pagerLayout.setVisibility(View.GONE);
         } else {
             mViewPager.setVisibility(View.VISIBLE);
+            pagerLayout.setVisibility(View.VISIBLE);
             mViewPager.getLayoutParams().height = UiUtils.dpToPixels(activity.getApplicationContext(), 160);
         }
         mViewPager.setAdapter(mCustomPagerAdapter);
@@ -143,8 +147,8 @@ public class PoiDetails {
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
 
                 // pass map fragment that poi details dialog is hidden
-                if (newState == BottomSheetBehavior.STATE_HIDDEN){
-                    if (mapsFragmentWeakReference.get() != null){
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    if (mapsFragmentWeakReference.get() != null) {
                         mapsFragmentWeakReference.get().onPoiDetailsHide();
                     }
                 }
