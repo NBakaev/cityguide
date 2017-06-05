@@ -26,7 +26,7 @@ import static com.nbakaev.cityguide.util.UiUtils.hideSystemStatusBar;
 import static com.nbakaev.cityguide.util.UiUtils.showSystemStatusBar;
 
 /**
- * Created by ya on 4/3/2017.
+ * Created by Nikita Bakaev on 4/3/2017.
  */
 
 public class PoiDetails {

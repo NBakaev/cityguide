@@ -6,7 +6,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 /**
- * Created by ya on 1/3/2017.
+ * Created by Nikita Bakaev on 1/3/2017.
  */
 
 public class AnimationUtils {

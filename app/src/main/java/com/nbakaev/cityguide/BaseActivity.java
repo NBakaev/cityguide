@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 
+import com.nbakaev.cityguide.auth.CurrentUserService;
 import com.nbakaev.cityguide.eventbus.EventBus;
 import com.nbakaev.cityguide.eventbus.events.ReInjectPoiProvider;
 import com.nbakaev.cityguide.settings.AppSettings;
@@ -29,6 +30,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Inject
     EventBus eventBus;
 
+    @Inject
+    CurrentUserService currentUserService;
+
     public NavigationDrawerAdapter getNavigationDrawerAdapter() {
         return navigationDrawerAdapter;
     }
@@ -51,7 +55,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.nav_drwr_fragment);
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerFragment.setUpRecyclerView(drawerLayout);
+        drawerFragment.setUpRecyclerView(drawerLayout, currentUserService, settingsService);
         drawer = drawerLayout;
 
         setupDrawerOfflineMode();

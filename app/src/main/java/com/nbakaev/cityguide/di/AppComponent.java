@@ -3,6 +3,7 @@ package com.nbakaev.cityguide.di;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.IntroActivity;
 import com.nbakaev.cityguide.MainActivity;
+import com.nbakaev.cityguide.auth.AuthFragment;
 import com.nbakaev.cityguide.city.CitiesFragment;
 import com.nbakaev.cityguide.map.MapsFragment;
 import com.nbakaev.cityguide.nearby.NearbyFragment;
@@ -18,10 +19,12 @@ import dagger.Component;
  */
 
 @ApplicationScope
-@Component(modules = {AppModule.class, LocationProviderConfiguration.class, AppProviders.class, EventBusProviders.class, PoiProviderConfiguration.class})
+@Component(modules = {AppModule.class, LocationProviderConfiguration.class, AppProviders.class, EventBusProviders.class, PoiProviderConfiguration.class, AuthProviders.class})
 public interface AppComponent {
 
     void inject(NearbyFragment nearbyFragment);
+
+    void inject(AuthFragment authFragment);
 
     void inject(MapsFragment mapsFragment);
 

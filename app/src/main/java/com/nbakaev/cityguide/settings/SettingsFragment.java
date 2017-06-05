@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import hu.supercluster.paperwork.Paperwork;
 
 /**
- * Created by ya on 11/26/2016.
+ * Created by Nikita Bakaev on 11/26/2016.
  */
 
 public class SettingsFragment extends BaseFragment {
@@ -67,7 +67,7 @@ public class SettingsFragment extends BaseFragment {
         TextView buildTimeView = (TextView) view.findViewById(R.id.aboutBuilderTime);
         TextView dbPoisElementsCount = (TextView) view.findViewById(R.id.dbPoisElementsCount);
 
-        buildGitView.setText("Git: " + gitSha);
+        buildGitView.setText(getString(R.string.git) + gitSha);
         buildTimeView.setText(getString(R.string.settings_fragment_time) + buildTime);
         dbPoisElementsCount.setText(getString(R.string.settings_fragment_poi_offline) + Long.toString(dbService.getPoisInDB()));
 

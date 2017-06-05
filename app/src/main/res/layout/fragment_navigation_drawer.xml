@@ -19,9 +19,23 @@
 			<ImageView
 				android:layout_width="70dp"
 				android:layout_height="70dp"
-				android:layout_centerInParent="true"
 				android:scaleType="fitCenter"
-				android:src="@drawable/ic_profile"/>
+				android:src="@drawable/ic_profile"
+				android:layout_centerVertical="true"
+				android:layout_centerHorizontal="true"
+				android:id="@+id/imageView2"/>
+
+			<TextView
+				android:id="@+id/nav_current_displayName"
+				android:layout_width="match_parent"
+				android:textColor="@color/white"
+				android:layout_marginTop="8dp"
+				android:layout_marginStart="10dp"
+				android:layout_marginEnd="10dp"
+				android:textAlignment="center"
+				android:layout_gravity="bottom"
+				android:layout_height="fill_parent"
+				android:layout_below="@+id/imageView2"/>
 
 		</RelativeLayout>
 

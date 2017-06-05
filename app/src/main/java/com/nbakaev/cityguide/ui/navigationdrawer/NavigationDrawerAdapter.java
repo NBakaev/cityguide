@@ -86,6 +86,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                     FragmentsWalker.startQrReaderFragment(fragmentManager);
                     drawerLayout.closeDrawer(Gravity.START, false);
                     break;
+
+                case R.string.drawer_auth:
+                    FragmentsWalker.startAuthFragment(fragmentManager);
+                    drawerLayout.closeDrawer(Gravity.START, false);
+                    break;
             }
         });
     }

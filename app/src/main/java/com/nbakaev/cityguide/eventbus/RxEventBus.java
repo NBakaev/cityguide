@@ -8,7 +8,7 @@ import io.reactivex.subjects.Subject;
 
 /**
  * Implementation of {@link EventBus} which use rxjava2
- * Created by ya on 4/6/2017.
+ * Created by Nikita Bakaev on 4/6/2017.
  */
 public class RxEventBus implements EventBus {
 

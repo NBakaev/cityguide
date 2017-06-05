@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import io.reactivex.Observable;
 
 /**
- * Created by ya on 4/6/2017.
+ * Created by Nikita Bakaev on 4/6/2017.
  */
 
 public interface EventBus {

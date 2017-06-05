@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.nbakaev.cityguide.BaseActivity;
 import com.nbakaev.cityguide.MainActivity;
 import com.nbakaev.cityguide.R;
+import com.nbakaev.cityguide.auth.AuthFragment;
 import com.nbakaev.cityguide.settings.SettingsFragment;
 import com.nbakaev.cityguide.city.CitiesFragment;
 import com.nbakaev.cityguide.map.MapsFragment;
@@ -15,7 +16,7 @@ import com.nbakaev.cityguide.nearby.NearbyFragment;
 import com.nbakaev.cityguide.scan.QrScanFragment;
 
 /**
- * Created by ya on 12/27/2016.
+ * Created by Nikita Bakaev
  */
 
 public class FragmentsWalker {
@@ -50,6 +51,15 @@ public class FragmentsWalker {
         fragmentTransaction.addToBackStack(null);
         SettingsFragment mapsActivity = new SettingsFragment();
         fragmentTransaction.replace(R.id.main_fragment_content, mapsActivity);
+        fragmentTransaction.commit();
+    }
+
+    public static void startAuthFragment(FragmentManager fragmentManager) {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.addToBackStack(null);
+        AuthFragment authFragment = new AuthFragment();
+        fragmentTransaction.replace(R.id.main_fragment_content, authFragment);
         fragmentTransaction.commit();
     }
 

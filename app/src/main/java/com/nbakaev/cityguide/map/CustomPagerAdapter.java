@@ -32,7 +32,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 /**
- * Created by ya on 12/10/2016.
+ * Created by Nikita Bakaev on 12/10/2016.
  */
 
 public class CustomPagerAdapter extends PagerAdapter {

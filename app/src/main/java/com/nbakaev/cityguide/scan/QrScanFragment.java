@@ -29,7 +29,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Created by user on 21.12.2016.
+ * Created by user
  */
 
 public class QrScanFragment extends BaseFragment {

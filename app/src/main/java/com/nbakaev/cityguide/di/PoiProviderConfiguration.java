@@ -42,7 +42,7 @@ public class PoiProviderConfiguration {
 
     @ApplicationScope
     @Provides
-    public PoiProvider poiProvider(Context context, SettingsService settingsService, CacheUtils cacheUtils, EventBus eventBus) {
+    public PoiProvider poiProvider(Context context, SettingsService settingsService, CacheUtils cacheUtils, EventBus eventBus, Retrofit retrofit) {
         boolean offlineMode = settingsService.isOffline();
 
         Log.d(TAG, Boolean.toString(offlineMode));
@@ -52,7 +52,7 @@ public class PoiProviderConfiguration {
             initReInjectPoiListener(wrappedPoiProvider, eventBus, settingsService, context, cacheUtils);
             return wrappedPoiProvider;
         } else {
-            WrappedPoiProvider wrappedPoiProvider = new WrappedPoiProvider(new ServerPoiProvider(context, defaultRetrofit()));
+            WrappedPoiProvider wrappedPoiProvider = new WrappedPoiProvider(new ServerPoiProvider(context, retrofit));
             initReInjectPoiListener(wrappedPoiProvider, eventBus, settingsService, context, cacheUtils);
             return wrappedPoiProvider;
         }
@@ -87,7 +87,7 @@ public class PoiProviderConfiguration {
         });
     }
 
-    //    @ApplicationScope
+    @ApplicationScope
     @Provides
     public Retrofit defaultRetrofit() {
 

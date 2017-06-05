@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.facebook.CallbackManager;
 import com.nbakaev.cityguide.location.LocationProvider;
 import com.nbakaev.cityguide.scan.QrCodeParser;
 import com.nbakaev.cityguide.util.FragmentsWalker;
@@ -33,6 +34,9 @@ public class MainActivity extends BaseActivity {
 
     @Inject
     LocationProvider locationProvider;
+
+    @Inject
+    CallbackManager callbackManager;
 
     private Snackbar showLocationRequest;
 

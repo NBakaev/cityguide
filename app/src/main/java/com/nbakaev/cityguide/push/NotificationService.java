@@ -34,7 +34,7 @@ import static com.nbakaev.cityguide.util.FragmentsWalker.MOVE_TO_POI_ID;
 import static com.nbakaev.cityguide.util.FragmentsWalker.NEARBY;
 
 /**
- * Created by ya on 11/22/2016.
+ * Created by Nikita Bakaev on 11/22/2016.
  */
 
 public class NotificationService {

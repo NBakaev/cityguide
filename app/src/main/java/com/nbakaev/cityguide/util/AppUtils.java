@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 /**
- * Created by ya on 11/17/2016.
+ * Created by Nikita Bakaev on 11/17/2016.
  */
 public class AppUtils {
 

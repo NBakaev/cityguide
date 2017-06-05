@@ -10,7 +10,7 @@ import com.logentries.logger.AndroidLogger;
 import java.io.IOException;
 
 /**
- * Created by ya on 1/24/2017.
+ * Created by Nikita Bakaev on 1/24/2017.
  */
 
 public class LogentriesLogger {

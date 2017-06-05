@@ -1,7 +1,7 @@
 package com.nbakaev.cityguide.poi.db;
 
 /**
- * Created by ya on 12/8/2016.
+ * Created by Nikita Bakaev on 12/8/2016.
  */
 
 import org.greenrobot.greendao.converter.PropertyConverter;

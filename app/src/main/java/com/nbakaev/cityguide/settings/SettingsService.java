@@ -10,7 +10,7 @@ import com.nbakaev.cityguide.city.DaoSession;
 import com.nbakaev.cityguide.util.AppUtils;
 
 /**
- * Created by ya on 11/17/2016.
+ * Created by Nikita Bakaev on 11/17/2016.
  */
 
 public class SettingsService {
@@ -87,6 +87,16 @@ public class SettingsService {
         // in offline cache if already have image with inSampleSize = 7
         if (!this.isOffline()) {
             options.inSampleSize = 6;
+        }
+
+        return options;
+    }
+
+    public BitmapFactory.Options getDefaultBitmapOptionsAvatar() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        // in offline cache if already have image with inSampleSize = 7
+        if (!this.isOffline()) {
+            options.inSampleSize = 2;
         }
 
         return options;

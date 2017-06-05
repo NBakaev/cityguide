@@ -23,7 +23,7 @@ import javax.inject.Inject;
 
 /**
  * Show onboarding and request runtime permissions (also when user disable smth in settings) before run application
- * Created by ya on 12/17/2016.
+ * Created by Nikita Bakaev on 12/17/2016.
  */
 
 public class IntroActivity extends AppIntro {

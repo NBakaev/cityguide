@@ -16,7 +16,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Created by ya on 12/26/2016.
+ * Created by Nikita Bakaev on 12/26/2016.
  */
 
 public abstract class BaseFragment extends Fragment {

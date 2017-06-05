@@ -18,7 +18,7 @@ import timber.log.Timber;
 /**
  * Observable to get notification
  * when app is in ApplicationBackgroundStatus.FOREGROUND or ApplicationBackgroundStatus.BACKGROUND
- * Created by ya on 12/17/2016.
+ * Created by Nikita Bakaev on 12/17/2016.
  */
 
 public class AndroidBackgroundAware implements ComponentCallbacks2 {

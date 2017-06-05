@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Created by ya on 11/24/2016.
+ * Created by Nikita Bakaev
  */
 public class DBService {
 

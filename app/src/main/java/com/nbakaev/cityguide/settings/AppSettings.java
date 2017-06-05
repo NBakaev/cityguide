@@ -5,7 +5,7 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
 /**
- * Created by ya on 11/17/2016.
+ * Created by Nikita Bakaev on 11/17/2016.
  */
 
 @Entity

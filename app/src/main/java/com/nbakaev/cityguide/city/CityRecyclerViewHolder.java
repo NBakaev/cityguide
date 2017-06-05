@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.nbakaev.cityguide.R;
 
 /**
- * Created by ya on 6/3/2017.
+ * Created by Nikita Bakaev
  */
 
 public class CityRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

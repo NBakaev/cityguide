@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by ya on 12/27/2016.
+ * Created by Nikita Bakaev on 12/27/2016.
  */
 
 public class QrCodeParser {

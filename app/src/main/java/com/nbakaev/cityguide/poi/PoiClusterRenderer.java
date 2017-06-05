@@ -24,7 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 /**
- * Created by ya on 11/19/2016.
+ * Created by Nikita Bakaev
  */
 
 public class PoiClusterRenderer extends DefaultClusterRenderer<Poi> {
