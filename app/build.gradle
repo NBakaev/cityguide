@@ -121,6 +121,10 @@ dependencies {
     }
     compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+
+//    androidTestCompile 'com.android.support.test:runner:0.5'
+//    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+
 }
 
 greendao {
